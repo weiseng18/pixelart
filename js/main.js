@@ -71,12 +71,12 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 	this.ctx.fillStyle = color;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 
-	var white = ['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0)'];
+	var white = ['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0)'];
 	var whiteGradient = this.LinearGradient(white, "horizontal");
 	this.ctx.fillStyle = whiteGradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 
-	var black = ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 1)'];
+	var black = ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.1)', 'rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 1)'];
 	var blackGradient = this.LinearGradient(black, "vertical");
 	this.ctx.fillStyle = whiteGradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
