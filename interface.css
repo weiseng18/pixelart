@@ -12,6 +12,10 @@ html, body {
     align-items: center;
 }
 
+canvas:hover {
+	cursor: crosshair;
+}
+
 #color_picker {
 	height: 200px;
 	width: 300px;
