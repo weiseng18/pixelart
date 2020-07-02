@@ -12,8 +12,25 @@ html, body {
     align-items: center;
 }
 
-canvas:hover {
-	cursor: crosshair;
+#color_picker_wrapper {
+	height: 280px;
+	width: 300px;
+	background: #fff;
+	margin: auto;
+}
+
+#color_wrapper {
+	height: 80px;
+	width: 300px;
+	display: flex;
+    align-items: center;
+}
+
+#color {
+	height: 40px;
+	width: 200px;
+	background: #000;
+	margin: auto;
 }
 
 #color_picker {
@@ -23,6 +40,10 @@ canvas:hover {
 	margin: auto;
 	display: flex;
     align-items: center;
+}
+
+canvas:hover {
+	cursor: crosshair;
 }
 
 #color_body {

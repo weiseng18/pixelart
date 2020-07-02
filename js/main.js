@@ -40,7 +40,6 @@ function CanvasWrapper(id) {
 	this.ctx = this.HTML.getContext("2d");
 	this.width = this.HTML.width;
 	this.height = this.HTML.height;
-	// only used in #color_slider
 	this.drag = false;
 }
 
@@ -81,7 +80,6 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 	var blackGradient = this.LinearGradient(black, "vertical");
 	this.ctx.fillStyle = whiteGradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
-
 }
 
 function updateColorBody(e) {
@@ -90,6 +88,14 @@ function updateColorBody(e) {
 	var data = slider.ctx.getImageData(x, y, 1, 1).data;
 	var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
 	body.TwoDimGradient(color);
+}
+
+function updateColor(e) {
+	x = e.offsetX;
+	y = e.offsetY;
+	var data = body.ctx.getImageData(x, y, 1, 1).data;
+	var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
+	get("color").style.backgroundColor = color;
 }
 
 // ------
@@ -110,8 +116,8 @@ window.onload = function() {
 
 	body = new CanvasWrapper("color_body");
 
-	// add event listener to change the color
-	slider.HTML.addEventListener("click", function(e){
+	// add event listener to change the color gradient displayed in body
+	slider.HTML.addEventListener("click", function(e) {
 		updateColorBody(e);
 	});
 
@@ -128,4 +134,21 @@ window.onload = function() {
 		this.drag = false;
 	});
 
+	// add event listener to change the color displayed
+	body.HTML.addEventListener("click", function(e) {
+		updateColor(e);
+	})
+
+	// allow dragging on the body
+	body.HTML.addEventListener("mousedown", function(e) {
+		this.drag = true;
+		updateColor(e);
+	});
+	body.HTML.addEventListener("mousemove", function(e) {
+		if (this.drag)
+			updateColor(e);
+	});
+	body.HTML.addEventListener("mouseup", function(e) {
+		this.drag = false;
+	});
 };
