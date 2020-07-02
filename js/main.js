@@ -40,6 +40,8 @@ function CanvasWrapper(id) {
 	this.ctx = this.HTML.getContext("2d");
 	this.width = this.HTML.width;
 	this.height = this.HTML.height;
+	// only used in #color_slider
+	this.drag = false;
 }
 
 // creates a gradient of colors over the whole canvas
@@ -82,6 +84,14 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 
 }
 
+function updateColorBody(e) {
+	x = e.offsetX;
+	y = e.offsetY;
+	var data = slider.ctx.getImageData(x, y, 1, 1).data;
+	var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
+	body.TwoDimGradient(color);
+}
+
 // ------
 // main
 // ------
@@ -101,12 +111,21 @@ window.onload = function() {
 	body = new CanvasWrapper("color_body");
 
 	// add event listener to change the color
-	slider.HTML.addEventListener("click", function(e) {
-		x = e.offsetX;
-		y = e.offsetY;
-		var data = slider.ctx.getImageData(x, y, 1, 1).data;
-		var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
-		body.TwoDimGradient(color);
+	slider.HTML.addEventListener("click", function(e){
+		updateColorBody(e);
+	});
+
+	// allow dragging on the slider
+	slider.HTML.addEventListener("mousedown", function(e) {
+		this.drag = true;
+		updateColorBody(e);
+	});
+	slider.HTML.addEventListener("mousemove", function(e) {
+		if (this.drag)
+			updateColorBody(e);
+	});
+	slider.HTML.addEventListener("mouseup", function(e) {
+		this.drag = false;
 	});
 
 };
