@@ -1,0 +1,20 @@
+html, body {
+	padding: 0;
+	margin: 0;
+}
+
+#sidebar {
+	width: 20%;
+	height: 100vh;
+	float: left;
+	background: #a2a2a2;
+}
+
+#mainArea {
+	width: 80%;
+	height: 100vh;
+	float: left;
+	background: #505050;
+	display: flex;
+    align-items: center;
+}
