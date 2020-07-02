@@ -26,9 +26,36 @@ drawArea.prototype.generateHTML = function() {
 			var cell = row.insertCell();				
 			cell.style.width = toString(500 / this.width) + "px";
 			cell.style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
+
+			// add event listener for coloring
+			cell.addEventListener("click", function(e) {
+				paint(e);
+			});
+
+			// add event listener for erasing
+			cell.addEventListener("contextmenu", function(e) {
+				e.preventDefault();
+				erase(e);
+				return false;
+			});
 		}
 	}
 	get("mainArea").appendChild(table);
+}
+
+function paint(e) {
+	var color = get("color").style.backgroundColor;
+	var cell = e.target;
+	cell.style.backgroundColor = color;
+}
+
+function erase(e) {
+	var cell = e.target;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+	cell.style.backgroundColor = (row+column)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
+	//disable default right click context menu
+	return false;
 }
 
 // ------
@@ -71,7 +98,7 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 	this.ctx.fillStyle = color;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 
-	var white = ['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0)'];
+	var white = ['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0)'];
 	var whiteGradient = this.LinearGradient(white, "horizontal");
 	this.ctx.fillStyle = whiteGradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
