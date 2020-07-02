@@ -45,18 +45,19 @@ function CanvasWrapper(id) {
 // creates a gradient of colors over the whole canvas
 // colors is the list of colors (must include the end color)
 // which is the direction
-CanvasWrapper.prototype.LinearGradient = function() {
-	var gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
-	gradient.addColorStop(0, "rgba(255, 0, 0, 1)");
-	gradient.addColorStop(0.166, "rgba(255, 255, 0, 1)");
-	gradient.addColorStop(0.333, "rgba(0, 255, 0, 1)");
-	gradient.addColorStop(0.5, "rgba(0, 255, 255, 1)");
-	gradient.addColorStop(0.666, "rgba(0, 0, 255, 1)");
-	gradient.addColorStop(0.833, "rgba(255, 0, 255, 1)");
-	gradient.addColorStop(1, "rgba(255, 0, 0, 1)");
+CanvasWrapper.prototype.LinearGradient = function(colors, which) {
+	var gradient;
+	if (which == "vertical")
+		gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
+	else
+		gradient = this.ctx.createLinearGradient(0, 0, this.width, 0);
+	var ratio = colors.length - 1;
+	for (var i=0; i<colors.length; i++) 
+		gradient.addColorStop(i/ratio, colors[i]);
 	this.ctx.fillStyle = gradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 }
+
 // ------
 // main
 // ------
@@ -70,5 +71,6 @@ window.onload = function() {
 	area.generateHTML();
 
 	slider = new CanvasWrapper("color_slider");
-	slider.LinearGradient();
+	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
+	slider.LinearGradient(colors, "vertical");
 };
