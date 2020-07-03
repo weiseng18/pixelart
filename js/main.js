@@ -84,7 +84,12 @@ function RGBStringToHexString(string) {
 	var split = string.split(", ");
 	var r = parseInt(split[0].substring(4)).toString(16),
 		g = parseInt(split[1]).toString(16);
-		b = parseInt(split[2].substring(0, split[2].length)).toString(16);
+		b = parseInt(split[2].substring(0, split[2].length-1)).toString(16);
+
+	if (r.length == 1) r = "0" + r;
+	if (g.length == 1) g = "0" + g;
+	if (b.length == 1) b = "0" + b;
+
 	return "#" + r + g + b;
 }
 
@@ -209,7 +214,7 @@ function savePNG() {
 
 			if (value != null) {
 				ctx.fillStyle = value;
-				ctx.fillRect(i, j, 1, 1);
+				ctx.fillRect(j, i, 1, 1);
 			}
 		}
 	}
@@ -267,9 +272,15 @@ function loadRaw() {
 
 		for (var i=0; i<height; i++)
 			for (var j=0; j<width; j++) {
-				area.grid[i][j] = data[i][j];
-				// works but loading from localStorage gives hex value, whereas in normal editing it gives css rgb function
-				getCell(area.id, i, j).style.backgroundColor = data[i][j];
+				// localStorage stringifies stuff
+				if (data[i][j] == "null") {
+					area.grid[i][j] = null;
+				}
+				else {
+					area.grid[i][j] = data[i][j];
+					// works but loading from localStorage gives hex value, whereas in normal editing it gives css rgb function
+					getCell(area.id, i, j).style.backgroundColor = data[i][j];
+				}
 			}
 	}
 }
