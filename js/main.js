@@ -6,7 +6,9 @@ function drawArea(height, width) {
 	this.height = height;
 	this.width = width;
 	this.grid = init2D(height, width, null);
-	this.id;
+	this.id = "";;
+	this.drag_paint = false;
+	this.drag_erase = false;
 }
 
 drawArea.prototype.generateHTML = function() {
@@ -29,20 +31,48 @@ drawArea.prototype.generateHTML = function() {
 			var cell = row.insertCell();				
 			cell.style.width = toString(400 / this.width) + "px";
 			cell.style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
-
-			// add event listener for coloring
-			cell.addEventListener("click", function(e) {
-				paint(e);
-			});
-
-			// add event listener for erasing
-			cell.addEventListener("contextmenu", function(e) {
-				e.preventDefault();
-				erase(e);
-				return false;
-			});
 		}
 	}
+
+
+	// coloring event listener
+	table.addEventListener("click", function(e) {
+		paint(e);
+	});
+
+	// erasing event listener
+	table.addEventListener("contextmenu", function(e) {
+		e.preventDefault();
+		erase(e);
+	});
+
+	// allow dragging for coloring/erasing
+	table.addEventListener("mousedown", function(e) {
+		if (e.which == 1) {
+			this.drag_paint = true;
+			paint(e);
+		}
+		else if (e.which == 3) {
+			e.preventDefault();
+			this.drag_erase = true;
+			erase(e);
+		}
+	});
+	table.addEventListener("mousemove", function(e) {
+		if (this.drag_paint)
+			paint(e);
+		if (this.drag_erase)
+			erase(e);
+	});
+	table.addEventListener("mouseup", function(e) {
+		this.drag_paint = false;
+		this.drag_erase = false;
+	});
+	table.addEventListener("mouseleave", function(e) {
+		this.drag_paint = false;
+		this.drag_erase = false;
+	});
+
 	get("mainArea").appendChild(table);
 }
 
@@ -59,6 +89,8 @@ function paint(e) {
 	var cell = e.target;
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
+
+	if (row == undefined || column == undefined) return;
 
 	// update HTML
 	cell.style.backgroundColor = color;
