@@ -275,6 +275,9 @@ window.onload = function() {
 	slider.HTML.addEventListener("mouseup", function(e) {
 		this.drag = false;
 	});
+	slider.HTML.addEventListener("mouseleave", function(e) {
+		this.drag = false;
+	});
 
 	// add event listener to change the color displayed
 	body.HTML.addEventListener("click", function(e) {
@@ -291,6 +294,9 @@ window.onload = function() {
 			updateColor(e);
 	});
 	body.HTML.addEventListener("mouseup", function(e) {
+		this.drag = false;
+	});
+	body.HTML.addEventListener("mouseleave", function(e) {
 		this.drag = false;
 	});
 };
