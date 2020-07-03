@@ -6,12 +6,14 @@ function drawArea(height, width) {
 	this.height = height;
 	this.width = width;
 	this.grid = init2D(height, width, null);
+	this.id;
 }
 
 drawArea.prototype.generateHTML = function() {
 	// table
 	var table = document.createElement("table");
 	table.id = "display";
+	this.id = table.id;
 	table.style.borderSpacing = 0;
 
 	table.style.marginLeft = "auto";
@@ -153,6 +155,13 @@ function updateColor(e) {
 
 // area.grid has the hex values (or null) of all the pixels
 
+function initiateDownload(href, filename) {
+	var download = document.createElement('a');
+	download.href = href;
+	download.download = filename;
+	download.click();
+}
+
 function savePNG() {
 	var canvas = document.createElement("canvas");
 	canvas.height = area.height;
@@ -170,11 +179,63 @@ function savePNG() {
 	}
 
 	// generate PNG
-	var download = document.createElement('a');
-	download.href = canvas.toDataURL('image/png');
-	download.download = 'test.png';
-	download.click();
+	var href = canvas.toDataURL('image/png');
+	var filename = 'test.png';
+	initiateDownload(href, filename);
 
+}
+
+// save raw data
+// current format is hex values separated by commas for pixels on the same row
+// and semicolons for row break
+// transparent cells have 'null' as their hex value
+
+function saveRaw() {
+	var data = "";
+	for (var i=0; i<area.height; i++) {
+		if (i) data += ";";
+		for (var j=0; j<area.width; j++) {
+			if (j) data += ",";
+			data += area.grid[i][j];
+		}
+	}
+
+	// generate raw hex values of each pixel
+	var blob = new Blob([data], {type: 'text/plain'});
+	var href = URL.createObjectURL(blob);
+	var filename = 'raw.pix';
+	initiateDownload(href, filename);
+
+	window.localStorage.setItem('data', data);
+
+	// allow Blob to be deleted
+	URL.revokeObjectURL(href);
+
+}
+
+function loadRaw() {
+	var data = window.localStorage.getItem("data");
+	var height, width;
+	if (data != null) {
+		data = data.split(";");
+		height = data.length;
+		for (var i=0; i<height; i++)
+			data[i] = data[i].split(',');
+		width = data[0].length;
+
+		// tentative method for loading raw data
+		// will be changed once action tracking: undo/redo is implemented
+		//
+		// current method for painting is only paint(e) where e is a event
+		// when undo/redo is implemented there will be a method to paint without event
+
+		for (var i=0; i<height; i++)
+			for (var j=0; j<width; j++) {
+				area.grid[i][j] = data[i][j];
+				// works but loading from localStorage gives hex value, whereas in normal editing it gives css rgb function
+				getCell(area.id, i, j).style.backgroundColor = data[i][j];
+			}
+	}
 }
 
 // ------
@@ -188,6 +249,8 @@ var slider;
 window.onload = function() {
 	area = new drawArea(16, 16);
 	area.generateHTML();
+
+	loadRaw();
 
 	slider = new CanvasWrapper("color_slider");
 	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
