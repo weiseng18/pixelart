@@ -47,15 +47,11 @@ canvas:hover {
 }
 
 #color_body {
-	height: 180px;
-	width: 240px;
 	background: #000;
 	margin: auto;
 }
 
 #color_slider {
-	height: 180px;
-	width: 20px;
 	margin: auto;
 }
 
