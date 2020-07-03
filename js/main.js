@@ -44,6 +44,14 @@ drawArea.prototype.generateHTML = function() {
 	get("mainArea").appendChild(table);
 }
 
+function RGBStringToHexString(string) {
+	var split = string.split(", ");
+	var r = parseInt(split[0].substring(4)).toString(16),
+		g = parseInt(split[1]).toString(16);
+		b = parseInt(split[2].substring(0, split[2].length)).toString(16);
+	return "#" + r + g + b;
+}
+
 function paint(e) {
 	var color = get("color").style.backgroundColor;
 	var cell = e.target;
@@ -54,7 +62,7 @@ function paint(e) {
 	cell.style.backgroundColor = color;
 
 	// update grid
-	area.grid[row][column] = color;
+	area.grid[row][column] = RGBStringToHexString(color);
 }
 
 function erase(e) {
@@ -144,8 +152,6 @@ function updateColor(e) {
 // ------
 
 // area.grid has the hex values (or null) of all the pixels
-// need to convert these 6 digit hex values into the RGB colours, treating A as 1
-// if the value is null then A is 0 and RGB does not matter
 
 function savePNG() {
 	var canvas = document.createElement("canvas");
@@ -154,9 +160,8 @@ function savePNG() {
 	var ctx = canvas.getContext("2d");
 	for (var i=0; i<area.height; i++) {
 		for (var j=0; j<area.width; j++) {
-			var r, g, b, a;
 			var value = area.grid[i][j];
-			
+
 			if (value != null) {
 				ctx.fillStyle = value;
 				ctx.fillRect(i, j, 1, 1);
