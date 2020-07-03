@@ -34,7 +34,6 @@ drawArea.prototype.generateHTML = function() {
 		}
 	}
 
-
 	// coloring event listener
 	table.addEventListener("click", function(e) {
 		paint(e);
@@ -44,6 +43,11 @@ drawArea.prototype.generateHTML = function() {
 	table.addEventListener("contextmenu", function(e) {
 		e.preventDefault();
 		erase(e);
+	});
+
+	// prevent dragging of ghost image
+	table.addEventListener("dragstart", function(e) {
+		e.preventDefault();
 	});
 
 	// allow dragging for coloring/erasing
