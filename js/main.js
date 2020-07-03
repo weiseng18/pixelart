@@ -19,15 +19,15 @@ drawArea.prototype.generateHTML = function() {
 	table.style.marginLeft = "auto";
 	table.style.marginRight = "auto";
 
-	table.style.height = "500px";
-	table.style.width = "500px";
-
+	table.style.height = "400px";
+	table.style.width = (400 / this.height * this.width).toString() + "px";
+	
 	for (var i=0; i<this.height; i++) {
 		var row = table.insertRow();
-		row.style.height = toString(500 / this.height) + "px";
+		row.style.height = toString(400 / this.height) + "px";
 		for (var j=0; j<this.width; j++) {
 			var cell = row.insertCell();				
-			cell.style.width = toString(500 / this.width) + "px";
+			cell.style.width = toString(400 / this.width) + "px";
 			cell.style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
 
 			// add event listener for coloring
