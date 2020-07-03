@@ -5,6 +5,7 @@
 function drawArea(height, width) {
 	this.height = height;
 	this.width = width;
+	this.grid = init2D(height, width, null);
 }
 
 drawArea.prototype.generateHTML = function() {
@@ -46,14 +47,27 @@ drawArea.prototype.generateHTML = function() {
 function paint(e) {
 	var color = get("color").style.backgroundColor;
 	var cell = e.target;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+
+	// update HTML
 	cell.style.backgroundColor = color;
+
+	// update grid
+	area.grid[row][column] = color;
 }
 
 function erase(e) {
 	var cell = e.target;
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
+
+	// update HTML
 	cell.style.backgroundColor = (row+column)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
+
+	// update grid
+	area.grid[row][column] = null;
+
 	//disable default right click context menu
 	return false;
 }
@@ -126,6 +140,39 @@ function updateColor(e) {
 }
 
 // ------
+// save to file
+// ------
+
+// area.grid has the hex values (or null) of all the pixels
+// need to convert these 6 digit hex values into the RGB colours, treating A as 1
+// if the value is null then A is 0 and RGB does not matter
+
+function savePNG() {
+	var canvas = document.createElement("canvas");
+	canvas.height = area.height;
+	canvas.width = area.width;
+	var ctx = canvas.getContext("2d");
+	for (var i=0; i<area.height; i++) {
+		for (var j=0; j<area.width; j++) {
+			var r, g, b, a;
+			var value = area.grid[i][j];
+			
+			if (value != null) {
+				ctx.fillStyle = value;
+				ctx.fillRect(i, j, 1, 1);
+			}
+		}
+	}
+
+	// generate PNG
+	var download = document.createElement('a');
+	download.href = canvas.toDataURL('image/png');
+	download.download = 'test.png';
+	download.click();
+
+}
+
+// ------
 // main
 // ------
 
@@ -134,7 +181,7 @@ var area;
 var slider;
 
 window.onload = function() {
-	area = new drawArea(20, 20);
+	area = new drawArea(16, 16);
 	area.generateHTML();
 
 	slider = new CanvasWrapper("color_slider");
