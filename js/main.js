@@ -21,7 +21,7 @@ drawArea.prototype.generateHTML = function() {
 
 	table.style.height = "400px";
 	table.style.width = (400 / this.height * this.width).toString() + "px";
-	
+
 	for (var i=0; i<this.height; i++) {
 		var row = table.insertRow();
 		row.style.height = toString(400 / this.height) + "px";
@@ -204,7 +204,7 @@ function saveRaw() {
 	var blob = new Blob([data], {type: 'text/plain'});
 	var href = URL.createObjectURL(blob);
 	var filename = 'raw.pix';
-	initiateDownload(href, filename);
+	//initiateDownload(href, filename);
 
 	window.localStorage.setItem('data', data);
 
@@ -250,7 +250,8 @@ window.onload = function() {
 	area = new drawArea(16, 16);
 	area.generateHTML();
 
-	loadRaw();
+	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
+	get("color").style.backgroundColor = "rgb(0, 0, 0)";
 
 	slider = new CanvasWrapper("color_slider");
 	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
@@ -299,4 +300,17 @@ window.onload = function() {
 	body.HTML.addEventListener("mouseleave", function(e) {
 		this.drag = false;
 	});
+
+
+	// menu bar
+	get("savePNG").addEventListener("click", function(e) {
+		savePNG();
+	});
+	get("saveRaw").addEventListener("click", function(e) {
+		saveRaw();
+	});
+	get("loadRaw").addEventListener("click", function(e) {
+		loadRaw();
+	});
+
 };

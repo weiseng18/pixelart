@@ -1,7 +1,12 @@
 html, body {
 	padding: 0;
 	margin: 0;
+	font-family: sans-serif;
 }
+
+/*---------
+sidebar
+---------*/
 
 #sidebar {
 	width: 25%;
@@ -29,7 +34,6 @@ html, body {
 #color {
 	height: 40px;
 	width: 200px;
-	background: #000;
 	margin: auto;
 }
 
@@ -41,6 +45,36 @@ html, body {
 	display: flex;
     align-items: center;
 }
+
+/*---------
+menu
+---------*/
+
+#menu {
+	height: 10%;
+	width: 100%;
+	background: #333;
+}
+
+#menu div {
+	height: 100%;
+	float: left;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	padding: 0px 20px;
+	color: white;
+}
+
+#menu div:hover {
+	background: #fff;
+	color: black;
+	cursor: pointer;
+}
+
+/*---------
+workingArea / canvas
+---------*/
 
 canvas:hover {
 	cursor: crosshair;
@@ -55,10 +89,14 @@ canvas:hover {
 	margin: auto;
 }
 
-#mainArea {
+#workingArea {
 	width: 75%;
 	height: 100vh;
-	float: left;
+	float: left;	
+}
+
+#mainArea {
+	height: 90%;
 	background: #505050;
 	display: flex;
     align-items: center;
