@@ -68,8 +68,14 @@ drawArea.prototype.generateHTML = function() {
 			erase(e);
 	});
 	table.addEventListener("mouseup", function(e) {
-		this.drag_paint = false;
-		this.drag_erase = false;
+		if (e.which == 1 || e.which == 3) {
+			this.drag_paint = false;
+			this.drag_erase = false;
+		}
+		else if (e.which == 2) {
+			// middle click (eyeDropper)
+			area.eyeDropper(e);
+		}
 	});
 	table.addEventListener("mouseleave", function(e) {
 		this.drag_paint = false;
@@ -77,6 +83,16 @@ drawArea.prototype.generateHTML = function() {
 	});
 
 	get("mainArea").appendChild(table);
+}
+
+drawArea.prototype.eyeDropper = function(e) {
+	var cell = e.target;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+
+	if (area.grid[row][column] == null) return;
+
+	cHistory.addColor(e, "eyeDropper");
 }
 
 function RGBStringToHexString(string) {
@@ -355,7 +371,7 @@ colorHistory.prototype.updateHTML = function() {
 colorHistory.prototype.addColor = function(e, source) {
 	if (source == "color_picker")
 		var color = get("color").style.backgroundColor;
-	else if (source == "color_history")
+	else if (source == "color_history" || source == "eyeDropper")
 		var color = e.target.style.backgroundColor;
 
 	// shift by one to the right
