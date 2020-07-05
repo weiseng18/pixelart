@@ -92,6 +92,7 @@ drawArea.prototype.eyeDropper = function(e) {
 
 	if (area.grid[row][column] == null) return;
 
+	updateColor(e, "eyeDropper");
 	cHistory.addColor(e, "eyeDropper");
 }
 
@@ -204,7 +205,7 @@ function updateColor(e, source) {
 		var data = body.ctx.getImageData(x, y, 1, 1).data;
 		var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
 	}
-	else if (source == "color_history") {
+	else if (source == "color_history" || source == "eyeDropper") {
 		var color = e.target.style.backgroundColor;
 	}
 	get("color").style.backgroundColor = color;
