@@ -12,9 +12,16 @@ sidebar
 	width: 25%;
 	height: 100vh;
 	float: left;
+ 	flex-direction: column;
 	background: #a2a2a2;
 	display: flex;
-    align-items: center;
+}
+
+#color_history_wrapper {
+	height: 100px;
+	width: 300px;
+	background: #fff;
+	margin: auto;
 }
 
 #color_picker_wrapper {
