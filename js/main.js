@@ -181,12 +181,18 @@ function updateColorBody(e) {
 	body.TwoDimGradient(color);
 }
 
-function updateColor(e) {
-	x = e.offsetX;
-	y = e.offsetY;
-	var data = body.ctx.getImageData(x, y, 1, 1).data;
-	var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
-	get("color").style.backgroundColor = color;
+function updateColor(e, source) {
+	if (source == "color_picker") {
+		x = e.offsetX;
+		y = e.offsetY;
+		var data = body.ctx.getImageData(x, y, 1, 1).data;
+		var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
+		get("color").style.backgroundColor = color;
+	}
+	else if (source == "color_history") {
+		var color = e.target.style.backgroundColor;
+		get("color").style.backgroundColor = color;
+	}
 }
 
 // ------
@@ -297,6 +303,13 @@ function colorHistory(rows, columns) {
 	this.columns = columns;
 	this.grid = init2D(rows, columns, null);
 	this.id = "color_history";
+
+	this.colorsLength = rows*columns;
+	this.colors = [];
+	for (var i=0; i<this.colorsLength; i++) {
+		// defined as black: rgb(0, 0, 0) so there will not be any undefined behavior
+		this.colors.push("rgb(0, 0, 0)");
+	}
 }
 
 colorHistory.prototype.generateHTML = function() {
@@ -314,16 +327,25 @@ colorHistory.prototype.generateHTML = function() {
 		var row = table.insertRow();
 		for (var j=0; j<this.columns; j++) {
 			var cell = row.insertCell();
-			cell.style.backgroundColor = "#000";
+			cell.style.backgroundColor = this.colors[i*this.rows + j];
 			cell.style.border = "solid white 4px";
+			cell.style.cursor = "pointer";
 		}
 	}
 
-	console.log(table);
-
-	console.log(this.height, this.width);
+	table.addEventListener("click", function(e) {
+		updateColor(e, "color_history");
+	});
 
 	get("color_history_wrapper").appendChild(table);
+}
+
+colorHistory.prototype.updateColors = function() {
+	for (var i=0; i<this.colorsLength; i++) {
+		var row = Math.floor(i / this.rows);
+		var column = i - row*this.rows;
+		getCell("color_history", row, column).style.backgroundColor = this.colors[i];
+	}
 }
 
 // ------
@@ -372,17 +394,17 @@ window.onload = function() {
 
 	// add event listener to change the color displayed
 	body.HTML.addEventListener("click", function(e) {
-		updateColor(e);
+		updateColor(e, "color_picker");
 	})
 
 	// allow dragging on the body
 	body.HTML.addEventListener("mousedown", function(e) {
 		this.drag = true;
-		updateColor(e);
+		updateColor(e, "color_picker");
 	});
 	body.HTML.addEventListener("mousemove", function(e) {
 		if (this.drag)
-			updateColor(e);
+			updateColor(e, "color_picker");
 	});
 	body.HTML.addEventListener("mouseup", function(e) {
 		this.drag = false;
