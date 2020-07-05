@@ -285,12 +285,56 @@ function loadRaw() {
 }
 
 // ------
+// color history
+// ------
+
+function colorHistory(rows, columns) {
+	// tentatively hardcoded size
+	this.height = "80px";
+	this.width = "300px";
+
+	this.rows = rows;
+	this.columns = columns;
+	this.grid = init2D(rows, columns, null);
+	this.id = "color_history";
+}
+
+colorHistory.prototype.generateHTML = function() {
+	// table
+	var table = document.createElement("table");
+	table.id = this.id;
+	table.style.border = "solid white 4px";
+
+	table.style.height = this.height;
+	table.style.width = this.width;
+
+	table.style.tableLayout = "fixed";
+
+	for (var i=0; i<this.rows; i++) {
+		var row = table.insertRow();
+		for (var j=0; j<this.columns; j++) {
+			var cell = row.insertCell();
+			cell.style.backgroundColor = "#000";
+			cell.style.border = "solid white 4px";
+		}
+	}
+
+	console.log(table);
+
+	console.log(this.height, this.width);
+
+	get("color_history_wrapper").appendChild(table);
+}
+
+// ------
 // main
 // ------
 
 var area;
 
-var slider;
+var slider, body;
+
+var cHistory;
 
 window.onload = function() {
 	area = new drawArea(16, 16);
@@ -347,6 +391,9 @@ window.onload = function() {
 		this.drag = false;
 	});
 
+	// color history
+	cHistory = new colorHistory(2, 8);
+	cHistory.generateHTML();
 
 	// menu bar
 	get("savePNG").addEventListener("click", function(e) {
