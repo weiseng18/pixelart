@@ -6,7 +6,7 @@ function drawArea(height, width) {
 	this.height = height;
 	this.width = width;
 	this.grid = init2D(height, width, null);
-	this.id = "";;
+	this.id = "display";
 	this.drag_paint = false;
 	this.drag_erase = false;
 }
@@ -14,8 +14,7 @@ function drawArea(height, width) {
 drawArea.prototype.generateHTML = function() {
 	// table
 	var table = document.createElement("table");
-	table.id = "display";
-	this.id = table.id;
+	table.id = this.id;
 	table.style.borderSpacing = 0;
 
 	table.style.marginLeft = "auto";
