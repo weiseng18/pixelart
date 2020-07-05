@@ -187,12 +187,11 @@ function updateColor(e, source) {
 		y = e.offsetY;
 		var data = body.ctx.getImageData(x, y, 1, 1).data;
 		var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
-		get("color").style.backgroundColor = color;
 	}
 	else if (source == "color_history") {
 		var color = e.target.style.backgroundColor;
-		get("color").style.backgroundColor = color;
 	}
+	get("color").style.backgroundColor = color;
 }
 
 // ------
@@ -335,17 +334,37 @@ colorHistory.prototype.generateHTML = function() {
 
 	table.addEventListener("click", function(e) {
 		updateColor(e, "color_history");
+		cHistory.addColor(e, "color_history");
 	});
 
 	get("color_history_wrapper").appendChild(table);
 }
 
-colorHistory.prototype.updateColors = function() {
+// displays in HTML the current color history
+colorHistory.prototype.updateHTML = function() {
 	for (var i=0; i<this.colorsLength; i++) {
-		var row = Math.floor(i / this.rows);
-		var column = i - row*this.rows;
+		var row = Math.floor(i / this.columns);
+		var column = i - row*this.columns;
 		getCell("color_history", row, column).style.backgroundColor = this.colors[i];
 	}
+}
+
+// shifts everything one to the right, last color in the history is effectively deleted from history
+// only triggers on mouseup as dragging (mousemove) will cause a lot of colours to be added and history will change very quickly
+
+colorHistory.prototype.addColor = function(e, source) {
+	if (source == "color_picker")
+		var color = get("color").style.backgroundColor;
+	else if (source == "color_history")
+		var color = e.target.style.backgroundColor;
+
+	// shift by one to the right
+	for (var i=this.colorsLength-1; i>=1; i--) {
+		this.colors[i] = this.colors[i-1];
+	}
+	// add new colour
+	this.colors[i] = color;
+	this.updateHTML();
 }
 
 // ------
@@ -408,6 +427,7 @@ window.onload = function() {
 	});
 	body.HTML.addEventListener("mouseup", function(e) {
 		this.drag = false;
+		cHistory.addColor(e, "color_picker");
 	});
 	body.HTML.addEventListener("mouseleave", function(e) {
 		this.drag = false;
