@@ -369,17 +369,25 @@ colorHistory.prototype.updateHTML = function() {
 // only triggers on mouseup as dragging (mousemove) will cause a lot of colours to be added and history will change very quickly
 
 colorHistory.prototype.addColor = function(e, source) {
+	var color;
+
 	if (source == "color_picker")
-		var color = get("color").style.backgroundColor;
+		color = get("color").style.backgroundColor;
 	else if (source == "color_history" || source == "eyeDropper")
-		var color = e.target.style.backgroundColor;
+		color = e.target.style.backgroundColor;
 
 	// shift by one to the right
-	for (var i=this.colorsLength-1; i>=1; i--) {
-		this.colors[i] = this.colors[i-1];
+	var prevColor = this.colors[0], curColor = this.colors[0];
+	var idx = 1;
+	while (idx < this.colorsLength && curColor != color) {
+		curColor = this.colors[idx];
+		this.colors[idx] = prevColor;
+		prevColor = curColor;
+		idx++;
 	}
+
 	// add new colour
-	this.colors[i] = color;
+	this.colors[0] = color;
 	this.updateHTML();
 }
 
