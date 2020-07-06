@@ -9,6 +9,8 @@ function drawArea(height, width) {
 	this.id = "display";
 	this.drag_paint = false;
 	this.drag_erase = false;
+
+	this.edit = false;
 }
 
 drawArea.prototype.generateHTML = function() {
@@ -33,56 +35,50 @@ drawArea.prototype.generateHTML = function() {
 		}
 	}
 
-	// coloring event listener
-	table.addEventListener("click", function(e) {
-		paint(e);
-	});
-
-	// erasing event listener
-	table.addEventListener("contextmenu", function(e) {
-		e.preventDefault();
-		erase(e);
-	});
-
 	// prevent dragging of ghost image
 	table.addEventListener("dragstart", function(e) {
 		e.preventDefault();
 	});
 
-	// allow dragging for coloring/erasing
-	table.addEventListener("mousedown", function(e) {
-		if (e.which == 1) {
-			this.drag_paint = true;
-			paint(e);
-		}
-		else if (e.which == 3) {
-			e.preventDefault();
-			this.drag_erase = true;
-			erase(e);
-		}
-	});
-	table.addEventListener("mousemove", function(e) {
-		if (this.drag_paint)
-			paint(e);
-		if (this.drag_erase)
-			erase(e);
-	});
-	table.addEventListener("mouseup", function(e) {
-		if (e.which == 1 || e.which == 3) {
-			this.drag_paint = false;
-			this.drag_erase = false;
-		}
-		else if (e.which == 2) {
-			// middle click (eyeDropper)
-			area.eyeDropper(e);
-		}
-	});
-	table.addEventListener("mouseleave", function(e) {
-		this.drag_paint = false;
-		this.drag_erase = false;
-	});
-
 	get("mainArea").appendChild(table);
+
+	this.toggleEdit();
+}
+
+drawArea.prototype.toggleEdit = function() {
+	var table = get(this.id);
+
+	// turn on event listeners
+	if (this.edit == false) {
+		this.edit = true;
+
+		// coloring event listener
+		table.addEventListener("click", paint);
+
+		// erasing event listener
+		table.addEventListener("contextmenu", erase);
+
+		// allow dragging for coloring/erasing
+		table.addEventListener("mousedown", this.mousedown);
+		table.addEventListener("mousemove", this.mousemove);
+		table.addEventListener("mouseup", this.mouseup);
+		table.addEventListener("mouseleave", this.mouseleave);
+	}
+	else {
+		this.edit = false;
+
+		// coloring event listener
+		table.removeEventListener("click", paint);
+
+		// erasing event listener
+		table.removeEventListener("contextmenu", erase);
+
+		// allow dragging for coloring/erasing
+		table.removeEventListener("mousedown", this.mousedown);
+		table.removeEventListener("mousemove", this.mousemove);
+		table.removeEventListener("mouseup", this.mouseup);
+		table.removeEventListener("mouseleave", this.mouseleave);
+	}
 }
 
 drawArea.prototype.eyeDropper = function(e) {
@@ -125,6 +121,8 @@ function paint(e) {
 }
 
 function erase(e) {
+	e.preventDefault();
+
 	var cell = e.target;
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
@@ -137,6 +135,41 @@ function erase(e) {
 
 	//disable default right click context menu
 	return false;
+}
+
+drawArea.prototype.mousedown = function(e) {
+	if (e.which == 1) {
+		this.drag_paint = true;
+		paint(e);
+	}
+	else if (e.which == 3) {
+		e.preventDefault();
+		this.drag_erase = true;
+		erase(e);
+	}
+}
+
+drawArea.prototype.mousemove = function(e) {
+	if (this.drag_paint)
+		paint(e);
+	if (this.drag_erase)
+		erase(e);
+}
+
+drawArea.prototype.mouseup = function(e) {
+	if (e.which == 1 || e.which == 3) {
+		this.drag_paint = false;
+		this.drag_erase = false;
+	}
+	else if (e.which == 2) {
+		// middle click (eyeDropper)
+		area.eyeDropper(e);
+	}
+}
+
+drawArea.prototype.mouseleave = function(e) {
+	this.drag_paint = false;
+	this.drag_erase = false;
 }
 
 // ------
