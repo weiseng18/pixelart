@@ -372,7 +372,7 @@ function handleRaw(data) {
 // color history
 // ------
 
-function colorHistory(rows, columns) {
+function ColorHistory(rows, columns) {
 	// tentatively hardcoded size
 	var element = get("color_history_wrapper");
 	var style = getComputedStyle(element);
@@ -392,7 +392,7 @@ function colorHistory(rows, columns) {
 	}
 }
 
-colorHistory.prototype.generateHTML = function() {
+ColorHistory.prototype.generateHTML = function() {
 	// table
 	var table = document.createElement("table");
 	table.id = this.id;
@@ -422,7 +422,7 @@ colorHistory.prototype.generateHTML = function() {
 }
 
 // displays in HTML the current color history
-colorHistory.prototype.updateHTML = function() {
+ColorHistory.prototype.updateHTML = function() {
 	for (var i=0; i<this.colorsLength; i++) {
 		var row = Math.floor(i / this.columns);
 		var column = i - row*this.columns;
@@ -433,7 +433,7 @@ colorHistory.prototype.updateHTML = function() {
 // shifts everything one to the right, last color in the history is effectively deleted from history
 // only triggers on mouseup as dragging (mousemove) will cause a lot of colours to be added and history will change very quickly
 
-colorHistory.prototype.addColor = function(e, source) {
+ColorHistory.prototype.addColor = function(e, source) {
 	var color;
 
 	if (source == "color_picker")
@@ -567,7 +567,7 @@ window.onload = function() {
 	});
 
 	// color history
-	cHistory = new colorHistory(2, 7);
+	cHistory = new ColorHistory(2, 7);
 	cHistory.generateHTML();
 
 	// menu bar
