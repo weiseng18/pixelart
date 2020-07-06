@@ -11,6 +11,8 @@ function DrawArea(height, width) {
 	this.drag_erase = false;
 
 	this.edit = false;
+
+	this.tool = 0;
 }
 
 DrawArea.prototype.generateHTML = function() {
@@ -53,10 +55,10 @@ DrawArea.prototype.toggleEdit = function() {
 		this.edit = true;
 
 		// coloring event listener
-		table.addEventListener("click", paint);
+		table.addEventListener("click", this.click);
 
 		// erasing event listener
-		table.addEventListener("contextmenu", erase);
+		table.addEventListener("contextmenu", this.contextmenu);
 
 		// allow dragging for coloring/erasing
 		table.addEventListener("mousedown", this.mousedown);
@@ -68,10 +70,10 @@ DrawArea.prototype.toggleEdit = function() {
 		this.edit = false;
 
 		// coloring event listener
-		table.removeEventListener("click", paint);
+		table.removeEventListener("click", this.click);
 
 		// erasing event listener
-		table.removeEventListener("contextmenu", erase);
+		table.removeEventListener("contextmenu", this.contextmenu);
 
 		// allow dragging for coloring/erasing
 		table.removeEventListener("mousedown", this.mousedown);
@@ -137,39 +139,59 @@ function erase(e) {
 	return false;
 }
 
-DrawArea.prototype.mousedown = function(e) {
-	if (e.which == 1) {
-		this.drag_paint = true;
+DrawArea.prototype.click = function(e) {
+	if (this.tool == 0) {
 		paint(e);
 	}
-	else if (e.which == 3) {
-		e.preventDefault();
-		this.drag_erase = true;
+}
+
+DrawArea.prototype.contextmenu = function(e) {
+	if (this.tool == 0) {
 		erase(e);
+	}
+}
+
+DrawArea.prototype.mousedown = function(e) {
+	if (this.tool == 0) {
+		if (e.which == 1) {
+			this.drag_paint = true;
+			paint(e);
+		}
+		else if (e.which == 3) {
+			e.preventDefault();
+			this.drag_erase = true;
+			erase(e);
+		}
 	}
 }
 
 DrawArea.prototype.mousemove = function(e) {
-	if (this.drag_paint)
-		paint(e);
-	if (this.drag_erase)
-		erase(e);
+	if (this.tool == 0) {
+		if (this.drag_paint)
+			paint(e);
+		if (this.drag_erase)
+			erase(e);
+	}
 }
 
 DrawArea.prototype.mouseup = function(e) {
-	if (e.which == 1 || e.which == 3) {
-		this.drag_paint = false;
-		this.drag_erase = false;
-	}
-	else if (e.which == 2) {
-		// middle click (eyeDropper)
-		area.eyeDropper(e);
+	if (this.tool == 0) {
+		if (e.which == 1 || e.which == 3) {
+			this.drag_paint = false;
+			this.drag_erase = false;
+		}
+		else if (e.which == 2) {
+			// middle click (eyeDropper)
+			area.eyeDropper(e);
+		}
 	}
 }
 
 DrawArea.prototype.mouseleave = function(e) {
-	this.drag_paint = false;
-	this.drag_erase = false;
+	if (this.tool == 0) {
+		this.drag_paint = false;
+		this.drag_erase = false;
+	}
 }
 
 // ------
