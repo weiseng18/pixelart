@@ -140,19 +140,19 @@ function erase(e) {
 }
 
 DrawArea.prototype.click = function(e) {
-	if (this.tool == 0) {
+	if (area.tool == 0) {
 		paint(e);
 	}
 }
 
 DrawArea.prototype.contextmenu = function(e) {
-	if (this.tool == 0) {
+	if (area.tool == 0) {
 		erase(e);
 	}
 }
 
 DrawArea.prototype.mousedown = function(e) {
-	if (this.tool == 0) {
+	if (area.tool == 0) {
 		if (e.which == 1) {
 			this.drag_paint = true;
 			paint(e);
@@ -166,7 +166,7 @@ DrawArea.prototype.mousedown = function(e) {
 }
 
 DrawArea.prototype.mousemove = function(e) {
-	if (this.tool == 0) {
+	if (area.tool == 0) {
 		if (this.drag_paint)
 			paint(e);
 		if (this.drag_erase)
@@ -175,7 +175,7 @@ DrawArea.prototype.mousemove = function(e) {
 }
 
 DrawArea.prototype.mouseup = function(e) {
-	if (this.tool == 0) {
+	if (area.tool == 0) {
 		if (e.which == 1 || e.which == 3) {
 			this.drag_paint = false;
 			this.drag_erase = false;
@@ -188,7 +188,7 @@ DrawArea.prototype.mouseup = function(e) {
 }
 
 DrawArea.prototype.mouseleave = function(e) {
-	if (this.tool == 0) {
+	if (area.tool == 0) {
 		this.drag_paint = false;
 		this.drag_erase = false;
 	}
@@ -579,7 +579,10 @@ window.onload = function() {
 
 	tools = new ToolWrapper(4, 6);
 
+	var pencil = new Tool("pencil", "pencil.png")
 	var eyedropper = new Tool("eyedropper", "eyedropper.png");
+
+	tools.addTool(pencil);
 	tools.addTool(eyedropper);
 
 	tools.generateHTML();
