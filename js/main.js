@@ -2,7 +2,7 @@
 // drawing area
 // ------
 
-function drawArea(height, width) {
+function DrawArea(height, width) {
 	this.height = height;
 	this.width = width;
 	this.grid = init2D(height, width, null);
@@ -13,7 +13,7 @@ function drawArea(height, width) {
 	this.edit = false;
 }
 
-drawArea.prototype.generateHTML = function() {
+DrawArea.prototype.generateHTML = function() {
 	// table
 	var table = document.createElement("table");
 	table.id = this.id;
@@ -45,7 +45,7 @@ drawArea.prototype.generateHTML = function() {
 	this.toggleEdit();
 }
 
-drawArea.prototype.toggleEdit = function() {
+DrawArea.prototype.toggleEdit = function() {
 	var table = get(this.id);
 
 	// turn on event listeners
@@ -81,7 +81,7 @@ drawArea.prototype.toggleEdit = function() {
 	}
 }
 
-drawArea.prototype.eyeDropper = function(e) {
+DrawArea.prototype.eyeDropper = function(e) {
 	var cell = e.target;
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
@@ -137,7 +137,7 @@ function erase(e) {
 	return false;
 }
 
-drawArea.prototype.mousedown = function(e) {
+DrawArea.prototype.mousedown = function(e) {
 	if (e.which == 1) {
 		this.drag_paint = true;
 		paint(e);
@@ -149,14 +149,14 @@ drawArea.prototype.mousedown = function(e) {
 	}
 }
 
-drawArea.prototype.mousemove = function(e) {
+DrawArea.prototype.mousemove = function(e) {
 	if (this.drag_paint)
 		paint(e);
 	if (this.drag_erase)
 		erase(e);
 }
 
-drawArea.prototype.mouseup = function(e) {
+DrawArea.prototype.mouseup = function(e) {
 	if (e.which == 1 || e.which == 3) {
 		this.drag_paint = false;
 		this.drag_erase = false;
@@ -167,7 +167,7 @@ drawArea.prototype.mouseup = function(e) {
 	}
 }
 
-drawArea.prototype.mouseleave = function(e) {
+DrawArea.prototype.mouseleave = function(e) {
 	this.drag_paint = false;
 	this.drag_erase = false;
 }
@@ -460,7 +460,7 @@ colorHistory.prototype.addColor = function(e, source) {
 // tools
 // ------
 
-function toolWrapper(rows, columns) {
+function ToolWrapper(rows, columns) {
 	// tentatively hardcoded size
 	var element = get("tool_wrapper");
 	var style = getComputedStyle(element);
@@ -473,9 +473,10 @@ function toolWrapper(rows, columns) {
 	this.id = "tools";
 
 	// add tools here
+	this.items = [];
 }
 
-toolWrapper.prototype.generateHTML = function() {
+ToolWrapper.prototype.generateHTML = function() {
 	// table
 	var table = document.createElement("table");
 	table.id = this.id;
@@ -507,13 +508,13 @@ var slider, body;
 var cHistory;
 
 window.onload = function() {
-	area = new drawArea(32, 32);
+	area = new DrawArea(32, 32);
 	area.generateHTML();
 
 	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
 	get("color").style.backgroundColor = "rgb(0, 0, 0)";
 
-	tools = new toolWrapper(4, 6);
+	tools = new ToolWrapper(4, 6);
 	tools.generateHTML();
 
 	slider = new CanvasWrapper("color_slider");
