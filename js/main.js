@@ -312,8 +312,12 @@ function loadRaw() {
 
 function colorHistory(rows, columns) {
 	// tentatively hardcoded size
-	this.height = "80px";
-	this.width = "300px";
+	var element = get("color_history_wrapper");
+	var style = getComputedStyle(element);
+	this.height = style.height;
+	this.width = style.width;
+
+	console.log(this.height, this.width);
 
 	this.rows = rows;
 	this.columns = columns;
@@ -459,7 +463,7 @@ window.onload = function() {
 	});
 
 	// color history
-	cHistory = new colorHistory(2, 8);
+	cHistory = new colorHistory(2, 7);
 	cHistory.generateHTML();
 
 	// menu bar

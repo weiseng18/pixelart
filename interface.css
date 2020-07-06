@@ -17,36 +17,43 @@ sidebar
 	display: flex;
 }
 
+#tool_wrapper {
+	height: 30%;
+	width: 80%;
+	background: #fff;
+	margin: auto;
+}
+
 #color_history_wrapper {
-	height: 80px;
-	width: 300px;
+	height: 13%;
+	width: 80%;
 	background: #fff;
 	margin: auto;
 }
 
 #color_picker_wrapper {
-	height: 280px;
-	width: 300px;
+	height: 40%;
+	width: 80%;
 	background: #fff;
 	margin: auto;
 }
 
 #color_wrapper {
-	height: 80px;
-	width: 300px;
+	height: 25%;
+	width: 100%;
 	display: flex;
     align-items: center;
 }
 
 #color {
-	height: 40px;
-	width: 200px;
+	height: 60%;
+	width: 65%;
 	margin: auto;
 }
 
 #color_picker {
-	height: 200px;
-	width: 300px;
+	height: 60%;
+	width: 100%;
 	background: #fff;
 	margin: auto;
 	display: flex;
@@ -58,7 +65,7 @@ menu
 ---------*/
 
 #menu {
-	height: 10%;
+	height: 8%;
 	width: 100%;
 	background: #333;
 }
@@ -103,7 +110,7 @@ canvas:hover {
 }
 
 #mainArea {
-	height: 90%;
+	height: 92%;
 	background: #505050;
 	display: flex;
     align-items: center;
