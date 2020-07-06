@@ -317,8 +317,6 @@ function colorHistory(rows, columns) {
 	this.height = style.height;
 	this.width = style.width;
 
-	console.log(this.height, this.width);
-
 	this.rows = rows;
 	this.columns = columns;
 	this.grid = init2D(rows, columns, null);
@@ -397,6 +395,46 @@ colorHistory.prototype.addColor = function(e, source) {
 }
 
 // ------
+// tools
+// ------
+
+function toolWrapper(rows, columns) {
+	// tentatively hardcoded size
+	var element = get("tool_wrapper");
+	var style = getComputedStyle(element);
+	this.height = style.height;
+	this.width = style.width;
+
+	this.rows = rows;
+	this.columns = columns;
+	this.grid = init2D(rows, columns, null);
+	this.id = "tools";
+
+	// add tools here
+}
+
+toolWrapper.prototype.generateHTML = function() {
+	// table
+	var table = document.createElement("table");
+	table.id = this.id;
+
+	table.style.height = this.height;
+	table.style.width = this.width;
+
+	table.style.tableLayout = "fixed";
+
+	for (var i=0; i<this.rows; i++) {
+		var row = table.insertRow();
+		for (var j=0; j<this.columns; j++) {
+			var cell = row.insertCell();
+			cell.style.cursor = "pointer";
+		}
+	}
+
+	get("tool_wrapper").appendChild(table);
+}
+
+// ------
 // main
 // ------
 
@@ -412,6 +450,9 @@ window.onload = function() {
 
 	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
 	get("color").style.backgroundColor = "rgb(0, 0, 0)";
+
+	tools = new toolWrapper(4, 6);
+	tools.generateHTML();
 
 	slider = new CanvasWrapper("color_slider");
 	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
