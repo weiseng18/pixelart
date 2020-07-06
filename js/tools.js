@@ -41,17 +41,25 @@ ToolWrapper.prototype.generateHTML = function() {
 
 	for (var i=0; i<this.rows; i++) {
 		var row = table.insertRow();
-		row.style.height = (this.height / this.rows) + "px";
+
+		// -4 to account for the 2px border
+		row.style.height = (this.height / this.rows - 4) + "px";
 
 		for (var j=0; j<this.columns; j++) {
 			var cell = row.insertCell();
 
 			cell.style.verticalAlign = "middle";
 			cell.style.textAlign = "center";
+
+			cell.style.border = "solid white 2px";
+
 			var idx = i*this.columns + j;
 			if (idx < this.total) {
 				cell.style.cursor = "pointer";
+
 				cell.addEventListener("click", this.items[idx].click);
+				cell.addEventListener("mouseover", this.mouseover);
+				cell.addEventListener("mouseout", this.mouseout);
 
 				var img = new Image();
 				img.src = this.items[idx].iconSrc;
@@ -64,9 +72,78 @@ ToolWrapper.prototype.generateHTML = function() {
 	get("tool_wrapper").appendChild(table);
 }
 
+ToolWrapper.prototype.mouseover = function(e) {
+	console.log("mouseover", e);
+
+	// taken from Tool object
+	var cell = e.target.parentElement;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+	var idx = row * tools.columns + column;
+
+	// taken from toggleTool()
+	if (isNaN(idx) || idx == undefined || idx == null) return;
+	if (idx >= tools.total) return;
+
+	// check if hover effect should be occuring
+	if (area.tool != idx) {
+		getCell("tools", row, column).style.border = "solid 2px #A3DAFF";
+	}
+}
+
+ToolWrapper.prototype.mouseout = function(e) {
+	// taken from Tool object
+	var cell = e.target.parentElement;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+	var idx = row * tools.columns + column;
+
+	// taken from toggleTool()
+	if (isNaN(idx) || idx == undefined || idx == null) return;
+	if (idx >= tools.total) return;
+
+	// check if hover effect should be occuring
+	if (area.tool != idx) {
+		getCell("tools", row, column).style.border = "solid 2px white";
+	}
+}
+
 function toggleTool(idx) {
 	// set area.tool to idx unless it is already idx, which means to toggle it off
-	area.tool = (area.tool == idx ? 0 : idx);
+
+	// some clicking issue to do with e.target
+	// currently the method is to use e.target and find the cell chosen, but maybe clicking in between cells can cause problems
+
+	if (isNaN(idx) || idx == undefined || idx == null) return;
+
+	// disable first
+	if (idx >= tools.total) return;
+
+	var row = Math.floor(idx / tools.columns);
+	var column = idx - row*tools.columns;
+
+	if (area.tool == idx) {
+		// resetting to 0, i.e. pencil tool
+		getCell("tools", row, column).style.backgroundColor = "";
+		getCell("tools", row, column).style.border = "solid 2px white";
+
+		getCell("tools", 0, 0).style.backgroundColor = "#3DB1FF";
+		getCell("tools", 0, 0).style.border = "solid 2px #A3DAFF";
+
+		area.tool = 0;
+	}
+	else {
+		var pRow = Math.floor(area.tool / tools.columns);
+		var pColumn = area.tool - pRow*tools.columns;
+
+		getCell("tools", pRow, pColumn).style.backgroundColor = "";
+		getCell("tools", pRow, pColumn).style.border = "solid 2px white";
+
+		getCell("tools", row, column).style.backgroundColor = "#3DB1FF";
+		getCell("tools", row, column).style.border = "solid 2px #A3DAFF";
+
+		area.tool = idx;
+	}
 }
 
 function Tool(name, iconSrc) {
@@ -92,15 +169,3 @@ function eyeDropper(e) {
 	updateColor(e, "eyeDropper");
 	cHistory.addColor(e, "eyeDropper");
 }
-
-window.onload = function() {
-	tools = new ToolWrapper(4, 6);
-
-	var pencil = new Tool("pencil", "pencil.png")
-	var eyedropper = new Tool("eyedropper", "eyedropper.png");
-
-	tools.addTool(pencil);
-	tools.addTool(eyedropper);
-
-	tools.generateHTML();
-};

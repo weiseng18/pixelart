@@ -490,6 +490,18 @@ window.onload = function() {
 	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
 	get("color").style.backgroundColor = "rgb(0, 0, 0)";
 
+	tools = new ToolWrapper(4, 6);
+
+	var pencil = new Tool("pencil", "pencil.png")
+	var eyedropper = new Tool("eyedropper", "eyedropper.png");
+
+	tools.addTool(pencil);
+	tools.addTool(eyedropper);
+
+	tools.generateHTML();
+
+	toggleTool(0);
+
 	slider = new CanvasWrapper("color_slider");
 	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
 	slider.LinearGradient(colors, "vertical");
