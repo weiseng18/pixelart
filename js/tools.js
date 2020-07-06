@@ -64,6 +64,11 @@ ToolWrapper.prototype.generateHTML = function() {
 	get("tool_wrapper").appendChild(table);
 }
 
+function toggleTool(idx) {
+	// set area.tool to idx unless it is already idx, which means to toggle it off
+	area.tool = (area.tool == idx ? 0 : idx);
+}
+
 function Tool(name, iconSrc) {
 	this.name = name;
 	this.iconSrc = "img/" + iconSrc;
@@ -73,8 +78,7 @@ function Tool(name, iconSrc) {
 		var row = cell.parentElement.rowIndex;
 		var idx = row * tools.columns + column;
 
-		// set area.tool to idx unless it is already idx, which means to toggle it off
-		area.tool = (area.tool == idx ? 0 : idx);
+		toggleTool(idx);
 	}
 }
 
@@ -88,3 +92,15 @@ function eyeDropper(e) {
 	updateColor(e, "eyeDropper");
 	cHistory.addColor(e, "eyeDropper");
 }
+
+window.onload = function() {
+	tools = new ToolWrapper(4, 6);
+
+	var pencil = new Tool("pencil", "pencil.png")
+	var eyedropper = new Tool("eyedropper", "eyedropper.png");
+
+	tools.addTool(pencil);
+	tools.addTool(eyedropper);
+
+	tools.generateHTML();
+};
