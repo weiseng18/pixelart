@@ -73,10 +73,9 @@ ToolWrapper.prototype.generateHTML = function() {
 }
 
 ToolWrapper.prototype.mouseover = function(e) {
-	console.log("mouseover", e);
+	// change e.target <td> to e.target <img>
+	var cell = e.target.children[0] != undefined ? e.target : e.target.parentElement;
 
-	// taken from Tool object
-	var cell = e.target.parentElement;
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
 	var idx = row * tools.columns + column;
@@ -92,8 +91,9 @@ ToolWrapper.prototype.mouseover = function(e) {
 }
 
 ToolWrapper.prototype.mouseout = function(e) {
-	// taken from Tool object
-	var cell = e.target.parentElement;
+	// change e.target <td> to e.target <img>
+	var cell = e.target.children[0] != undefined ? e.target : e.target.parentElement;
+
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
 	var idx = row * tools.columns + column;
@@ -150,7 +150,7 @@ function Tool(name, iconSrc) {
 	this.name = name;
 	this.iconSrc = "img/" + iconSrc;
 	this.click = function(e) {
-		var cell = e.target.parentElement;
+		var cell = e.target.children[0] != undefined ? e.target : e.target.parentElement;
 		var column = cell.cellIndex;
 		var row = cell.parentElement.rowIndex;
 		var idx = row * tools.columns + column;
