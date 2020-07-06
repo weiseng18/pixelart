@@ -285,7 +285,7 @@ function savePNG() {
 // and semicolons for row break
 // transparent cells have 'null' as their hex value
 
-function saveRaw() {
+function saveRaw(which) {
 	var data = "";
 	for (var i=0; i<area.height; i++) {
 		if (i) data += ";";
@@ -295,28 +295,57 @@ function saveRaw() {
 		}
 	}
 
-	// generate raw hex values of each pixel
-	var blob = new Blob([data], {type: 'text/plain'});
-	var href = URL.createObjectURL(blob);
-	var filename = 'raw.pix';
-	//initiateDownload(href, filename);
+	if (which == "localStorage") {
+		window.localStorage.setItem('data', data);
+	}
+	else if (which == "download") {
+		// generate raw hex values of each pixel
+		var blob = new Blob([data], {type: 'text/plain'});
+		var href = URL.createObjectURL(blob);
+		var filename = 'raw.pix';
+		initiateDownload(href, filename);
 
-	window.localStorage.setItem('data', data);
-
-	// allow Blob to be deleted
-	URL.revokeObjectURL(href);
-
+		// allow Blob to be deleted
+		URL.revokeObjectURL(href);
+	}
 }
 
-function loadRaw() {
-	var data = window.localStorage.getItem("data");
-	var height, width;
+function loadRaw(which) {
+	if (which == "localStorage") {
+		var data = window.localStorage.getItem("data");
+		handleRaw(data);
+	}
+	else if (which == "upload") {
+		var input = document.createElement("input");
+		input.style.display = "none";
+		input.type = "file";
+
+		input.addEventListener("change", function(e) {
+			// file reference
+			var file = e.target.files[0];
+
+			// set up file reader
+			var reader = new FileReader();
+			reader.readAsText(file, "UTF-8");
+
+			reader.addEventListener("load", function(e) {
+				var content = e.target.result;
+				handleRaw(content);
+			});
+
+		});
+
+		input.click();
+	}
+}
+
+function handleRaw(data) {
 	if (data != null) {
 		data = data.split(";");
-		height = data.length;
+		var height = data.length;
 		for (var i=0; i<height; i++)
 			data[i] = data[i].split(',');
-		width = data[0].length;
+		var width = data[0].length;
 
 		// tentative method for loading raw data
 		// will be changed once action tracking: undo/redo is implemented
@@ -478,7 +507,7 @@ var slider, body;
 var cHistory;
 
 window.onload = function() {
-	area = new drawArea(16, 16);
+	area = new drawArea(32, 32);
 	area.generateHTML();
 
 	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
@@ -545,10 +574,16 @@ window.onload = function() {
 		savePNG();
 	});
 	get("saveRaw").addEventListener("click", function(e) {
-		saveRaw();
+		saveRaw("localStorage");
 	});
 	get("loadRaw").addEventListener("click", function(e) {
-		loadRaw();
+		loadRaw("localStorage");
+	});
+	get("downloadRaw").addEventListener("click", function(e) {
+		saveRaw("download");
+	});
+	get("uploadRaw").addEventListener("click", function(e) {
+		loadRaw("upload");
 	});
 
 };
