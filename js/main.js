@@ -494,9 +494,11 @@ window.onload = function() {
 
 	var pencil = new Tool("pencil", "pencil.png")
 	var eyedropper = new Tool("eyedropper", "eyedropper.png");
+	var select = new Tool("select", "select.png");
 
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
+	tools.addTool(select);
 
 	tools.generateHTML();
 
