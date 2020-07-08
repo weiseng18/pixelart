@@ -7,8 +7,8 @@ function ToolWrapper(rows, columns) {
 	var style = getComputedStyle(element);
 
 	// these two variables are numbers but the unit is px
-	this.height = parseInt(style.height.substring(0, style.height.length-2));
-	this.width = parseInt(style.width.substring(0, style.width.length-2));
+	this.height = removePX(style.height);
+	this.width = removePX(style.width);
 
 	this.rows = rows;
 	this.columns = columns;
