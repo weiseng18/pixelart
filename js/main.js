@@ -490,20 +490,6 @@ window.onload = function() {
 	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
 	get("color").style.backgroundColor = "rgb(0, 0, 0)";
 
-	tools = new ToolWrapper(4, 6);
-
-	var pencil = new Tool("pencil", "pencil.png")
-	var eyedropper = new Tool("eyedropper", "eyedropper.png");
-	var select = new Tool("select", "select.png");
-
-	tools.addTool(pencil);
-	tools.addTool(eyedropper);
-	tools.addTool(select);
-
-	tools.generateHTML();
-
-	toggleTool(0);
-
 	slider = new CanvasWrapper("color_slider");
 	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
 	slider.LinearGradient(colors, "vertical");
@@ -573,5 +559,25 @@ window.onload = function() {
 	get("uploadRaw").addEventListener("click", function(e) {
 		loadRaw("upload");
 	});
+
+	selectCanvas = new SelectCanvas("selectCanvas");
+
+	tools = new ToolWrapper(4, 6);
+
+	var pencil = new Tool("pencil", "pencil.png")
+	var eyedropper = new Tool("eyedropper", "eyedropper.png");
+
+	var on = selectCanvas.enable.bind(selectCanvas);
+	var off = selectCanvas.disable.bind(selectCanvas);
+
+	var select = new Tool("select", "select.png", on, off);
+
+	tools.addTool(pencil);
+	tools.addTool(eyedropper);
+	tools.addTool(select);
+
+	tools.generateHTML();
+
+	toggleTool(0);
 
 };

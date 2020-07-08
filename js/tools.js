@@ -130,10 +130,15 @@ function toggleTool(idx) {
 		getCell("tools", 0, 0).style.border = "solid 2px #A3DAFF";
 
 		area.tool = 0;
+
+		if (tools.items[idx].off != undefined)
+			tools.items[idx].off();
 	}
 	else {
 		var pRow = Math.floor(area.tool / tools.columns);
 		var pColumn = area.tool - pRow*tools.columns;
+
+		var pIDX = pRow*tools.columns + pColumn;
 
 		getCell("tools", pRow, pColumn).style.backgroundColor = "";
 		getCell("tools", pRow, pColumn).style.border = "solid 2px white";
@@ -142,10 +147,16 @@ function toggleTool(idx) {
 		getCell("tools", row, column).style.border = "solid 2px #A3DAFF";
 
 		area.tool = idx;
+
+		if (tools.items[pIDX].off != undefined)
+			tools.items[pIDX].off();
+
+		if (tools.items[idx].on != undefined)
+			tools.items[idx].on();
 	}
 }
 
-function Tool(name, iconSrc) {
+function Tool(name, iconSrc, on, off) {
 	this.name = name;
 	this.iconSrc = "img/" + iconSrc;
 	this.click = function(e) {
@@ -156,6 +167,8 @@ function Tool(name, iconSrc) {
 
 		toggleTool(idx);
 	}
+	this.on = on;
+	this.off = off;
 }
 
 function eyeDropper(e) {
@@ -167,4 +180,106 @@ function eyeDropper(e) {
 
 	updateColor(e, "eyeDropper");
 	cHistory.addColor(e, "eyeDropper");
+}
+
+function SelectCanvas(id) {
+	this.id = id;
+
+	// element always has to be ready for append and remove
+	this.ele = this.generateHTML();
+
+	this.enabled = false;
+
+	this.topLeft = null;
+	this.bottomRight = null;
+}
+
+SelectCanvas.prototype.generateHTML = function() {
+	var ele = document.createElement("canvas");
+	ele.id = "selectCanvas";
+
+	var boundingRect = get("display").getBoundingClientRect();
+
+	ele.style.position = "absolute";
+	ele.style.top = boundingRect.top + "px";
+	ele.style.left = boundingRect.left + "px";
+
+	// to ensure that it floats up
+	ele.style.zIndex = "100";
+
+	// for more precise numbers
+	ele.height = removePX(get("display").style.height);
+	ele.width = removePX(get("display").style.width);
+
+	return ele;
+}
+
+SelectCanvas.prototype.enable = function() {
+	document.body.appendChild(this.ele);
+
+	// add event listeners once the element is added to DOM
+	get(this.ele.id).addEventListener("mousedown", this.mousedown);
+	get(this.ele.id).addEventListener("mousemove", this.mousemove);
+	get(this.ele.id).addEventListener("mouseup", this.mouseup);
+}
+
+SelectCanvas.prototype.disable = function() {
+	// remove event listeners before the element is removed from DOM
+	get(this.ele.id).removeEventListener("mousedown", this.mousedown);
+	get(this.ele.id).removeEventListener("mousemove", this.mousemove);
+	get(this.ele.id).removeEventListener("mouseup", this.mouseup);
+
+	get(this.id).remove();
+}
+
+// draws the select area
+SelectCanvas.prototype.drawSelectArea = function(p1, p2) {
+	var width = p2.x - p1.x, height = p2.y - p1.y;
+	var borderColor = "rgba(128, 220, 255, 0.8)", backgroundColor = "rgba(160, 160, 255, 0.2)";
+	var borderSize = 4;
+
+	var c = get(this.id);
+	var ctx = c.getContext("2d");
+
+	// borderSize
+	ctx.lineWidth = borderSize;
+	ctx.strokeStyle = borderColor;
+	ctx.beginPath();
+	ctx.rect(p1.x + borderSize/2, p1.y + borderSize/2, width, height);
+	ctx.stroke();
+
+	// fill
+	ctx.fillStyle = backgroundColor;
+	ctx.fillRect(p1.x + borderSize, p1.y + borderSize, width - borderSize, height - borderSize);
+
+}
+
+SelectCanvas.prototype.mousedown = function(e) {
+	selectCanvas.enabled = true;
+
+	var boundingRect = get("display").getBoundingClientRect();
+	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
+
+	selectCanvas.topLeft = {x:x, y:y};
+	selectCanvas.bottomRight = {x:x, y:y};
+}
+
+SelectCanvas.prototype.mousemove = function(e) {
+	if (selectCanvas.enabled == false) return;
+
+	// clear canvas
+	var c = get("selectCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+
+	var boundingRect = get("display").getBoundingClientRect();
+	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
+
+	// temporarily assuming the mousedown spot is closer to top left than mousemove
+	selectCanvas.bottomRight = {x:x, y:y};
+	selectCanvas.drawSelectArea(selectCanvas.topLeft, selectCanvas.bottomRight);
+}
+
+SelectCanvas.prototype.mouseup = function(e) {
+	selectCanvas.enabled = false;
 }
