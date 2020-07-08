@@ -48,9 +48,6 @@ ToolWrapper.prototype.generateHTML = function() {
 		for (var j=0; j<this.columns; j++) {
 			var cell = row.insertCell();
 
-			cell.style.verticalAlign = "middle";
-			cell.style.textAlign = "center";
-
 			cell.style.border = "solid white 2px";
 
 			var idx = i*this.columns + j;
@@ -63,6 +60,8 @@ ToolWrapper.prototype.generateHTML = function() {
 
 				var img = new Image();
 				img.src = this.items[idx].iconSrc;
+				img.style.display = "block";
+				img.style.margin = "auto auto";
 
 				cell.appendChild(img);
 			}
