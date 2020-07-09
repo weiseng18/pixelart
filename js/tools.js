@@ -53,8 +53,8 @@ ToolWrapper.prototype.generateHTML = function() {
 				cell.style.cursor = "pointer";
 
 				cell.addEventListener("click", this.items[idx].click);
-				cell.addEventListener("mouseover", this.mouseover);
-				cell.addEventListener("mouseout", this.mouseout);
+				cell.addEventListener("mouseover", this.mouseover.bind(this));
+				cell.addEventListener("mouseout", this.mouseout.bind(this));
 
 				var img = new Image();
 				img.src = this.items[idx].iconSrc;
@@ -69,6 +69,36 @@ ToolWrapper.prototype.generateHTML = function() {
 	get("tool_wrapper").appendChild(table);
 }
 
+ToolWrapper.prototype.drawTooltip = function(element, idx) {
+	var boundingRect = element.getBoundingClientRect();
+	var topLeft = {x:boundingRect.right - 20, y:boundingRect.bottom + 5};
+	var tooltipBox = document.createElement("div");
+
+	tooltipBox.id = "tooltip_" + idx;
+
+	tooltipBox.style.position = "fixed";
+	tooltipBox.style.top = topLeft.y + "px";
+	tooltipBox.style.left = topLeft.x + "px";
+
+	tooltipBox.style.padding = "5px";
+
+	tooltipBox.style.border = "solid black 2px";
+	tooltipBox.style.backgroundColor = "#FFFB7A";
+
+	var tooltip = tools.items[idx].tooltip;
+	var text = document.createTextNode(tooltip);
+	var wrapper = document.createElement("span");
+	wrapper.appendChild(text);
+
+	tooltipBox.appendChild(wrapper);
+
+	document.body.appendChild(tooltipBox);
+}
+
+ToolWrapper.prototype.removeTooltip = function(idx) {
+	get("tooltip_" + idx).remove();
+}
+
 ToolWrapper.prototype.mouseover = function(e) {
 	// change e.target <td> to e.target <img>
 	var cell = e.target.children[0] != undefined ? e.target : e.target.parentElement;
@@ -76,6 +106,9 @@ ToolWrapper.prototype.mouseover = function(e) {
 	var column = cell.cellIndex;
 	var row = cell.parentElement.rowIndex;
 	var idx = row * tools.columns + column;
+
+	// draw tooltip
+	this.drawTooltip(cell, idx);
 
 	// taken from toggleTool()
 	if (isNaN(idx) || idx == undefined || idx == null) return;
@@ -98,6 +131,8 @@ ToolWrapper.prototype.mouseout = function(e) {
 	// taken from toggleTool()
 	if (isNaN(idx) || idx == undefined || idx == null) return;
 	if (idx >= tools.total) return;
+
+	this.removeTooltip(idx);
 
 	// check if hover effect should be occuring
 	if (area.tool != idx) {
@@ -154,7 +189,7 @@ function toggleTool(idx) {
 	}
 }
 
-function Tool(name, iconSrc, on, off) {
+function Tool(name, iconSrc, tooltip, on, off) {
 	this.name = name;
 	this.iconSrc = "img/" + iconSrc;
 	this.click = function(e) {
@@ -167,6 +202,8 @@ function Tool(name, iconSrc, on, off) {
 	}
 	this.on = on;
 	this.off = off;
+
+	this.tooltip = tooltip;
 }
 
 function eyeDropper(e) {

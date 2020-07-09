@@ -564,13 +564,13 @@ window.onload = function() {
 
 	tools = new ToolWrapper(4, 6);
 
-	var pencil = new Tool("pencil", "pencil.png")
-	var eyedropper = new Tool("eyedropper", "eyedropper.png");
+	var pencil = new Tool("pencil", "pencil.png", "Pencil")
+	var eyedropper = new Tool("eyedropper", "eyedropper.png", "Eyedropper tool");
 
 	var on = selectCanvas.enable.bind(selectCanvas);
 	var off = selectCanvas.disable.bind(selectCanvas);
 
-	var select = new Tool("select", "select.png", on, off);
+	var select = new Tool("select", "select.png", "Select tool", on, off);
 
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
