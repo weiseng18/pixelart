@@ -246,7 +246,12 @@ SelectCanvas.prototype.disable = function() {
 	get(this.ele.id).removeEventListener("mousemove", this.mousemove.bind(this));
 	get(this.ele.id).removeEventListener("mouseup", this.mouseup.bind(this));
 
-	get(this.id).remove();
+	// clear canvas
+	var c = get(this.id);
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+
+	get(this.id).parentElement.remove();
 }
 
 // draws the select area
