@@ -35,8 +35,6 @@ ToolWrapper.prototype.generateHTML = function() {
 
 	table.style.tableLayout = "fixed";
 
-	console.log(this.height);
-
 	table.style.borderSpacing = 0;
 
 	for (var i=0; i<this.rows; i++) {
@@ -185,33 +183,49 @@ function eyeDropper(e) {
 function SelectCanvas(id) {
 	this.id = id;
 
-	// element always has to be ready for append and remove
-	this.ele = this.generateHTML();
-
 	this.enabled = false;
+
+	// constant to be used to ensure that this "extra" width and height will extend out of the drawing area
+	this.borderSize = 4;
 
 	this.topLeft = null;
 	this.bottomRight = null;
+
+	// element always has to be ready for append and remove
+	// this has to be below this.borderSize so that this.borderSize is defined and can be used in this method
+	this.ele = this.generateHTML();
 }
 
 SelectCanvas.prototype.generateHTML = function() {
+	var div = document.createElement("div");
+	div.id = "selectCanvas_wrapper";
+	div.style.width = "100%";
+	div.style.height = "100vh";
+	div.style.zIndex = "100";
+
+	div.style.position = "absolute";
+	div.style.top = "0";
+	div.style.left = "0";
+
 	var ele = document.createElement("canvas");
 	ele.id = "selectCanvas";
 
 	var boundingRect = get("display").getBoundingClientRect();
 
 	ele.style.position = "absolute";
-	ele.style.top = boundingRect.top + "px";
-	ele.style.left = boundingRect.left + "px";
+	ele.style.top = boundingRect.top - this.borderSize + "px";
+	ele.style.left = boundingRect.left - this.borderSize + "px";
 
 	// to ensure that it floats up
 	ele.style.zIndex = "100";
 
 	// for more precise numbers
-	ele.height = removePX(get("display").style.height);
-	ele.width = removePX(get("display").style.width);
+	ele.height = removePX(get("display").style.height) + this.borderSize*2;
+	ele.width = removePX(get("display").style.width) + this.borderSize*2;
 
-	return ele;
+	div.appendChild(ele);
+
+	return div;
 }
 
 SelectCanvas.prototype.enable = function() {
@@ -233,24 +247,52 @@ SelectCanvas.prototype.disable = function() {
 }
 
 // draws the select area
-SelectCanvas.prototype.drawSelectArea = function(p1, p2) {
+// assumes p1.x < p2.x and p1.y < p2.y, i.e. p1 is the top left and p2 is the bottom right of the rectangle.
+SelectCanvas.prototype.drawSelectArea = function(x1, x2) {
+
+	var p1 = JSON.parse(JSON.stringify(x1));
+	var p2 = JSON.parse(JSON.stringify(x2));
+
+	// checks to convert p1, p2 into the top left, bottom right of the rectangle
+
+	// case 1: p2 top right
+	if (p2.x > p1.x && p2.y < p1.y) {
+		// swap p2.y and p1.y
+		var tmp = p2.y;
+		p2.y = p1.y;
+		p1.y = tmp;
+	}
+	// case 2: p2 top left
+	else if (p2.x < p1.x && p2.y < p1.y) {
+		// swap both points completely
+		var tmp = p2;
+		p2 = p1;
+		p1 = tmp;
+	}
+	// case 3: p2 bottom left
+	else if (p2.x < p1.x && p2.y > p1.y) {
+		// swap p2.x and p1.x
+		var tmp = p2.x;
+		p2.x = p1.x;
+		p1.x = tmp;
+	}
+
 	var width = p2.x - p1.x, height = p2.y - p1.y;
 	var borderColor = "rgba(128, 220, 255, 0.8)", backgroundColor = "rgba(160, 160, 255, 0.2)";
-	var borderSize = 4;
 
 	var c = get(this.id);
 	var ctx = c.getContext("2d");
 
 	// borderSize
-	ctx.lineWidth = borderSize;
+	ctx.lineWidth = this.borderSize;
 	ctx.strokeStyle = borderColor;
 	ctx.beginPath();
-	ctx.rect(p1.x + borderSize/2, p1.y + borderSize/2, width, height);
+	ctx.rect(p1.x + this.borderSize/2, p1.y + this.borderSize/2, width + this.borderSize/2, height + this.borderSize/2);
 	ctx.stroke();
 
 	// fill
 	ctx.fillStyle = backgroundColor;
-	ctx.fillRect(p1.x + borderSize, p1.y + borderSize, width - borderSize, height - borderSize);
+	ctx.fillRect(p1.x + this.borderSize, p1.y + this.borderSize, width, height);
 
 }
 
@@ -261,16 +303,23 @@ SelectCanvas.prototype.findNearestIntersection = function(p) {
 
 	// get the width and height of a cell on the drawing area
 	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
-	var xFactor = p.x / xMult, yFactor = p.y / yMult;
+	var xFactor = (p.x - this.borderSize) / xMult, yFactor = (p.y - this.borderSize) / yMult;
 
 	// round the xFactor to the closest integer, then multiply by xMult to get the intended point
 	var roundedX = Math.round(xFactor) * xMult, roundedY = Math.round(yFactor) * yMult;
 
-	return {x:roundedX, y:roundedY};
+	return {x:roundedX+this.borderSize/2, y:roundedY+this.borderSize/2};
 
 }
 
 SelectCanvas.prototype.mousedown = function(e) {
+	// check for out of bounds
+	var boundingRect = get("display").getBoundingClientRect();
+	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+	if (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height) {
+		return;
+	}
+
 	this.enabled = true;
 
 	var boundingRect = get("display").getBoundingClientRect();
@@ -281,14 +330,26 @@ SelectCanvas.prototype.mousedown = function(e) {
 }
 
 SelectCanvas.prototype.mousemove = function(e) {
+	var boundingRect = get("display").getBoundingClientRect();
+
+	// check for out of bounds
+	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+	if (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height) {
+		get(this.id).style.cursor = 'default';
+		if (this.enabled) this.mouseup(e);
+		return;
+	}
+	else {
+		get(this.id).style.cursor = 'crosshair';
+	}
+
 	if (this.enabled == false) return;
 
 	// clear canvas
-	var c = get("selectCanvas");
+	var c = get(this.id);
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
 
-	var boundingRect = get("display").getBoundingClientRect();
 	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
 
 	// temporarily assuming the mousedown spot is closer to top left than mousemove
@@ -297,10 +358,12 @@ SelectCanvas.prototype.mousemove = function(e) {
 }
 
 SelectCanvas.prototype.mouseup = function(e) {
+	if (this.enabled == false) return;
+
 	this.enabled = false;
 
 	// clear canvas
-	var c = get("selectCanvas");
+	var c = get(this.id);
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
 
