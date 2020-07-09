@@ -218,16 +218,16 @@ SelectCanvas.prototype.enable = function() {
 	document.body.appendChild(this.ele);
 
 	// add event listeners once the element is added to DOM
-	get(this.ele.id).addEventListener("mousedown", this.mousedown);
-	get(this.ele.id).addEventListener("mousemove", this.mousemove);
-	get(this.ele.id).addEventListener("mouseup", this.mouseup);
+	get(this.ele.id).addEventListener("mousedown", this.mousedown.bind(this));
+	get(this.ele.id).addEventListener("mousemove", this.mousemove.bind(this));
+	get(this.ele.id).addEventListener("mouseup", this.mouseup.bind(this));
 }
 
 SelectCanvas.prototype.disable = function() {
 	// remove event listeners before the element is removed from DOM
-	get(this.ele.id).removeEventListener("mousedown", this.mousedown);
-	get(this.ele.id).removeEventListener("mousemove", this.mousemove);
-	get(this.ele.id).removeEventListener("mouseup", this.mouseup);
+	get(this.ele.id).removeEventListener("mousedown", this.mousedown.bind(this));
+	get(this.ele.id).removeEventListener("mousemove", this.mousemove.bind(this));
+	get(this.ele.id).removeEventListener("mouseup", this.mouseup.bind(this));
 
 	get(this.id).remove();
 }
@@ -254,18 +254,34 @@ SelectCanvas.prototype.drawSelectArea = function(p1, p2) {
 
 }
 
+// finds the nearest intersection on the drawing area so that the select function can appear to snap to the grid
+// takes in a point (x, y) and returns a point (x, y)
+SelectCanvas.prototype.findNearestIntersection = function(p) {
+	var boundingRect = get("display").getBoundingClientRect();
+
+	// get the width and height of a cell on the drawing area
+	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
+	var xFactor = p.x / xMult, yFactor = p.y / yMult;
+
+	// round the xFactor to the closest integer, then multiply by xMult to get the intended point
+	var roundedX = Math.round(xFactor) * xMult, roundedY = Math.round(yFactor) * yMult;
+
+	return {x:roundedX, y:roundedY};
+
+}
+
 SelectCanvas.prototype.mousedown = function(e) {
-	selectCanvas.enabled = true;
+	this.enabled = true;
 
 	var boundingRect = get("display").getBoundingClientRect();
 	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
 
-	selectCanvas.topLeft = {x:x, y:y};
-	selectCanvas.bottomRight = {x:x, y:y};
+	this.topLeft = {x:x, y:y};
+	this.bottomRight = {x:x, y:y};
 }
 
 SelectCanvas.prototype.mousemove = function(e) {
-	if (selectCanvas.enabled == false) return;
+	if (this.enabled == false) return;
 
 	// clear canvas
 	var c = get("selectCanvas");
@@ -276,10 +292,19 @@ SelectCanvas.prototype.mousemove = function(e) {
 	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
 
 	// temporarily assuming the mousedown spot is closer to top left than mousemove
-	selectCanvas.bottomRight = {x:x, y:y};
-	selectCanvas.drawSelectArea(selectCanvas.topLeft, selectCanvas.bottomRight);
+	this.bottomRight = {x:x, y:y};
+	this.drawSelectArea(this.topLeft, this.bottomRight);
 }
 
 SelectCanvas.prototype.mouseup = function(e) {
-	selectCanvas.enabled = false;
+	this.enabled = false;
+
+	// clear canvas
+	var c = get("selectCanvas");
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+
+	this.topLeft = this.findNearestIntersection(this.topLeft);
+	this.bottomRight = this.findNearestIntersection(this.bottomRight);
+	this.drawSelectArea(this.topLeft, this.bottomRight);
 }
