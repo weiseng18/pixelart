@@ -199,20 +199,23 @@ function SelectCanvas(id) {
 SelectCanvas.prototype.generateHTML = function() {
 	var div = document.createElement("div");
 	div.id = "selectCanvas_wrapper";
-	div.style.width = "100%";
-	div.style.height = "100vh";
+	div.style.width = "75%";
+	div.style.height = "92vh";
 	div.style.zIndex = "100";
 
+	div.style.padding = "0";
+	div.style.margin = "0";
+
 	div.style.position = "absolute";
-	div.style.top = "0";
-	div.style.left = "0";
+	div.style.top = "8%";
+	div.style.left = "25%";
 
 	var ele = document.createElement("canvas");
 	ele.id = "selectCanvas";
 
 	var boundingRect = get("display").getBoundingClientRect();
 
-	ele.style.position = "absolute";
+	ele.style.position = "fixed";
 	ele.style.top = boundingRect.top - this.borderSize + "px";
 	ele.style.left = boundingRect.left - this.borderSize + "px";
 
