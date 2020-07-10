@@ -365,11 +365,17 @@ SelectCanvas.prototype.findNearestIntersection = function(p) {
 
 }
 
+// out of bounds checker
+SelectCanvas.prototype.isOutOfBounds = function(p) {
+	var boundingRect = get("display").getBoundingClientRect();
+	return (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height);
+}
+
 SelectCanvas.prototype.mousedown = function(e) {
 	// check for out of bounds
 	var boundingRect = get("display").getBoundingClientRect();
 	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
-	if (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height) {
+	if (this.isOutOfBounds(p)) {
 		return;
 	}
 
@@ -387,7 +393,7 @@ SelectCanvas.prototype.mousemove = function(e) {
 
 	// check for out of bounds
 	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
-	if (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height) {
+	if (this.isOutOfBounds(p)) {
 		get(this.id).style.cursor = 'default';
 		if (this.enabled) this.mouseup(e);
 		return;
