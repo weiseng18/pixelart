@@ -401,6 +401,7 @@ function handleRaw(data) {
 				// localStorage stringifies stuff
 				if (data[i][j] == "null") {
 					area.grid[i][j] = null;
+					getCell(area.id, i, j).style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
 				}
 				else {
 					area.grid[i][j] = data[i][j];

@@ -325,10 +325,8 @@ SelectCanvas.prototype.disable = function() {
 	get(this.ele.id).removeEventListener("mousedown", this.mousedownBIND);
 	get(this.ele.id).removeEventListener("mousemove", this.mousemoveBIND);
 	get(this.ele.id).removeEventListener("mouseup", this.mouseupBIND);
-	// clear canvas
-	var c = get(this.id);
-	var ctx = c.getContext("2d");
-	ctx.clearRect(0, 0, c.width, c.height);
+
+	this.clearCanvas();
 
 	get(this.ele.id).remove();
 }
@@ -455,6 +453,12 @@ SelectCanvas.prototype.isOutOfBounds = function(p) {
 	return (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height);
 }
 
+SelectCanvas.prototype.clearCanvas = function() {
+	var c = get(this.id);
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+}
+
 SelectCanvas.prototype.mousedown = function(e) {
 	if (area.tool == 2) {
 		// check for out of bounds
@@ -517,10 +521,7 @@ SelectCanvas.prototype.mousemove = function(e) {
 		}
 		if (this.enabled == false) return;
 
-		// clear canvas
-		var c = get(this.id);
-		var ctx = c.getContext("2d");
-		ctx.clearRect(0, 0, c.width, c.height);
+		this.clearCanvas();
 
 		var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
 
@@ -553,10 +554,7 @@ SelectCanvas.prototype.mousemove = function(e) {
 				return;
 			}
 			else {
-				// clear canvas
-				var c = get(this.id);
-				var ctx = c.getContext("2d");
-				ctx.clearRect(0, 0, c.width, c.height);
+				this.clearCanvas();
 				
 				// find nearest intersections
 				this.newTopLeft = this.findNearestIntersection(newTopLeft);
@@ -591,10 +589,7 @@ SelectCanvas.prototype.mouseup = function(e) {
 
 		this.enabled = false;
 
-		// clear canvas
-		var c = get(this.id);
-		var ctx = c.getContext("2d");
-		ctx.clearRect(0, 0, c.width, c.height);
+		this.clearCanvas();
 
 		// update the selection area
 
