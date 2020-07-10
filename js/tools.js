@@ -173,6 +173,13 @@ function toggleTool(idx) {
 
 		var pIDX = pRow*tools.columns + pColumn;
 
+		// change directly from pencil tool to move tool
+		// this should not be allowed as there is no selection to move.
+		if (pIDX == 0 && idx == 3) {
+			alert("No selection found");
+			return;
+		}
+
 		getCell("tools", pRow, pColumn).style.backgroundColor = "";
 		getCell("tools", pRow, pColumn).style.border = "solid 2px white";
 
@@ -181,8 +188,14 @@ function toggleTool(idx) {
 
 		area.tool = idx;
 
-		if (tools.items[pIDX].off != undefined)
-			tools.items[pIDX].off();
+		if (tools.items[pIDX].off != undefined) {
+			// change directly from select tool to move tool
+			// the canvas should remain and the selection should remain so that the user can interact
+			// but the user should not be able to amend this selection, unless explicitly activating select tool to re-select
+			if (pIDX == 2 && idx == 3) {/*pass*/}
+			else
+				tools.items[pIDX].off();
+		}
 
 		if (tools.items[idx].on != undefined)
 			tools.items[idx].on();
@@ -235,6 +248,12 @@ function SelectCanvas(id) {
 
 	this.topLeft = null;
 	this.bottomRight = null;
+
+	// variable to store the mousedown point for move tool
+	// if it is null that means no move is in process
+	this.moveStart = null;
+	this.newTopLeft = null;
+	this.newBottomRight = null;
 
 	// element always has to be ready for append and remove
 	// this has to be below this.borderSize so that this.borderSize is defined and can be used in this method
@@ -297,6 +316,18 @@ SelectCanvas.prototype.disable = function() {
 	ctx.clearRect(0, 0, c.width, c.height);
 
 	get(this.id).parentElement.remove();
+}
+
+SelectCanvas.prototype.moveOn = function() {
+	get(this.ele.id).children[0].style.cursor = "move";
+	console.log(this.ele.id);
+	console.log("move on");
+}
+
+SelectCanvas.prototype.moveOff = function() {
+	get(this.ele.id).children[0].style.cursor = "crosshair";
+	var removeSelectCanvas = selectCanvas.disable.bind(selectCanvas);
+	removeSelectCanvas();
 }
 
 // draws the select area
@@ -372,61 +403,116 @@ SelectCanvas.prototype.isOutOfBounds = function(p) {
 }
 
 SelectCanvas.prototype.mousedown = function(e) {
-	// check for out of bounds
-	var boundingRect = get("display").getBoundingClientRect();
-	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
-	if (this.isOutOfBounds(p)) {
-		return;
+	if (area.tool == 2) {
+		// check for out of bounds
+		var boundingRect = get("display").getBoundingClientRect();
+		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+		if (this.isOutOfBounds(p)) return;
+
+		this.enabled = true;
+
+		var boundingRect = get("display").getBoundingClientRect();
+		var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
+
+		this.topLeft = {x:x, y:y};
+		this.bottomRight = {x:x, y:y};
 	}
-
-	this.enabled = true;
-
-	var boundingRect = get("display").getBoundingClientRect();
-	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
-
-	this.topLeft = {x:x, y:y};
-	this.bottomRight = {x:x, y:y};
+	else if (area.tool == 3) {
+		// set the move start point (relative to the draw area)
+		var boundingRect = get("display").getBoundingClientRect();
+		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+		// out of bounds check
+		if (this.isOutOfBounds(p)) return;
+		// passes out of bounds check so it can be the start point
+		this.moveStart = p;
+	}
 }
 
 SelectCanvas.prototype.mousemove = function(e) {
-	var boundingRect = get("display").getBoundingClientRect();
+	if (area.tool == 2) {
+		var boundingRect = get("display").getBoundingClientRect();
 
-	// check for out of bounds
-	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
-	if (this.isOutOfBounds(p)) {
-		get(this.id).style.cursor = 'default';
-		if (this.enabled) this.mouseup(e);
-		return;
+		// check for out of bounds
+		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+		if (this.isOutOfBounds(p)) {
+			get(this.id).style.cursor = 'default';
+			if (this.enabled) this.mouseup(e);
+			return;
+		}
+		else {
+			get(this.id).style.cursor = 'crosshair';
+		}
+		if (this.enabled == false) return;
+
+		// clear canvas
+		var c = get(this.id);
+		var ctx = c.getContext("2d");
+		ctx.clearRect(0, 0, c.width, c.height);
+
+		var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
+
+		// temporarily assuming the mousedown spot is closer to top left than mousemove
+		this.bottomRight = {x:x, y:y};
+		this.drawSelectArea(this.topLeft, this.bottomRight);
 	}
-	else {
-		get(this.id).style.cursor = 'crosshair';
+	else if (area.tool == 3) {
+		if (this.moveStart != null) {
+			// step 1: find current point
+			var boundingRect = get("display").getBoundingClientRect();
+			var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+			// out of bounds check
+			if (this.isOutOfBounds(p)) return;
+
+			// step 2: find delta
+			var delta = {x: p.x - this.moveStart.x, y: p.y - this.moveStart.y};
+
+			// step 3: calculate the new topleft and bottom right
+
+			// exact values
+			var newTopLeft = {x: this.topLeft.x + delta.x, y: this.topLeft.y + delta.y};
+			var newBottomRight = {x: this.bottomRight.x + delta.x, y: this.bottomRight.y + delta.y};
+			if (this.isOutOfBounds(newTopLeft) || this.isOutOfBounds(newBottomRight)) return;
+			else {
+				// clear canvas
+				var c = get(this.id);
+				var ctx = c.getContext("2d");
+				ctx.clearRect(0, 0, c.width, c.height);
+				
+				// find nearest intersections
+				this.newTopLeft = this.findNearestIntersection(newTopLeft);
+				this.newBottomRight = this.findNearestIntersection(newBottomRight);
+				this.drawSelectArea(this.newTopLeft, this.newBottomRight);
+			}
+		}
 	}
-
-	if (this.enabled == false) return;
-
-	// clear canvas
-	var c = get(this.id);
-	var ctx = c.getContext("2d");
-	ctx.clearRect(0, 0, c.width, c.height);
-
-	var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
-
-	// temporarily assuming the mousedown spot is closer to top left than mousemove
-	this.bottomRight = {x:x, y:y};
-	this.drawSelectArea(this.topLeft, this.bottomRight);
 }
 
 SelectCanvas.prototype.mouseup = function(e) {
-	if (this.enabled == false) return;
+	if (area.tool == 2) {
+		if (this.enabled == false) return;
 
-	this.enabled = false;
+		this.enabled = false;
 
-	// clear canvas
-	var c = get(this.id);
-	var ctx = c.getContext("2d");
-	ctx.clearRect(0, 0, c.width, c.height);
+		// clear canvas
+		var c = get(this.id);
+		var ctx = c.getContext("2d");
+		ctx.clearRect(0, 0, c.width, c.height);
 
-	this.topLeft = this.findNearestIntersection(this.topLeft);
-	this.bottomRight = this.findNearestIntersection(this.bottomRight);
-	this.drawSelectArea(this.topLeft, this.bottomRight);
+		this.topLeft = this.findNearestIntersection(this.topLeft);
+		this.bottomRight = this.findNearestIntersection(this.bottomRight);
+		this.drawSelectArea(this.topLeft, this.bottomRight);
+	}
+	else if (area.tool == 3) {
+		this.moveStart = null;
+		this.topLeft = this.newTopLeft;
+		this.bottomRight = this.newBottomRight;
+	}
+}
+
+SelectCanvas.prototype.mouseleave = function(e) {
+	if (area.tool == 3) {
+		this.moveStart = null;
+		this.topLeft = this.newTopLeft;
+		this.bottomRight = this.newBottomRight;
+	}
 }

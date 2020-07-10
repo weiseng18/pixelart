@@ -571,7 +571,9 @@ window.onload = function() {
 	var off = selectCanvas.disable.bind(selectCanvas);
 	var select = new Tool("select", "select.png", "Select tool", on, off);
 
-	var move = new Tool("move", "move.png", "Move tool");
+	var moveOn = selectCanvas.moveOn.bind(selectCanvas);
+	var moveOff = selectCanvas.moveOff.bind(selectCanvas);
+	var move = new Tool("move", "move.png", "Move tool", moveOn, moveOff);
 
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
