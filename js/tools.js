@@ -206,6 +206,10 @@ function Tool(name, iconSrc, tooltip, on, off) {
 	this.tooltip = tooltip;
 }
 
+// ------
+// eyedropper
+// ------
+
 function eyeDropper(e) {
 	var cell = e.target;
 	var column = cell.cellIndex;
@@ -216,6 +220,10 @@ function eyeDropper(e) {
 	updateColor(e, "eyeDropper");
 	cHistory.addColor(e, "eyeDropper");
 }
+
+// ------
+// select tool
+// ------
 
 function SelectCanvas(id) {
 	this.id = id;
