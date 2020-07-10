@@ -319,9 +319,7 @@ SelectCanvas.prototype.disable = function() {
 }
 
 SelectCanvas.prototype.moveOn = function() {
-	get(this.ele.id).children[0].style.cursor = "move";
-	console.log(this.ele.id);
-	console.log("move on");
+	get(this.ele.id).children[0].style.cursor = "grab";
 }
 
 SelectCanvas.prototype.moveOff = function() {
@@ -418,6 +416,9 @@ SelectCanvas.prototype.mousedown = function(e) {
 		this.bottomRight = {x:x, y:y};
 	}
 	else if (area.tool == 3) {
+		// set cursor to grabbing
+		get(this.ele.id).children[0].style.cursor = "move";
+
 		// set the move start point (relative to the draw area)
 		var boundingRect = get("display").getBoundingClientRect();
 		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
@@ -503,6 +504,8 @@ SelectCanvas.prototype.mouseup = function(e) {
 		this.drawSelectArea(this.topLeft, this.bottomRight);
 	}
 	else if (area.tool == 3) {
+		get(this.ele.id).children[0].style.cursor = "grab";
+
 		this.moveStart = null;
 		this.topLeft = this.newTopLeft;
 		this.bottomRight = this.newBottomRight;
