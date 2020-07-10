@@ -83,19 +83,6 @@ DrawArea.prototype.toggleEdit = function() {
 	}
 }
 
-function RGBStringToHexString(string) {
-	var split = string.split(", ");
-	var r = parseInt(split[0].substring(4)).toString(16),
-		g = parseInt(split[1]).toString(16);
-		b = parseInt(split[2].substring(0, split[2].length-1)).toString(16);
-
-	if (r.length == 1) r = "0" + r;
-	if (g.length == 1) g = "0" + g;
-	if (b.length == 1) b = "0" + b;
-
-	return "#" + r + g + b;
-}
-
 function paint(e) {
 	var color = get("color").style.backgroundColor;
 	var cell = e.target;
@@ -220,18 +207,18 @@ CanvasWrapper.prototype.LinearGradient = function(colors, which) {
 // to the bottom is less opacity in the color (i.e. darker)
 CanvasWrapper.prototype.TwoDimGradient = function(color) {
 	// this is done in 3 steps
+	
 	// step 1: color the whole canvas as the selected color
-	// step 2: gradient from left to right of white (right is less white)
-	// step 3: gradient from top to bottom of black (down is more black)
-
 	this.ctx.fillStyle = color;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 
+	// step 2: gradient from left to right of white (right is less white)
 	var white = ['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0.8)', 'rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0)'];
 	var whiteGradient = this.LinearGradient(white, "horizontal");
 	this.ctx.fillStyle = whiteGradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 
+	// step 3: gradient from top to bottom of black (down is more black)
 	var black = ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.1)', 'rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 1)'];
 	var blackGradient = this.LinearGradient(black, "vertical");
 	this.ctx.fillStyle = whiteGradient;
@@ -560,6 +547,7 @@ window.onload = function() {
 		loadRaw("upload");
 	});
 
+	// select canvas
 	selectCanvas = new SelectCanvas("selectCanvas");
 
 	tools = new ToolWrapper(4, 6);

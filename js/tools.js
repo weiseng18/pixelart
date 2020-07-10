@@ -235,7 +235,7 @@ function eyeDropper(e) {
 }
 
 // ------
-// select tool
+// select tool + move tool
 // ------
 
 function SelectCanvas(id) {
