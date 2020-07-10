@@ -246,8 +246,14 @@ function SelectCanvas(id) {
 	// constant to be used to ensure that this "extra" width and height will extend out of the drawing area
 	this.borderSize = 4;
 
+	// top left and bottom right of the selected rectangle
+	// in the move tool, this only changes on mouseup event
 	this.topLeft = null;
 	this.bottomRight = null;
+
+	// cell top left and top right, will correspond to area.grid
+	this.cellTopLeft = null;
+	this.cellBottomRight = null;
 
 	// variable to store the mousedown point for move tool
 	// if it is null that means no move is in process
@@ -385,13 +391,22 @@ SelectCanvas.prototype.findNearestIntersection = function(p) {
 
 	// get the width and height of a cell on the drawing area
 	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
-	var xFactor = (p.x - this.borderSize) / xMult, yFactor = (p.y - this.borderSize) / yMult;
+	var xFactor = (p.x - this.borderSize/2) / xMult, yFactor = (p.y - this.borderSize/2) / yMult;
 
 	// round the xFactor to the closest integer, then multiply by xMult to get the intended point
 	var roundedX = Math.round(xFactor) * xMult, roundedY = Math.round(yFactor) * yMult;
 
-	return {x:roundedX+this.borderSize/2, y:roundedY+this.borderSize/2};
+	return {x:roundedX, y:roundedY};
+}
 
+SelectCanvas.prototype.convertIntersectionToCell = function(p) {
+	var boundingRect = get("display").getBoundingClientRect();
+
+	// get the width and height of a cell on the drawing area
+	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
+	var x = p.x / xMult, y = p.y / yMult;
+
+	return {x:x, y:y};
 }
 
 // out of bounds checker
@@ -501,6 +516,11 @@ SelectCanvas.prototype.mouseup = function(e) {
 
 		this.topLeft = this.findNearestIntersection(this.topLeft);
 		this.bottomRight = this.findNearestIntersection(this.bottomRight);
+
+		this.cellTopLeft = this.convertIntersectionToCell(this.topLeft);
+		this.cellBottomRight = this.convertIntersectionToCell(this.bottomRight);
+		this.cellBottomRight = {x:this.cellBottomRight.x-1, y:this.cellBottomRight.y-1};
+
 		this.drawSelectArea(this.topLeft, this.bottomRight);
 	}
 	else if (area.tool == 3) {
