@@ -251,15 +251,21 @@ function SelectCanvas(id) {
 	this.topLeft = null;
 	this.bottomRight = null;
 
-	// cell top left and top right, will correspond to area.grid
+	// cell top left and bottom right, will correspond to this.grid
 	this.cellTopLeft = null;
 	this.cellBottomRight = null;
+	this.selection = null;
 
 	// variable to store the mousedown point for move tool
 	// if it is null that means no move is in process
 	this.moveStart = null;
 	this.newTopLeft = null;
 	this.newBottomRight = null;
+
+	// new cell top left and bottom right, will correspond to this.grid
+	// this corresponds to the current selection, which is in a mousemove state.
+	this.newCellTopLeft = null;
+	this.newCellBottomRight = null;
 
 	// element always has to be ready for append and remove
 	// this has to be below this.borderSize so that this.borderSize is defined and can be used in this method
@@ -304,24 +310,27 @@ SelectCanvas.prototype.generateHTML = function() {
 SelectCanvas.prototype.enable = function() {
 	document.body.appendChild(this.ele);
 
+	this.mousedownBIND = this.mousedown.bind(this);
+	this.mousemoveBIND = this.mousemove.bind(this);
+	this.mouseupBIND = this.mouseup.bind(this);
+
 	// add event listeners once the element is added to DOM
-	get(this.ele.id).addEventListener("mousedown", this.mousedown.bind(this));
-	get(this.ele.id).addEventListener("mousemove", this.mousemove.bind(this));
-	get(this.ele.id).addEventListener("mouseup", this.mouseup.bind(this));
+	get(this.ele.id).addEventListener("mousedown", this.mousedownBIND);
+	get(this.ele.id).addEventListener("mousemove", this.mousemoveBIND);
+	get(this.ele.id).addEventListener("mouseup", this.mouseupBIND);
 }
 
 SelectCanvas.prototype.disable = function() {
 	// remove event listeners before the element is removed from DOM
-	get(this.ele.id).removeEventListener("mousedown", this.mousedown.bind(this));
-	get(this.ele.id).removeEventListener("mousemove", this.mousemove.bind(this));
-	get(this.ele.id).removeEventListener("mouseup", this.mouseup.bind(this));
-
+	get(this.ele.id).removeEventListener("mousedown", this.mousedownBIND);
+	get(this.ele.id).removeEventListener("mousemove", this.mousemoveBIND);
+	get(this.ele.id).removeEventListener("mouseup", this.mouseupBIND);
 	// clear canvas
 	var c = get(this.id);
 	var ctx = c.getContext("2d");
 	ctx.clearRect(0, 0, c.width, c.height);
 
-	get(this.id).parentElement.remove();
+	get(this.ele.id).remove();
 }
 
 SelectCanvas.prototype.moveOn = function() {
@@ -330,8 +339,7 @@ SelectCanvas.prototype.moveOn = function() {
 
 SelectCanvas.prototype.moveOff = function() {
 	get(this.ele.id).children[0].style.cursor = "crosshair";
-	var removeSelectCanvas = selectCanvas.disable.bind(selectCanvas);
-	removeSelectCanvas();
+	this.disable();
 }
 
 // draws the select area
@@ -384,6 +392,7 @@ SelectCanvas.prototype.drawSelectArea = function(x1, x2) {
 
 }
 
+
 // finds the nearest intersection on the drawing area so that the select function can appear to snap to the grid
 // takes in a point (x, y) and returns a point (x, y)
 SelectCanvas.prototype.findNearestIntersection = function(p) {
@@ -397,6 +406,37 @@ SelectCanvas.prototype.findNearestIntersection = function(p) {
 	var roundedX = Math.round(xFactor) * xMult, roundedY = Math.round(yFactor) * yMult;
 
 	return {x:roundedX, y:roundedY};
+}
+
+// find nearest intersection with out of bounds allowed, but the out of bounds will be adjusted back in accordingly
+// note that this adjustment will require 2 points (topleft and bottom right) as arguments to ensure that 
+// the selection does not go out of bounds
+SelectCanvas.prototype.forceNearestIntersection = function(p1, p2) {
+	// p1 is topleft, p2 is bottomright
+
+	var boundingRect = get("display").getBoundingClientRect();
+
+	// get the width and height of a cell on the drawing area
+	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
+
+	p1.xFactor = (p1.x - this.borderSize/2) / xMult, p1.yFactor = (p1.y - this.borderSize/2) / yMult;
+	p2.xFactor = (p2.x - this.borderSize/2) / xMult, p2.yFactor = (p2.y - this.borderSize/2) / yMult;
+
+	// round the xFactor to the closest integer, then multiply by xMult to get the intended point
+	p1.x = Math.round(p1.xFactor) * xMult, p1.y = Math.round(p1.yFactor) * yMult;
+	p2.x = Math.round(p2.xFactor) * xMult, p2.y = Math.round(p2.yFactor) * yMult;
+	
+	// above is copied from findNearestIntersection
+	// below will be the adjustments
+
+	while (p1.x < 0) {p1.x += xMult; p2.x += xMult;}
+	while (p1.y < 0) {p1.y += yMult; p2.y += yMult;}
+
+	while (p2.x > area.width*xMult) {p1.x -= xMult; p2.x -= xMult;}
+	while (p2.y > area.height*yMult) {p1.y -= yMult; p2.y -= yMult;}
+
+	var point1 = {x:p1.x, y:p1.y}, point2 = {x:p2.x, y:p2.y};
+	return {topLeft:point1, bottomRight:point2};
 }
 
 SelectCanvas.prototype.convertIntersectionToCell = function(p) {
@@ -441,6 +481,23 @@ SelectCanvas.prototype.mousedown = function(e) {
 		if (this.isOutOfBounds(p)) return;
 		// passes out of bounds check so it can be the start point
 		this.moveStart = p;
+
+		// cut out the selection from area.grid
+		// this area of the code allows movements to be made successive times for the same selection
+		var height = this.cellBottomRight.y - this.cellTopLeft.y + 1;
+		var width = this.cellBottomRight.x - this.cellTopLeft.x + 1;
+		this.selection = init2D(height, width, null);
+
+		for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
+			for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++) {
+				this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] = area.grid[y][x];
+				area.grid[y][x] = null;
+			}
+		
+		// make a copy of area.grid
+		// this is necessary as we do not want to update area.grid until the move is complete (mouseup)
+		// if we do not do so, moving can act like an eraser which is not intuitive
+		this.grid = JSON.parse(JSON.stringify(area.grid));
 	}
 }
 
@@ -467,7 +524,6 @@ SelectCanvas.prototype.mousemove = function(e) {
 
 		var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
 
-		// temporarily assuming the mousedown spot is closer to top left than mousemove
 		this.bottomRight = {x:x, y:y};
 		this.drawSelectArea(this.topLeft, this.bottomRight);
 	}
@@ -487,7 +543,15 @@ SelectCanvas.prototype.mousemove = function(e) {
 			// exact values
 			var newTopLeft = {x: this.topLeft.x + delta.x, y: this.topLeft.y + delta.y};
 			var newBottomRight = {x: this.bottomRight.x + delta.x, y: this.bottomRight.y + delta.y};
-			if (this.isOutOfBounds(newTopLeft) || this.isOutOfBounds(newBottomRight)) return;
+			if (this.isOutOfBounds(newTopLeft) || this.isOutOfBounds(newBottomRight)) {
+				// consider a drag where the element is at the bottom edge but NOT the cursor.
+				// this allows the element to be moved right and left from the current cursor
+				this.moveStart = p;
+				var points = this.forceNearestIntersection(newTopLeft, newBottomRight);
+				this.topLeft = points.topLeft;
+				this.bottomRight = points.bottomRight;
+				return;
+			}
 			else {
 				// clear canvas
 				var c = get(this.id);
@@ -498,6 +562,24 @@ SelectCanvas.prototype.mousemove = function(e) {
 				this.newTopLeft = this.findNearestIntersection(newTopLeft);
 				this.newBottomRight = this.findNearestIntersection(newBottomRight);
 				this.drawSelectArea(this.newTopLeft, this.newBottomRight);
+
+				// find corresponding cells
+				var newCellTopLeft = this.convertIntersectionToCell(this.newTopLeft);
+				var newCellBottomRight = this.convertIntersectionToCell(this.newBottomRight);
+				newCellBottomRight = {x:newCellBottomRight.x-1, y:newCellBottomRight.y-1};
+
+				// only move selection if it is necessary
+				if (this.cellTopLeft == newCellTopLeft && this.cellBottomRight == newCellBottomRight) {}
+				else {
+					// initative move
+					area.moveSelection(this.selection, this.cellTopLeft, this.cellBottomRight,
+									newCellTopLeft, newCellBottomRight);
+					// update the new cells indicating that a move has been made
+					// i think the this.topLeft and this.bottomRight aren't changed
+					// but the cells need to be changed?
+					this.cellTopLeft = newCellTopLeft;
+					this.cellBottomRight = newCellBottomRight;
+				}	
 			}
 		}
 	}
@@ -514,28 +596,37 @@ SelectCanvas.prototype.mouseup = function(e) {
 		var ctx = c.getContext("2d");
 		ctx.clearRect(0, 0, c.width, c.height);
 
+		// update the selection area
+
 		this.topLeft = this.findNearestIntersection(this.topLeft);
 		this.bottomRight = this.findNearestIntersection(this.bottomRight);
+		this.drawSelectArea(this.topLeft, this.bottomRight);
 
+		// update the cells
 		this.cellTopLeft = this.convertIntersectionToCell(this.topLeft);
 		this.cellBottomRight = this.convertIntersectionToCell(this.bottomRight);
 		this.cellBottomRight = {x:this.cellBottomRight.x-1, y:this.cellBottomRight.y-1};
-
-		this.drawSelectArea(this.topLeft, this.bottomRight);
 	}
+
 	else if (area.tool == 3) {
 		get(this.ele.id).children[0].style.cursor = "grab";
 
-		this.moveStart = null;
-		this.topLeft = this.newTopLeft;
-		this.bottomRight = this.newBottomRight;
-	}
-}
+		// update area.grid
+		area.grid = JSON.parse(JSON.stringify(this.grid));
 
-SelectCanvas.prototype.mouseleave = function(e) {
-	if (area.tool == 3) {
 		this.moveStart = null;
+
+		// update the selection area
+
 		this.topLeft = this.newTopLeft;
 		this.bottomRight = this.newBottomRight;
+
+		this.topLeft = this.findNearestIntersection(this.topLeft);
+		this.bottomRight = this.findNearestIntersection(this.bottomRight);
+
+		// update the cells
+		this.cellTopLeft = this.convertIntersectionToCell(this.topLeft);
+		this.cellBottomRight = this.convertIntersectionToCell(this.bottomRight);
+		this.cellBottomRight = {x:this.cellBottomRight.x-1, y:this.cellBottomRight.y-1};
 	}
 }
