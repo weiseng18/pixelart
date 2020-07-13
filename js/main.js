@@ -266,6 +266,7 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 	this.ctx.fillRect(0, 0, this.width, this.height);
 }
 
+// updates the color in #color_body based on a color picked from #color_slider
 function updateColorBody(e) {
 	x = e.offsetX;
 	y = e.offsetY;
@@ -274,6 +275,7 @@ function updateColorBody(e) {
 	body.TwoDimGradient(color);
 }
 
+// updates the color in #color (i.e. the actual color chosen) based on a color picked from #color_body
 function updateColor(e, source) {
 	if (source == "color_picker") {
 		x = e.offsetX;
@@ -284,6 +286,8 @@ function updateColor(e, source) {
 	else if (source == "color_history" || source == "eyeDropper") {
 		var color = e.target.style.backgroundColor;
 	}
+
+	// update color
 	get("color").style.backgroundColor = color;
 }
 
@@ -506,7 +510,7 @@ ColorHistory.prototype.addColor = function(e, source) {
 
 var area;
 
-var slider, body;
+var slider, body, colorType;
 
 var tools;
 
@@ -524,6 +528,8 @@ window.onload = function() {
 	slider.LinearGradient(colors, "vertical");
 
 	body = new CanvasWrapper("color_body");
+
+	colorType = "RGB";
 
 	// add event listener to change the color gradient displayed in body
 	slider.HTML.addEventListener("click", function(e) {
