@@ -219,6 +219,19 @@ DrawArea.prototype.paint = function(p, color) {
 // color picker
 // ------
 
+function ColorPicker(slider_id, body_id, defaultColorType) {
+	// color slider
+	this.slider = new CanvasWrapper(slider_id);
+	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
+	this.slider.LinearGradient(colors, "vertical");
+
+	// color body
+	this.body = new CanvasWrapper(body_id);
+
+	// display actual color
+	this.colorType = defaultColorType;
+}
+
 function CanvasWrapper(id) {
 	this.HTML = get(id);
 	this.ctx = this.HTML.getContext("2d");
@@ -267,20 +280,20 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 }
 
 // updates the color in #color_body based on a color picked from #color_slider
-function updateColorBody(e) {
+ColorPicker.prototype.updateColorBody = function(e) {
 	x = e.offsetX;
 	y = e.offsetY;
-	var data = slider.ctx.getImageData(x, y, 1, 1).data;
+	var data = this.slider.ctx.getImageData(x, y, 1, 1).data;
 	var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
-	body.TwoDimGradient(color);
+	this.body.TwoDimGradient(color);
 }
 
 // updates the color in #color (i.e. the actual color chosen) based on a color picked from #color_body
-function updateColor(e, source) {
+ColorPicker.prototype.updateColor = function(e, source) {
 	if (source == "color_picker") {
 		x = e.offsetX;
 		y = e.offsetY;
-		var data = body.ctx.getImageData(x, y, 1, 1).data;
+		var data = this.body.ctx.getImageData(x, y, 1, 1).data;
 		var color = 'rgba(' + data[0] + ',' + data[1] + ',' + data[2] + ',1)';
 	}
 	else if (source == "color_history" || source == "eyeDropper") {
@@ -289,6 +302,72 @@ function updateColor(e, source) {
 
 	// update color
 	get("color").style.backgroundColor = color;
+}
+
+// event listeners
+ColorPicker.prototype.slider_click = function(e) {
+	this.updateColorBody(e);
+}
+
+ColorPicker.prototype.slider_mousedown = function(e) {
+	this.slider.drag = true;
+	this.updateColorBody(e);
+}
+
+ColorPicker.prototype.slider_mousemove = function(e) {
+	if (this.slider.drag)
+		this.updateColorBody(e);
+}
+
+ColorPicker.prototype.slider_mouseup = function(e) {
+	this.slider.drag = false;
+}
+
+ColorPicker.prototype.slider_mouseleave = function(e) {
+	this.slider.drag = false;
+}
+
+ColorPicker.prototype.body_click = function(e) {
+	this.updateColor(e, "color_picker");
+}
+
+ColorPicker.prototype.body_mousedown = function(e) {
+	this.body.drag = true;
+	this.updateColor(e, "color_picker");
+}
+
+ColorPicker.prototype.body_mousemove = function(e) {
+	if (this.body.drag)
+		this.updateColor(e, "color_picker");
+}
+
+ColorPicker.prototype.body_mouseup = function(e) {
+	this.body.drag = false;
+	cHistory.addColor(e, "color_picker");
+}
+
+ColorPicker.prototype.body_mouseleave = function(e) {
+	this.body.drag = false;
+}
+
+ColorPicker.prototype.addEventListeners = function() {
+	// add event listener to change the color gradient displayed in body
+	this.slider.HTML.addEventListener("click", this.slider_click.bind(this));
+
+	// allow dragging on the slider
+	this.slider.HTML.addEventListener("mousedown", this.slider_mousedown.bind(this));
+	this.slider.HTML.addEventListener("mousemove", this.slider_mousemove.bind(this));
+	this.slider.HTML.addEventListener("mouseup", this.slider_mouseup.bind(this));
+	this.slider.HTML.addEventListener("mouseleave", this.slider_mouseleave.bind(this));
+
+	// add event listener to change the color displayed
+	this.body.HTML.addEventListener("click", this.body_click.bind(this));
+
+	// allow dragging on the body
+	this.body.HTML.addEventListener("mousedown", this.body_mousedown.bind(this));
+	this.body.HTML.addEventListener("mousemove", this.body_mousemove.bind(this));
+	this.body.HTML.addEventListener("mouseup", this.body_mouseup.bind(this));
+	this.body.HTML.addEventListener("mouseleave", this.body_mouseleave.bind(this));
 }
 
 // ------
@@ -510,75 +589,37 @@ ColorHistory.prototype.addColor = function(e, source) {
 
 var area;
 
-var slider, body, colorType;
+var colorPicker;
 
 var tools;
 
 var cHistory;
 
 window.onload = function() {
+	// ------
+	// drawing area
+	// ------
 	area = new DrawArea(32, 32);
 	area.generateHTML();
 
 	// initialize pencil color to black, so that if the user tries to draw before selecting a color, it works
 	get("color").style.backgroundColor = "rgb(0, 0, 0)";
 
-	slider = new CanvasWrapper("color_slider");
-	var colors = ["rgba(255, 0, 0, 1)", "rgba(255, 255, 0, 1)", "rgba(0, 255, 0, 1)", "rgba(0, 255, 255, 1)", "rgba(0, 0, 255, 1)", "rgba(255, 0, 255, 1)", "rgba(255, 0, 0, 1)"];
-	slider.LinearGradient(colors, "vertical");
+	// ------
+	// color picker
+	// ------
+	colorPicker = new ColorPicker("color_slider", "color_body", "RGB");
+	colorPicker.addEventListeners();
 
-	body = new CanvasWrapper("color_body");
-
-	colorType = "RGB";
-
-	// add event listener to change the color gradient displayed in body
-	slider.HTML.addEventListener("click", function(e) {
-		updateColorBody(e);
-	});
-
-	// allow dragging on the slider
-	slider.HTML.addEventListener("mousedown", function(e) {
-		this.drag = true;
-		updateColorBody(e);
-	});
-	slider.HTML.addEventListener("mousemove", function(e) {
-		if (this.drag)
-			updateColorBody(e);
-	});
-	slider.HTML.addEventListener("mouseup", function(e) {
-		this.drag = false;
-	});
-	slider.HTML.addEventListener("mouseleave", function(e) {
-		this.drag = false;
-	});
-
-	// add event listener to change the color displayed
-	body.HTML.addEventListener("click", function(e) {
-		updateColor(e, "color_picker");
-	})
-
-	// allow dragging on the body
-	body.HTML.addEventListener("mousedown", function(e) {
-		this.drag = true;
-		updateColor(e, "color_picker");
-	});
-	body.HTML.addEventListener("mousemove", function(e) {
-		if (this.drag)
-			updateColor(e, "color_picker");
-	});
-	body.HTML.addEventListener("mouseup", function(e) {
-		this.drag = false;
-		cHistory.addColor(e, "color_picker");
-	});
-	body.HTML.addEventListener("mouseleave", function(e) {
-		this.drag = false;
-	});
-
+	// ------
 	// color history
+	// ------
 	cHistory = new ColorHistory(2, 7);
 	cHistory.generateHTML();
 
-	// menu bar
+	// ------
+	// menu bar / saving functions
+	// ------
 	get("savePNG").addEventListener("click", function(e) {
 		savePNG();
 	});
@@ -595,18 +636,24 @@ window.onload = function() {
 		loadRaw("upload");
 	});
 
-	// select canvas
-	selectCanvas = new SelectCanvas("selectCanvas");
-
+	// ------
+	// tools
+	// ------
 	tools = new ToolWrapper(4, 6);
 
+	// pencil tool
 	var pencil = new Tool("pencil", "pencil.png", "Pencil")
+
+	// eyedropper tool
 	var eyedropper = new Tool("eyedropper", "eyedropper.png", "Eyedropper tool");
 
+	// select tool
+	selectCanvas = new SelectCanvas("selectCanvas");
 	var on = selectCanvas.enable.bind(selectCanvas);
 	var off = selectCanvas.disable.bind(selectCanvas);
 	var select = new Tool("select", "select.png", "Select tool", on, off);
 
+	// move tool
 	var moveOn = selectCanvas.moveOn.bind(selectCanvas);
 	var moveOff = selectCanvas.moveOff.bind(selectCanvas);
 	var move = new Tool("move", "move.png", "Move tool", moveOn, moveOff);
@@ -618,6 +665,7 @@ window.onload = function() {
 
 	tools.generateHTML();
 
+	// turn on pencil tool
 	toggleTool(0);
 
 };
