@@ -302,6 +302,55 @@ ColorPicker.prototype.updateColor = function(e, source) {
 
 	// update color
 	get("color").style.backgroundColor = color;
+
+	this.updateColorValue(color);
+}
+
+// displays the raw value of the color
+// can choose between RGB and hex value
+ColorPicker.prototype.updateColorValue = function(color) {
+	if (this.colorType == "RGB") {
+		var colors = color.split("(")[1].split(",");
+
+		for (var i=0; i<3; i++)
+			get("color_text").children[i*2+1].value = colors[i];
+	}
+	else if (this.colorType == "hex") {
+
+	}
+}
+
+// creates the area (and structure) to display raw value of the color
+ColorPicker.prototype.createDisplayArea = function() {
+	if (this.colorType == "RGB") {
+
+		var values = [" R: ", " G: ", " B: "];
+		var color = ["#FF0000", "#00FF00", "#0000FF"];
+
+		var ele_color = [null, null, null];
+		for (var i=0; i<3; i++) {
+			ele_color[i] = document.createElement("span");
+			ele_color[i].innerHTML = values[i];
+			ele_color[i].style.verticalAlign = "middle";
+			ele_color[i].style.color = color[i];
+		}
+
+		var ele_input = [null, null, null];
+		for (var i=0; i<3; i++) {
+			ele_input[i] = document.createElement("input");
+			ele_input[i].type = "number";
+			ele_input[i].style.width = "15%";
+			ele_input[i].style.verticalAlign = "middle";
+		}
+
+		for (var i=0; i<3; i++) {
+			get("color_text").appendChild(ele_color[i]);
+			get("color_text").appendChild(ele_input[i]);
+		}
+	}
+	else if (this.colorType == "hex") {
+
+	}
 }
 
 // event listeners
@@ -541,7 +590,7 @@ ColorHistory.prototype.generateHTML = function() {
 	}
 
 	table.addEventListener("click", function(e) {
-		updateColor(e, "color_history");
+		colorPicker.updateColor(e, "color_history");
 		cHistory.addColor(e, "color_history");
 	});
 
@@ -610,6 +659,7 @@ window.onload = function() {
 	// ------
 	colorPicker = new ColorPicker("color_slider", "color_body", "RGB");
 	colorPicker.addEventListeners();
+	colorPicker.createDisplayArea();
 
 	// ------
 	// color history
@@ -639,7 +689,7 @@ window.onload = function() {
 	// ------
 	// tools
 	// ------
-	tools = new ToolWrapper(4, 6);
+	tools = new ToolWrapper(2, 6);
 
 	// pencil tool
 	var pencil = new Tool("pencil", "pencil.png", "Pencil")
