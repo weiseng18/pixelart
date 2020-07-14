@@ -100,13 +100,12 @@ ColorPicker.prototype.updateColorValue = function(color, source) {
 			// input format: rgba(0,0,0,0)
 			colors = color.split("(")[1].split(",");
 		}
-		else if (source == "color_history" || source == "eyeDropper") {
+		else if (source == "color_history" || source == "eyeDropper" || source == "manual") {
 			// input format: rgb(0, 0, 0)
 			// note the spaces in the rgb
 			colors = color.split("(")[1].split(", ");
 			colors[2] = colors[2].substring(0, colors[2].length-1);
 		}
-
 		// split up rgb
 		for (var i=0; i<3; i++)
 			get("color_text").children[i*2+1].value = colors[i];
@@ -126,7 +125,7 @@ ColorPicker.prototype.updateColorValue = function(color, source) {
 			rgb = rgb.join(", ");
 			rgb = rgb.substring(0, rgb.length-2) + ")";
 		}
-		else if (source == "color_history" || source == "eyeDropper") {
+		else if (source == "color_history" || source == "eyeDropper" || source == "manual") {
 			rgb = color;
 		}
 
@@ -146,11 +145,15 @@ ColorPicker.prototype.toggleColorType = function() {
 		this.colorType = "RGB";
 		get("color_text").innerHTML = "";
 		this.createDisplayArea();
+		var color = get("color").style.backgroundColor;
+		this.updateColorValue(color, "manual");
 	}
 	else {
 		this.colorType = "hex";
 		get("color_text").innerHTML = "";
 		this.createDisplayArea();
+		var color = get("color").style.backgroundColor;
+		this.updateColorValue(color, "manual");
 	}
 }
 
