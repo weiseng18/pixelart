@@ -364,7 +364,26 @@ ColorPicker.prototype.selectColor = function() {
 		colorPicked = "rgb(" + r + ", " + g + ", " + b + ")";
 	}
 	else if (this.colorType == "hex") {
-		var hex = "#" + get("color_text").children[1].value;
+		// cannot prevent user from backspacing in the hex area
+		// check of hex string length < 6 must be done here only
+		// allowing 3 digit #fbc == #ffbbcc
+
+		var hexValue = get("color_text").children[1].value;
+
+		if (hexValue.length == 3) {
+			var expanded = "";
+			for (var i=0; i<3; i++)
+				expanded += hexValue[i] + hexValue[i];
+			hexValue = expanded;
+			get("color_text").children[1].value = hexValue;
+		}
+
+		else if (hexValue.length < 6) { // not 3 and less than 6, i.e. invalid
+			alert("Invalid hex value!");
+			return;
+		}
+
+		var hex = "#" + hexValue;
 		colorPicked = HexStringToRGBString(hex);
 	}
 
@@ -398,6 +417,8 @@ ColorPicker.prototype.createDisplayArea = function() {
 			ele_input[i].style.verticalAlign = "middle";
 			ele_input[i].min = 0;
 			ele_input[i].max = 255;
+			ele_input[i].addEventListener("keypress", this.validateRGB);
+			ele_input[i].addEventListener("paste", this.handlePaste.bind(this));
 		}
 
 		for (var i=0; i<3; i++) {
@@ -414,9 +435,80 @@ ColorPicker.prototype.createDisplayArea = function() {
 		var value = document.createElement("input");
 		value.type = "text";
 		value.style.width = "50%";
+		value.addEventListener("keypress", this.validateHex);
+		value.addEventListener("paste", this.handlePaste.bind(this));
 
 		get("color_text").appendChild(hashsymbol);
 		get("color_text").appendChild(value);
+	}
+}
+
+ColorPicker.prototype.handlePaste = function(e) {
+	var paste = (e.clipboardData || window.clipboardData).getData('text');
+	if (this.colorType == "RGB") {
+		var pattern = new RegExp("^[0-9]{1,3}$");
+		var res = pattern.test(paste);
+		if (res == false) { // invalid string
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+			alert("Invalid RGB value!")
+		}
+		else {
+			// clear the box
+			e.target.value = "";
+			var number = parseInt(paste);
+			if (number < 0 || number > 255) {
+				e.preventDefault ? e.preventDefault() : e.returnValue = false;
+				alert("Invalid RGB value!")
+			}
+		}
+	}
+	else if (this.colorType == "hex") {
+		var pattern = new RegExp("^(0x|0X|#)?[0-9a-fA-F]{6}$");
+		var res = pattern.test(paste);
+		if (res == false) { // invalid string
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+			alert("Invalid hex value!")
+		}
+		else {
+			// clear the box
+			e.target.value = "";
+			if (RegExp("^#").test(paste))
+				paste = paste.substring(1);
+			else if (RegExp("^(0x|0X)").test(paste))
+				paste = paste.substring(2);
+
+			// want to prevent default paste in order to remove the # or 0x or 0X
+			e.target.value = paste;
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		}
+	}
+}
+
+ColorPicker.prototype.validateRGB = function(e) {
+	var key = e.which || e.keyCode;
+	if (key == 8) // backspace
+		return true;
+	else if (key < 48 || key > 57) // not a digit
+		e.preventDefault ? e.preventDefault() : e.returnValue = false;
+	else
+		return true;
+}
+
+ColorPicker.prototype.validateHex = function(e) {
+	var key = e.which || e.keyCode;
+	if (key == 8) // backspace
+		return true;
+	else {
+		if (e.target.value.length == 6) // check for length
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		else if (48 <= key && key <= 57) // digit
+			return true;
+		else if (65 <= key && key <= 70) // [A-F]
+			return true;
+		else if (97 <= key && key <= 102) // [a-f]
+			return true;
+		else
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
 	}
 }
 
