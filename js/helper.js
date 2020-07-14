@@ -23,6 +23,15 @@ function RGBStringToHexString(string) {
 	return "#" + r + g + b;
 }
 
+// #000000 to rgb(0, 0, 0)
+function HexStringToRGBString(hex) {
+	var r = parseInt(hex.substring(1, 3), 16);
+	var g = parseInt(hex.substring(3, 5), 16);
+	var b = parseInt(hex.substring(5, 7), 16);
+
+	return "rgb(" + r + ", " + g + ", " + b + ")";
+}
+
 // convert 400px to 400 (integer)
 function removePX(string) {
 	return parseInt(string.substring(0, string.length-2));
