@@ -353,6 +353,28 @@ ColorPicker.prototype.toggleColorType = function() {
 	}
 }
 
+// confirms the color manually typed out/scroll through
+// from the rgb/hex value area, and adds this color to color history
+ColorPicker.prototype.selectColor = function() {
+	var colorPicked;
+	if (this.colorType == "RGB") {
+		var r = parseInt(get("color_text").children[1].value);
+		var g = parseInt(get("color_text").children[3].value);
+		var b = parseInt(get("color_text").children[5].value);
+		colorPicked = "rgb(" + r + ", " + g + ", " + b + ")";
+	}
+	else if (this.colorType == "hex") {
+		var hex = "#" + get("color_text").children[1].value;
+		colorPicked = HexStringToRGBString(hex);
+	}
+
+	// colorPicked is a RGB string that indicates the color chosen
+
+	// update color
+	get("color").style.backgroundColor = colorPicked;
+	cHistory.addColor(null, "color_picker");
+}
+
 // creates the area (and structure) to display raw value of the color
 ColorPicker.prototype.createDisplayArea = function() {
 	if (this.colorType == "RGB") {
@@ -374,6 +396,8 @@ ColorPicker.prototype.createDisplayArea = function() {
 			ele_input[i].type = "number";
 			ele_input[i].style.width = "15%";
 			ele_input[i].style.verticalAlign = "middle";
+			ele_input[i].min = 0;
+			ele_input[i].max = 255;
 		}
 
 		for (var i=0; i<3; i++) {
@@ -706,10 +730,10 @@ window.onload = function() {
 
 	// set default value because certain browsers like firefox has autocomplete
 	// autocomplete causes the value to stay the same as previously selected before a F5
-	get("color_type").value = "RGB";
+	get(colorPicker.colorTypeID).value = "RGB";
 
-	get("color_type").addEventListener("change", colorPicker.toggleColorType.bind(colorPicker));
-	//get(colorPicker.buttonID).addEventListener("click", colorPicker.toggleColorType.bind(colorPicker));
+	get(colorPicker.colorTypeID).addEventListener("change", colorPicker.toggleColorType.bind(colorPicker));
+	get(colorPicker.buttonID).addEventListener("click", colorPicker.selectColor.bind(colorPicker));
 
 	// ------
 	// color history
