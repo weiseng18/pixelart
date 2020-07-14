@@ -231,7 +231,6 @@ function eyeDropper(e) {
 	if (area.grid[row][column] == null) return;
 
 	colorPicker.updateColor(e, "eyeDropper");
-	cHistory.addColor();
 }
 
 // ------
