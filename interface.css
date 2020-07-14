@@ -49,15 +49,12 @@ sidebar
 }
 
 #color_text {
-	height: 15%;
+	/* originally height:15% but in order to vertical align center a fixed height is required */
+	height: 40px;
 	width: 100%;
 	padding: 0px 10px;
-}
-
-#color_text:before {
-	content: "";
-	display: inline-block;
-	height: 100%;
+	display: table-cell;
+	text-align: center;
 	vertical-align: middle;
 }
 

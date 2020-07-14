@@ -230,6 +230,8 @@ function ColorPicker(slider_id, body_id, defaultColorType) {
 
 	// display actual color
 	this.colorType = defaultColorType;
+	this.buttonID = "color_select";
+	this.colorTypeID = "color_type";
 }
 
 function CanvasWrapper(id) {
@@ -311,12 +313,43 @@ ColorPicker.prototype.updateColor = function(e, source) {
 ColorPicker.prototype.updateColorValue = function(color) {
 	if (this.colorType == "RGB") {
 		var colors = color.split("(")[1].split(",");
-
 		for (var i=0; i<3; i++)
 			get("color_text").children[i*2+1].value = colors[i];
 	}
 	else if (this.colorType == "hex") {
+		// convert from rgba(0,0,0,0) to rgb(0, 0, 0)
+		// note the spaces in the rgb
+		var rgb = color.split(",");
 
+		// remove the a from rgba
+		rgb[0] = "rgb(" + rgb[0].substring(5);
+		// remove opacity value
+		rgb[3] = "";
+
+		rgb = rgb.join(", ");
+		rgb = rgb.substring(0, rgb.length-2) + ")";
+
+		// convert to hex
+		var hex = RGBStringToHexString(rgb);
+		// remove the #
+		hex = hex.substring(1);
+
+		get("color_text").children[1].value = hex;
+	}
+}
+
+// toggle between RGB and hex value
+ColorPicker.prototype.toggleColorType = function() {
+	var pickedType = get(this.colorTypeID).value;
+	if (pickedType == "RGB") {
+		this.colorType = "RGB";
+		get("color_text").innerHTML = "";
+		this.createDisplayArea();
+	}
+	else {
+		this.colorType = "hex";
+		get("color_text").innerHTML = "";
+		this.createDisplayArea();
 	}
 }
 
@@ -350,6 +383,16 @@ ColorPicker.prototype.createDisplayArea = function() {
 	}
 	else if (this.colorType == "hex") {
 
+		var hashsymbol = document.createElement("span");
+		hashsymbol.innerHTML = "#";
+		hashsymbol.style.verticalAlign = "middle";
+
+		var value = document.createElement("input");
+		value.type = "text";
+		value.style.width = "50%";
+
+		get("color_text").appendChild(hashsymbol);
+		get("color_text").appendChild(value);
 	}
 }
 
@@ -660,6 +703,13 @@ window.onload = function() {
 	colorPicker = new ColorPicker("color_slider", "color_body", "RGB");
 	colorPicker.addEventListeners();
 	colorPicker.createDisplayArea();
+
+	// set default value because certain browsers like firefox has autocomplete
+	// autocomplete causes the value to stay the same as previously selected before a F5
+	get("color_type").value = "RGB";
+
+	get("color_type").addEventListener("change", colorPicker.toggleColorType.bind(colorPicker));
+	//get(colorPicker.buttonID).addEventListener("click", colorPicker.toggleColorType.bind(colorPicker));
 
 	// ------
 	// color history
