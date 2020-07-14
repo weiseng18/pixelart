@@ -305,29 +305,47 @@ ColorPicker.prototype.updateColor = function(e, source) {
 	// update color
 	get("color").style.backgroundColor = color;
 
-	this.updateColorValue(color);
+	this.updateColorValue(color, source);
 }
 
 // displays the raw value of the color
 // can choose between RGB and hex value
-ColorPicker.prototype.updateColorValue = function(color) {
+ColorPicker.prototype.updateColorValue = function(color, source) {
 	if (this.colorType == "RGB") {
-		var colors = color.split("(")[1].split(",");
+		var colors;
+		if (source == "color_picker") {
+			// input format: rgba(0,0,0,0)
+			colors = color.split("(")[1].split(",");
+		}
+		else if (source == "color_history" || source == "eyeDropper") {
+			// input format: rgb(0, 0, 0)
+			// note the spaces in the rgb
+			colors = color.split("(")[1].split(", ");
+			colors[2] = colors[2].substring(0, colors[2].length-1);
+		}
+
+		// split up rgb
 		for (var i=0; i<3; i++)
 			get("color_text").children[i*2+1].value = colors[i];
 	}
 	else if (this.colorType == "hex") {
-		// convert from rgba(0,0,0,0) to rgb(0, 0, 0)
-		// note the spaces in the rgb
-		var rgb = color.split(",");
+		var rgb;
+		if (source == "color_picker") {
+			// convert from rgba(0,0,0,0) to rgb(0, 0, 0)
+			// note the spaces in the rgb
+			rgb = color.split(",");
 
-		// remove the a from rgba
-		rgb[0] = "rgb(" + rgb[0].substring(5);
-		// remove opacity value
-		rgb[3] = "";
+			// remove the a from rgba
+			rgb[0] = "rgb(" + rgb[0].substring(5);
+			// remove opacity value
+			rgb[3] = "";
 
-		rgb = rgb.join(", ");
-		rgb = rgb.substring(0, rgb.length-2) + ")";
+			rgb = rgb.join(", ");
+			rgb = rgb.substring(0, rgb.length-2) + ")";
+		}
+		else if (source == "color_history" || source == "eyeDropper") {
+			rgb = color;
+		}
 
 		// convert to hex
 		var hex = RGBStringToHexString(rgb);
