@@ -391,7 +391,6 @@ ColorPicker.prototype.selectColor = function() {
 
 	// update color
 	get("color").style.backgroundColor = colorPicked;
-	cHistory.addColor(null, "color_picker");
 }
 
 // creates the area (and structure) to display raw value of the color
@@ -551,7 +550,6 @@ ColorPicker.prototype.body_mousemove = function(e) {
 
 ColorPicker.prototype.body_mouseup = function(e) {
 	this.body.drag = false;
-	cHistory.addColor(e, "color_picker");
 }
 
 ColorPicker.prototype.body_mouseleave = function(e) {
@@ -750,7 +748,6 @@ ColorHistory.prototype.generateHTML = function() {
 
 	table.addEventListener("click", function(e) {
 		colorPicker.updateColor(e, "color_history");
-		cHistory.addColor(e, "color_history");
 	});
 
 	get("color_history_wrapper").appendChild(table);
@@ -766,15 +763,12 @@ ColorHistory.prototype.updateHTML = function() {
 }
 
 // shifts everything one to the right, last color in the history is effectively deleted from history
-// only triggers on mouseup as dragging (mousemove) will cause a lot of colours to be added and history will change very quickly
+// adding to history is only triggered by the following methods:
+// 1. pressing add color to history
+// 2. eyedropper tool
 
-ColorHistory.prototype.addColor = function(e, source) {
-	var color;
-
-	if (source == "color_picker")
-		color = get("color").style.backgroundColor;
-	else if (source == "color_history" || source == "eyeDropper")
-		color = e.target.style.backgroundColor;
+ColorHistory.prototype.addColor = function() {
+	var color = get("color").style.backgroundColor;
 
 	// shift by one to the right
 	var prevColor = this.colors[0], curColor = this.colors[0];
@@ -814,6 +808,12 @@ window.onload = function() {
 	get("color").style.backgroundColor = "rgb(0, 0, 0)";
 
 	// ------
+	// color history
+	// ------
+	cHistory = new ColorHistory(2, 7);
+	cHistory.generateHTML();
+
+	// ------
 	// color picker
 	// ------
 	colorPicker = new ColorPicker("color_slider", "color_body", "RGB");
@@ -825,13 +825,8 @@ window.onload = function() {
 	get(colorPicker.colorTypeID).value = "RGB";
 
 	get(colorPicker.colorTypeID).addEventListener("change", colorPicker.toggleColorType.bind(colorPicker));
-	get(colorPicker.buttonID).addEventListener("click", colorPicker.selectColor.bind(colorPicker));
-
-	// ------
-	// color history
-	// ------
-	cHistory = new ColorHistory(2, 7);
-	cHistory.generateHTML();
+	console.log(cHistory);
+	get(colorPicker.buttonID).addEventListener("click", cHistory.addColor.bind(cHistory));
 
 	// ------
 	// menu bar / saving functions

@@ -230,8 +230,8 @@ function eyeDropper(e) {
 
 	if (area.grid[row][column] == null) return;
 
-	updateColor(e, "eyeDropper");
-	cHistory.addColor(e, "eyeDropper");
+	colorPicker.updateColor(e, "eyeDropper");
+	cHistory.addColor();
 }
 
 // ------
