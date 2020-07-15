@@ -91,6 +91,7 @@ function loadRaw(which) {
 
 		input.click();
 	}
+	actionreplay.addState();
 }
 
 function handleRaw(data) {
