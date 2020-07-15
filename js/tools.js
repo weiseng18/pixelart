@@ -343,9 +343,8 @@ SelectCanvas.prototype.moveOff = function() {
 // assumes p1.x < p2.x and p1.y < p2.y, i.e. p1 is the top left and p2 is the bottom right of the rectangle.
 SelectCanvas.prototype.drawSelectArea = function(x1, x2) {
 
-	var p1 = JSON.parse(JSON.stringify(x1));
-	var p2 = JSON.parse(JSON.stringify(x2));
-
+	var p1 = _.cloneDeep(x1);
+	var p2 = _.cloneDeep(x2);
 	// checks to convert p1, p2 into the top left, bottom right of the rectangle
 
 	// case 1: p2 top right
@@ -500,7 +499,7 @@ SelectCanvas.prototype.mousedown = function(e) {
 		// make a copy of area.grid
 		// this is necessary as we do not want to update area.grid until the move is complete (mouseup)
 		// if we do not do so, moving can act like an eraser which is not intuitive
-		this.grid = JSON.parse(JSON.stringify(area.grid));
+		this.grid = _.cloneDeep(area.grid);
 	}
 }
 
@@ -606,7 +605,7 @@ SelectCanvas.prototype.mouseup = function(e) {
 		get(this.ele.id).children[0].style.cursor = "grab";
 
 		// update area.grid
-		area.grid = JSON.parse(JSON.stringify(this.grid));
+		area.grid = _.cloneDeep(this.grid);
 
 		this.moveStart = null;
 
