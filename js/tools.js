@@ -621,5 +621,72 @@ SelectCanvas.prototype.mouseup = function(e) {
 		this.cellTopLeft = this.convertIntersectionToCell(this.topLeft);
 		this.cellBottomRight = this.convertIntersectionToCell(this.bottomRight);
 		this.cellBottomRight = {x:this.cellBottomRight.x-1, y:this.cellBottomRight.y-1};
+
+		// tentatively add state on every mouseup during move tool
+		// there will need to be a check if the move tool actually changed anything
+		// otherwise spam clicking will flood the history unnecessarily
+		actionreplay.addState();
 	}
+}
+
+
+// ------
+// history (undo and redo)
+// ------
+
+function History() {
+	this.timeline = [];
+	// -1 so that if you add the initial state when page loads, it becomes 0
+	this.pointer = -1;
+
+	// store area.height and area.width
+	this.width = area.width;
+	this.height = area.height;
+
+	this.addState();
+}
+
+History.prototype.addState = function() {
+	++this.pointer;
+	// the while loop only gets triggered when history is changed
+	while (this.timeline.length > this.pointer) this.timeline.pop();
+
+	this.timeline.push(_.cloneDeep(area.grid));
+}
+
+History.prototype.undo = function() {
+	if (this.pointer == 0) {
+		alert("Nothing to undo");
+		toggleTool(4);
+		return;
+	}
+	--this.pointer;
+	area.grid = _.cloneDeep(this.timeline[this.pointer]);
+	this.updateGrid();
+	// change tool back to previous
+	toggleTool(4);
+}
+
+History.prototype.redo = function() {
+	if (this.pointer == this.timeline.length-1) {
+		alert("Nothing to redo");
+		toggleTool(5);
+		return;
+	}
+	++this.pointer;
+	area.grid = _.cloneDeep(this.timeline[this.pointer]);
+	this.updateGrid();
+	// change tool back to previous
+	toggleTool(5);
+}
+
+// tentatively this function is under the History object although it modifies the HTML display of DrawArea
+History.prototype.updateGrid = function() {
+	for (var i=0; i<this.height; i++)
+		for (var j=0; j<this.width; j++) {
+			if (area.grid[i][j] == null)
+				getCell(area.id, i, j).style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
+			else
+				getCell(area.id, i, j).style.backgroundColor = area.grid[i][j];
+		}
 }

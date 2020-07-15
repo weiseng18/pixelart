@@ -159,6 +159,8 @@ DrawArea.prototype.mouseup = function(e) {
 		if (e.which == 1 || e.which == 3) {
 			this.drag_paint = false;
 			this.drag_erase = false;
+			// only add state when mouseup
+			actionreplay.addState();
 		}
 		else if (e.which == 2) {
 			// middle click (eyeDropper)
@@ -311,6 +313,9 @@ var tools;
 
 var cHistory;
 
+// undo and redo
+var actionreplay;
+
 window.onload = function() {
 	// ------
 	// drawing area
@@ -362,6 +367,12 @@ window.onload = function() {
 	});
 
 	// ------
+	// history
+	// ------
+
+	actionreplay = new History();
+
+	// ------
 	// tools
 	// ------
 	tools = new ToolWrapper(2, 6);
@@ -383,10 +394,19 @@ window.onload = function() {
 	var moveOff = selectCanvas.moveOff.bind(selectCanvas);
 	var move = new Tool("move", "move.png", "Move tool", moveOn, moveOff);
 
+	// undo and redo tools
+	var undoBIND = actionreplay.undo.bind(actionreplay);
+	var redoBIND = actionreplay.redo.bind(actionreplay);
+
+	var undo = new Tool("undo", "undo.png", "Undo tool", undoBIND);
+	var redo = new Tool("redo", "redo.png", "Redo tool", redoBIND);
+
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
 	tools.addTool(select);
 	tools.addTool(move);
+	tools.addTool(undo);
+	tools.addTool(redo);
 
 	tools.generateHTML();
 
