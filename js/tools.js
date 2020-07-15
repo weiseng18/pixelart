@@ -639,10 +639,6 @@ function History() {
 	// -1 so that if you add the initial state when page loads, it becomes 0
 	this.pointer = -1;
 
-	// store area.height and area.width
-	this.width = area.width;
-	this.height = area.height;
-
 	this.addState();
 }
 
@@ -662,7 +658,7 @@ History.prototype.undo = function() {
 	}
 	--this.pointer;
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
-	this.updateGrid();
+	area.updateGrid();
 	// change tool back to previous
 	toggleTool(4);
 }
@@ -675,18 +671,7 @@ History.prototype.redo = function() {
 	}
 	++this.pointer;
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
-	this.updateGrid();
+	area.updateGrid();
 	// change tool back to previous
 	toggleTool(5);
-}
-
-// tentatively this function is under the History object although it modifies the HTML display of DrawArea
-History.prototype.updateGrid = function() {
-	for (var i=0; i<this.height; i++)
-		for (var j=0; j<this.width; j++) {
-			if (area.grid[i][j] == null)
-				getCell(area.id, i, j).style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
-			else
-				getCell(area.id, i, j).style.backgroundColor = area.grid[i][j];
-		}
 }

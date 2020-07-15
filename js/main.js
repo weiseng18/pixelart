@@ -218,6 +218,20 @@ DrawArea.prototype.paint = function(p, color) {
 }
 
 // ------
+// shared drawArea functions
+// ------
+
+DrawArea.prototype.updateGrid = function() {
+	for (var i=0; i<this.height; i++)
+		for (var j=0; j<this.width; j++) {
+			if (this.grid[i][j] == null)
+				getCell(this.id, i, j).style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
+			else
+				getCell(this.id, i, j).style.backgroundColor = this.grid[i][j];
+		}
+}
+
+// ------
 // color history
 // ------
 
