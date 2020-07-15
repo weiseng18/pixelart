@@ -13,6 +13,12 @@ function DrawArea(height, width) {
 	this.edit = false;
 
 	this.tool = 0;
+
+	// floodfill options, currently up/down/left/right
+	this.deltaLength = 4;
+	this.deltaY = [-1, 1, 0, 0];
+	this.deltaX = [0, 0, -1, 1];
+	this.bucketEnabled = false;
 }
 
 DrawArea.prototype.generateHTML = function() {
@@ -123,6 +129,10 @@ DrawArea.prototype.click = function(e) {
 		eyeDropper(e);
 		toggleTool(area.tool);
 	}
+	else if (area.tool == 6) {
+		area.bucket(e);
+		actionreplay.addState();
+	}
 }
 
 DrawArea.prototype.contextmenu = function(e) {
@@ -215,6 +225,45 @@ DrawArea.prototype.paint = function(p, color) {
 	else
 		getCell("display", p.y, p.x).style.backgroundColor = (p.y+p.x)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
 
+}
+
+
+// ------
+// bucket tool drawArea functions
+// ------
+
+// check for out of bounds (this.grid, i.e. 0 <= y <= this.height and 0 <= x <= this.width)
+DrawArea.prototype.isOutOfBounds = function(y, x) {
+	return (y < 0 || y >= this.height || x < 0 || x >= this.width);
+}
+
+DrawArea.prototype.bucket = function(e) {
+	var color = get("color").style.backgroundColor;
+	var cell = e.target;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+
+	// this variable stores what the original color of the selected cell is
+	// bucket tool fills all squares connected directly/indirectly by a whole edge
+	// that are the same color as the initial cell.
+	var initial = area.grid[row][column];
+
+	this.floodfill(row, column, color, initial);
+
+	// update the displayed grid
+	this.updateGrid();
+
+	toggleTool(6);
+}
+
+DrawArea.prototype.floodfill = function(y, x, color, initial) {
+	area.grid[y][x] = color;
+	for (var i=0; i<this.deltaLength; i++) {
+		var newY = y + this.deltaY[i];
+		var newX = x + this.deltaX[i];
+		if (!this.isOutOfBounds(newY, newX) && area.grid[newY][newX] == initial)
+			this.floodfill(newY, newX, color, initial);
+	}
 }
 
 // ------
@@ -415,12 +464,16 @@ window.onload = function() {
 	var undo = new Tool("undo", "undo.png", "Undo tool", undoBIND);
 	var redo = new Tool("redo", "redo.png", "Redo tool", redoBIND);
 
+	// bucket tool
+	var bucket = new Tool("bucket", "bucket.png", "Bucket tool");
+
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
 	tools.addTool(select);
 	tools.addTool(move);
 	tools.addTool(undo);
 	tools.addTool(redo);
+	tools.addTool(bucket);
 
 	tools.generateHTML();
 
