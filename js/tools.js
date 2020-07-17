@@ -660,7 +660,9 @@ History.prototype.undo = function() {
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
 	// change tool back to previous
-	toggleTool(4);
+	// this extra check is to see if the user was the one who called this
+	if (area.tool == 4)
+		toggleTool(4);
 }
 
 History.prototype.redo = function() {
@@ -673,5 +675,7 @@ History.prototype.redo = function() {
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
 	// change tool back to previous
-	toggleTool(5);
+	// this extra check is to see if the user was the one who called this
+	if (area.tool == 5)
+		toggleTool(5);
 }
