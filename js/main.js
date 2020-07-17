@@ -19,6 +19,9 @@ function DrawArea(height, width) {
 	this.deltaY = [-1, 1, 0, 0];
 	this.deltaX = [0, 0, -1, 1];
 	this.bucketEnabled = false;
+
+	// line tool
+	this.p1 = null;
 }
 
 DrawArea.prototype.generateHTML = function() {
@@ -133,6 +136,9 @@ DrawArea.prototype.click = function(e) {
 		area.bucket(e);
 		actionreplay.addState();
 	}
+	else if (area.tool == 7) {
+		area.lineHelper(e);
+	}
 }
 
 DrawArea.prototype.contextmenu = function(e) {
@@ -162,6 +168,10 @@ DrawArea.prototype.mousemove = function(e) {
 		if (this.drag_erase)
 			erase(e);
 	}
+	else if (area.tool == 7)
+		if (area.p1 != null) {
+			area.lineHover(e);
+		}
 }
 
 DrawArea.prototype.mouseup = function(e) {
@@ -227,7 +237,6 @@ DrawArea.prototype.paint = function(p, color) {
 
 }
 
-
 // ------
 // bucket tool drawArea functions
 // ------
@@ -264,6 +273,157 @@ DrawArea.prototype.floodfill = function(y, x, color, initial) {
 		if (!this.isOutOfBounds(newY, newX) && area.grid[newY][newX] == initial)
 			this.floodfill(newY, newX, color, initial);
 	}
+}
+
+// ------
+// line tool drawArea functions
+// ------
+
+// the method used is Bresenham's line algorithm
+// consider a point in the center of a 2D plane, p1
+// WLOG let the 2D plane be the Cartesian plane and let p1 be (0, 0).
+// Draw the lines y=0, x=0, y=x, y=-x. This will divide the plane into 8 equal octants.
+// p2 can lie in any of the 8 octets, and this corresponds to the 8 cases of (p1, p2) that this algorithm considers.
+// 
+// let f(x, y) = ax + by + c = 0 be the Cartesian line that p1 and p2 both lie on,
+// where a, b, c are real constants.
+//
+// the algorithm needs to know if |delta x| or |delta y| is larger
+// delta x is defined as p2.x - p1.x
+// delta y is defined as p2.y - p1.y
+//
+// if |delta x| is larger, then in the line drawn from p1 to p2, every x has only one y.
+// this y is solved from f(x, y) = 0, and rounded to the nearest integer.
+// if |delta y| is larger, then in the line drawn from p1 to p2, every y has only one x.
+// this x is solved from f(x, y) = 0, and rounded to the nearest integer.
+//
+// let octet 1 be the octet between the line y=0 for x>=0 and the line y=-x for x>=0.
+// let the following octets be given a number in a clockwise fashion.
+//
+// # | dx  | dy  | larger
+// 1 | +ve | +ve |   dx
+// 2 | +ve | +ve |   dy
+// 3 | -ve | +ve |   dy
+// 4 | -ve | +ve |   dx
+// 5 | -ve | -ve |   dx
+// 6 | -ve | -ve |   dy
+// 7 | +ve | -ve |   dy
+// 8 | +ve | -ve |   dx
+//
+// number of cases is 8 but can be reduced to 4
+// case i and i+4 is symmetrical, if the points for either case is swapped.
+//
+// the general equation is given by
+//
+//    y - p1.y        x - p1.x
+// ------------- = -------------
+//  p2.y - p1.y      p2.x - p1.x
+
+// take in 2 points and return an array of the points to draw (on the grid)
+DrawArea.prototype.generatePoints = function(p1, p2) {
+	var dx = p2.x - p1.x;
+	var dy = p2.y - p1.y;
+	// first check is to filter out cases 5-8 so that p1, p2 can be swapped/
+	// this will reduce the number of cases to 4
+	// from the case listing above, dy < 0 is the similarity between cases 5-8.
+	if (dy < 0) {
+		[p1, p2] = [p2, p1];
+		dx *= -1;
+		dy *= -1;
+	}
+
+	var points = [];
+	// now the number of cases is 4
+	// case 1 or 2
+	if (dx > 0) {
+		// no need for absolute sign as both are positive
+		if (dx >= dy) {
+			var m = dy/dx || 0;
+			var c = m * -p1.x + p1.y;
+			for (var x=p1.x; x<=p2.x; x++) {
+				var y = Math.round(m*x + c);
+				points.push({x:x, y:y});
+			}
+		}
+		else {
+			var m = dx/dy || 0;
+			var c = m * -p1.y + p1.x;
+			for (var y = p1.y; y<=p2.y; y++) {
+				var x = Math.round(m*y + c);
+				points.push({x:x, y:y});
+			}
+		}
+	}
+	else {
+		if (dy >= -dx) {
+			var m = dx/dy || 0;
+			var c = m * -p1.y + p1.x;
+			for (var y = p1.y; y<=p2.y; y++) {
+				var x = Math.round(m*y + c);
+				points.push({x:x, y:y});
+			}
+		}
+		else {
+			var m = dy/dx || 0;
+			var c = m * -p1.x + p1.y;
+			for (var x=p1.x; x>=p2.x; x--) {
+				var y = Math.round(m*x + c);
+				points.push({x:x, y:y});
+			}
+		}
+	}
+	return points;
+}
+
+DrawArea.prototype.drawLine = function(p1, p2, color) {
+	console.log("draw line", p1, p2);
+	this.updateGrid();
+	var points = this.generatePoints(p1, p2);
+	for (var i=0; i<points.length; i++) {
+		var x = points[i].x;
+		var y = points[i].y;
+		this.grid[y][x] = color;
+	}
+	this.updateGrid();
+}
+
+// helper function to get first point and wait for second point
+DrawArea.prototype.lineHelper = function(e) {
+	var color = get("color").style.backgroundColor;
+	var cell = e.target;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+
+	if (this.p1 == null) {
+		this.p1 = {x:column, y:row};
+		getCell("display", this.p1.y, this.p1.x).style.backgroundColor = color;
+		actionreplay.addState();
+	}
+	else {
+		actionreplay.undo();
+		var p2 = {x:column, y:row};
+		this.drawLine(this.p1, p2, color);
+		this.p1 = null;
+		actionreplay.addState();
+	}
+}
+
+// draw line from p1 to hovered position
+DrawArea.prototype.lineHover = function(e) {
+	var color = get("color").style.backgroundColor;
+	var cell = e.target;
+	var column = cell.cellIndex;
+	var row = cell.parentElement.rowIndex;
+
+	if (row == undefined || column == undefined) return;
+
+	var p2 = {x:column, y:row};
+	var points = this.generatePoints(this.p1, p2);
+
+	this.updateGrid();
+	for (var i=0; i<points.length; i++)
+		getCell("display", points[i].y, points[i].x).style.backgroundColor = color;
+	
 }
 
 // ------
@@ -467,6 +627,9 @@ window.onload = function() {
 	// bucket tool
 	var bucket = new Tool("bucket", "bucket.png", "Bucket tool");
 
+	// line tool
+	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line");
+
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
 	tools.addTool(select);
@@ -474,6 +637,7 @@ window.onload = function() {
 	tools.addTool(undo);
 	tools.addTool(redo);
 	tools.addTool(bucket);
+	tools.addTool(line);
 
 	tools.generateHTML();
 
