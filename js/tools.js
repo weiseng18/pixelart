@@ -86,9 +86,8 @@ ToolWrapper.prototype.drawTooltip = function(element, idx) {
 	tooltipBox.style.backgroundColor = "#FFFB7A";
 
 	var tooltip = tools.items[idx].tooltip;
-	var text = document.createTextNode(tooltip);
 	var wrapper = document.createElement("span");
-	wrapper.appendChild(text);
+	wrapper.innerHTML = tooltip;
 
 	tooltipBox.appendChild(wrapper);
 
