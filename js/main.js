@@ -216,27 +216,18 @@ DrawArea.prototype.mouseleave = function(e) {
 // move tool drawArea functions
 // ------
 
-DrawArea.prototype.moveSelection = function(selection, p1, p2, p3, p4) {
+DrawArea.prototype.writeSelection = function(selection, p1, p2) {
 	// p1, p2 is topleft, bottomright of original location selection
 	// p3, p4 is topleft, bottomright of new location for selection
 
 	var width = p2.x - p1.x + 1;
 	var height = p2.y - p1.y + 1;
 
-	// erase and write back original grid
-	for (var y=p1.y; y<=p2.y; y++)
-		for (var x=p1.x; x<=p2.x; x++) {
-			this.erase({x:x, y:y});
-			if (this.grid[y][x] != null) {
-				this.paint({x:x, y:y}, this.grid[y][x]);
-			}
-		}
-
 	// update new location for selection
-	for (var y=p3.y; y<=p4.y; y++)
-		for (var x=p3.x; x<=p4.x; x++)
-			if (selection[y - p3.y][x - p3.x] != null)
-				this.paint({x:x, y:y}, selection[y - p3.y][x - p3.x]);
+	for (var y=p1.y; y<=p2.y; y++)
+		for (var x=p1.x; x<=p2.x; x++)
+			if (selection[y - p1.y][x - p1.x] != null)
+				this.paint({x:x, y:y}, selection[y - p1.y][x - p1.x]);
 }
 
 DrawArea.prototype.erase = function(p) {
@@ -245,7 +236,6 @@ DrawArea.prototype.erase = function(p) {
 }
 
 DrawArea.prototype.paint = function(p, color) {
-	selectCanvas.grid[p.y][p.x] = color;
 	if (color != null)
 		getCell("display", p.y, p.x).style.backgroundColor = color;
 	else

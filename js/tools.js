@@ -260,10 +260,9 @@ function SelectCanvas(id) {
 	this.newTopLeft = null;
 	this.newBottomRight = null;
 
-	// new cell top left and bottom right, will correspond to this.grid
-	// this corresponds to the current selection, which is in a mousemove state.
-	this.newCellTopLeft = null;
-	this.newCellBottomRight = null;
+	// selection top left and bottom right
+	// used to delete the original selection upon moving
+	this.selectionTopLeft = null;
 
 	// element always has to be ready for append and remove
 	// this has to be below this.borderSize so that this.borderSize is defined and can be used in this method
@@ -325,6 +324,9 @@ SelectCanvas.prototype.disable = function() {
 	get(this.ele.id).removeEventListener("mouseup", this.mouseupBIND);
 
 	this.clearCanvas();
+
+	// reset selection
+	this.selection = null;
 
 	get(this.ele.id).remove();
 }
@@ -487,18 +489,26 @@ SelectCanvas.prototype.mousedown = function(e) {
 		// this area of the code allows movements to be made successive times for the same selection
 		var height = this.cellBottomRight.y - this.cellTopLeft.y + 1;
 		var width = this.cellBottomRight.x - this.cellTopLeft.x + 1;
-		this.selection = init2D(height, width, null);
 
-		for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
-			for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++) {
-				this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] = area.grid[y][x];
-				area.grid[y][x] = null;
-			}
+		this.selectionTopLeft = this.cellTopLeft;
+		this.selectionBottomRight = this.cellBottomRight;
+
+		if (this.selection == null) {
+			this.selection = init2D(height, width, null);
+			for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
+				for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++) {
+					this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] = area.grid[y][x];
+					area.grid[y][x] = null;
+				}
+		}
+		else {
+			for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
+				for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++)
+					if (this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] != null)
+						area.grid[y][x] = null;
+		}
 		
-		// make a copy of area.grid
-		// this is necessary as we do not want to update area.grid until the move is complete (mouseup)
-		// if we do not do so, moving can act like an eraser which is not intuitive
-		this.grid = _.cloneDeep(area.grid);
+		actionreplay.addState();
 	}
 }
 
@@ -551,12 +561,9 @@ SelectCanvas.prototype.mousemove = function(e) {
 				return;
 			}
 			else {
-				this.clearCanvas();
-				
 				// find nearest intersections
 				this.newTopLeft = this.findNearestIntersection(newTopLeft);
 				this.newBottomRight = this.findNearestIntersection(newBottomRight);
-				this.drawSelectArea(this.newTopLeft, this.newBottomRight);
 
 				// find corresponding cells
 				var newCellTopLeft = this.convertIntersectionToCell(this.newTopLeft);
@@ -566,9 +573,15 @@ SelectCanvas.prototype.mousemove = function(e) {
 				// only move selection if it is necessary
 				if (this.cellTopLeft == newCellTopLeft && this.cellBottomRight == newCellBottomRight) {}
 				else {
-					// initative move
-					area.moveSelection(this.selection, this.cellTopLeft, this.cellBottomRight,
-									newCellTopLeft, newCellBottomRight);
+					// only redraw the selected area if it is necessary
+					this.clearCanvas();
+					this.drawSelectArea(this.newTopLeft, this.newBottomRight);
+
+					// load current grid and write cells directly to html
+					// this is not a permanent action, so area.grid isn't changed and the "changes" are only written to html
+					area.updateGrid();
+					area.writeSelection(this.selection,	newCellTopLeft, newCellBottomRight);
+					
 					// update the new cells indicating that a move has been made
 					// i think the this.topLeft and this.bottomRight aren't changed
 					// but the cells need to be changed?
@@ -603,9 +616,6 @@ SelectCanvas.prototype.mouseup = function(e) {
 	else if (area.tool == 3) {
 		get(this.ele.id).children[0].style.cursor = "grab";
 
-		// update area.grid
-		area.grid = _.cloneDeep(this.grid);
-
 		this.moveStart = null;
 
 		// update the selection area
@@ -616,10 +626,41 @@ SelectCanvas.prototype.mouseup = function(e) {
 		this.topLeft = this.findNearestIntersection(this.topLeft);
 		this.bottomRight = this.findNearestIntersection(this.bottomRight);
 
-		// update the cells
-		this.cellTopLeft = this.convertIntersectionToCell(this.topLeft);
-		this.cellBottomRight = this.convertIntersectionToCell(this.bottomRight);
-		this.cellBottomRight = {x:this.cellBottomRight.x-1, y:this.cellBottomRight.y-1};
+		// find corresponding cells
+		var newCellTopLeft = this.convertIntersectionToCell(this.newTopLeft);
+		var newCellBottomRight = this.convertIntersectionToCell(this.newBottomRight);
+		newCellBottomRight = {x:newCellBottomRight.x-1, y:newCellBottomRight.y-1};
+
+		// only move selection if it is necessary
+		if (this.cellTopLeft == newCellTopLeft && this.cellBottomRight == newCellBottomRight) {}
+		else {
+			// only redraw the selected area if it is necessary
+			this.clearCanvas();
+			this.drawSelectArea(this.newTopLeft, this.newBottomRight);
+
+			this.cellTopLeft = newCellTopLeft;
+			this.cellBottomRight = newCellBottomRight;
+		}
+
+		// step 1: undo the removal of the selection
+		// step 2: perform removal but do not record as an action
+		// step 3: place the selection at the intended move area
+		// step 4: record step 2 and 3 as a single action, which is what it is supposed to be.
+
+		actionreplay.undo();
+
+		for (var i=this.selectionTopLeft.y; i<=this.selectionBottomRight.y; i++)
+			for (var j=this.selectionTopLeft.x; j<=this.selectionBottomRight.x; j++)
+				// only erase if it was part of the original selection
+				if (this.selection[i - this.selectionTopLeft.y][j - this.selectionTopLeft.x] != null)
+					area.grid[i][j] = null;
+
+		for (var i=newCellTopLeft.y; i<=newCellBottomRight.y; i++)
+			for (var j=newCellTopLeft.x; j<=newCellBottomRight.x; j++)
+				if (this.selection[i - newCellTopLeft.y][j - newCellTopLeft.x] != null)
+					area.grid[i][j] = this.selection[i - newCellTopLeft.y][j - newCellTopLeft.x];
+		
+		area.updateGrid();
 
 		// tentatively add state on every mouseup during move tool
 		// there will need to be a check if the move tool actually changed anything
