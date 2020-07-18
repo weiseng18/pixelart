@@ -14,6 +14,9 @@ function DrawArea(height, width) {
 
 	this.tool = 0;
 
+	// drag_paint
+	this.previousCell = null;
+
 	// floodfill options, currently up/down/left/right
 	this.deltaLength = 4;
 	this.deltaY = [-1, 1, 0, 0];
@@ -64,31 +67,31 @@ DrawArea.prototype.toggleEdit = function() {
 		this.edit = true;
 
 		// coloring event listener
-		table.addEventListener("click", this.click);
+		table.addEventListener("click", this.click.bind(this));
 
 		// erasing event listener
-		table.addEventListener("contextmenu", this.contextmenu);
+		table.addEventListener("contextmenu", this.contextmenu.bind(this));
 
 		// allow dragging for coloring/erasing
-		table.addEventListener("mousedown", this.mousedown);
-		table.addEventListener("mousemove", this.mousemove);
-		table.addEventListener("mouseup", this.mouseup);
-		table.addEventListener("mouseleave", this.mouseleave);
+		table.addEventListener("mousedown", this.mousedown.bind(this));
+		table.addEventListener("mousemove", this.mousemove.bind(this));
+		table.addEventListener("mouseup", this.mouseup.bind(this));
+		table.addEventListener("mouseleave", this.mouseleave.bind(this));
 	}
 	else {
 		this.edit = false;
 
 		// coloring event listener
-		table.removeEventListener("click", this.click);
+		table.removeEventListener("click", this.click.bind(this));
 
 		// erasing event listener
-		table.removeEventListener("contextmenu", this.contextmenu);
+		table.removeEventListener("contextmenu", this.contextmenu.bind(this));
 
 		// allow dragging for coloring/erasing
-		table.removeEventListener("mousedown", this.mousedown);
-		table.removeEventListener("mousemove", this.mousemove);
-		table.removeEventListener("mouseup", this.mouseup);
-		table.removeEventListener("mouseleave", this.mouseleave);
+		table.removeEventListener("mousedown", this.mousedown.bind(this));
+		table.removeEventListener("mousemove", this.mousemove.bind(this));
+		table.removeEventListener("mouseup", this.mouseup.bind(this));
+		table.removeEventListener("mouseleave", this.mouseleave.bind(this));
 	}
 }
 
@@ -151,7 +154,11 @@ DrawArea.prototype.mousedown = function(e) {
 	if (area.tool == 0) {
 		if (e.which == 1) {
 			this.drag_paint = true;
-			paint(e);
+
+			var cell = e.target;
+			var column = cell.cellIndex;
+			var row = cell.parentElement.rowIndex;
+			this.previousCell = {x:column, y:row};
 		}
 		else if (e.which == 3) {
 			e.preventDefault();
@@ -163,8 +170,15 @@ DrawArea.prototype.mousedown = function(e) {
 
 DrawArea.prototype.mousemove = function(e) {
 	if (area.tool == 0) {
-		if (this.drag_paint)
-			paint(e);
+		var color = get("color").style.backgroundColor;
+		var cell = e.target;
+		var column = cell.cellIndex;
+		var row = cell.parentElement.rowIndex;
+		var currentCell = {x:column, y:row};
+		if (this.drag_paint) {
+			this.drawLine(this.previousCell, currentCell, color);
+			this.previousCell = currentCell;
+		}
 		if (this.drag_erase)
 			erase(e);
 	}
@@ -192,6 +206,8 @@ DrawArea.prototype.mouseup = function(e) {
 DrawArea.prototype.mouseleave = function(e) {
 	if (area.tool == 0) {
 		this.drag_paint = false;
+		this.previousCell = null;
+
 		this.drag_erase = false;
 	}
 }
@@ -376,7 +392,6 @@ DrawArea.prototype.generatePoints = function(p1, p2) {
 }
 
 DrawArea.prototype.drawLine = function(p1, p2, color) {
-	console.log("draw line", p1, p2);
 	this.updateGrid();
 	var points = this.generatePoints(p1, p2);
 	for (var i=0; i<points.length; i++) {
