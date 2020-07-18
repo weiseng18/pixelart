@@ -128,30 +128,30 @@ function erase(e) {
 }
 
 DrawArea.prototype.click = function(e) {
-	if (area.tool == 0) {
+	if (this.tool == 0) {
 		paint(e);
 	}
-	else if (area.tool == 1) {
+	else if (this.tool == 1) {
 		eyeDropper(e);
-		toggleTool(area.tool);
+		toggleTool(this.tool);
 	}
-	else if (area.tool == 6) {
-		area.bucket(e);
+	else if (this.tool == 6) {
+		this.bucket(e);
 		actionreplay.addState();
 	}
-	else if (area.tool == 7) {
-		area.lineHelper(e);
+	else if (this.tool == 7) {
+		this.lineHelper(e);
 	}
 }
 
 DrawArea.prototype.contextmenu = function(e) {
-	if (area.tool == 0) {
+	if (this.tool == 0) {
 		erase(e);
 	}
 }
 
 DrawArea.prototype.mousedown = function(e) {
-	if (area.tool == 0) {
+	if (this.tool == 0) {
 		if (e.which == 1) {
 			this.drag_paint = true;
 
@@ -169,7 +169,7 @@ DrawArea.prototype.mousedown = function(e) {
 }
 
 DrawArea.prototype.mousemove = function(e) {
-	if (area.tool == 0) {
+	if (this.tool == 0) {
 		var color = get("color").style.backgroundColor;
 		var cell = e.target;
 		var column = cell.cellIndex;
@@ -182,14 +182,14 @@ DrawArea.prototype.mousemove = function(e) {
 		if (this.drag_erase)
 			erase(e);
 	}
-	else if (area.tool == 7)
-		if (area.p1 != null) {
-			area.lineHover(e);
+	else if (this.tool == 7)
+		if (this.p1 != null) {
+			this.lineHover(e);
 		}
 }
 
 DrawArea.prototype.mouseup = function(e) {
-	if (area.tool == 0) {
+	if (this.tool == 0) {
 		if (e.which == 1 || e.which == 3) {
 			this.drag_paint = false;
 			this.drag_erase = false;
@@ -204,7 +204,7 @@ DrawArea.prototype.mouseup = function(e) {
 }
 
 DrawArea.prototype.mouseleave = function(e) {
-	if (area.tool == 0) {
+	if (this.tool == 0) {
 		this.drag_paint = false;
 		this.previousCell = null;
 
