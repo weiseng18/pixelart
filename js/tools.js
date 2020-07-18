@@ -641,7 +641,20 @@ function History() {
 	this.addState();
 }
 
+History.prototype.equal = function(a, b) {
+	var height = a.length;
+	var width = a[0].length;
+	for (var i=0; i<height; i++)
+		for (var j=0; j<width; j++)
+			if (a[i][j] != b[i][j]) return false;
+	return true;
+}
+
 History.prototype.addState = function() {
+	// if the current area.grid has no difference with the previous entry in the history
+	// >= 0 check due to the way the first item in the history is added
+	if (this.pointer >= 0 && this.equal(this.timeline[this.pointer], area.grid)) return;
+
 	++this.pointer;
 	// the while loop only gets triggered when history is changed
 	while (this.timeline.length > this.pointer) this.timeline.pop();
