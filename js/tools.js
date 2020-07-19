@@ -153,6 +153,18 @@ function toggleTool(idx) {
 	var row = Math.floor(idx / tools.columns);
 	var column = idx - row*tools.columns;
 
+	// initial
+	if (area.tool == null) {
+		area.tool = 0;
+
+		getCell("tools", 0, 0).style.backgroundColor = "#3DB1FF";
+		getCell("tools", 0, 0).style.border = "solid 2px #A3DAFF";
+
+		if (tools.items[idx].on != undefined)
+			tools.items[idx].on();
+		return;
+	}
+
 	if (area.tool == idx) {
 		// resetting to 0, i.e. pencil tool
 		getCell("tools", row, column).style.backgroundColor = "";
@@ -162,6 +174,9 @@ function toggleTool(idx) {
 		getCell("tools", 0, 0).style.border = "solid 2px #A3DAFF";
 
 		area.tool = 0;
+
+		if (tools.items[0].on != undefined)
+			tools.items[0].on();
 
 		if (tools.items[idx].off != undefined)
 			tools.items[idx].off();

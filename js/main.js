@@ -12,7 +12,11 @@ function DrawArea(height, width) {
 
 	this.edit = false;
 
-	this.tool = 0;
+	this.tool = null;
+
+	// cell size
+	this.cellHeight = null;
+	this.cellWidth = null;
 
 	// drag_paint
 	this.previousCell = null;
@@ -38,6 +42,12 @@ DrawArea.prototype.generateHTML = function() {
 
 	table.style.height = "400px";
 	table.style.width = (400 / this.height * this.width).toString() + "px";
+
+	table.style.cursor = "none";
+
+	// calculate the size of a cell
+	this.cellHeight = removePX(table.style.height) / this.height;
+	this.cellWidth = removePX(table.style.width) / this.width;
 
 	for (var i=0; i<this.height; i++) {
 		var row = table.insertRow();
@@ -181,6 +191,9 @@ DrawArea.prototype.mousemove = function(e) {
 		}
 		if (this.drag_erase)
 			erase(e);
+
+		// draw cursor box
+		box.draw(e);
 	}
 	else if (this.tool == 7)
 		if (this.p1 != null) {
@@ -210,6 +223,86 @@ DrawArea.prototype.mouseleave = function(e) {
 
 		this.drag_erase = false;
 	}
+}
+
+// ------
+// drawing pencil size
+// ------
+
+function Box(id) {
+	this.id = id;
+	this.enabled = false;
+	this.borderSize = 2;
+
+	this.pencilSize = 1;
+
+	this.cellHeight = area.cellHeight;
+	this.cellWidth = area.cellWidth;
+
+	this.boxHeight = this.pencilSize * this.cellHeight;
+	this.boxWidth = this.pencilSize * this.cellWidth;
+
+	this.ele = this.generateBoxHTML(id);
+}
+
+Box.prototype.generateBoxHTML = function(id) {
+	var ele = document.createElement("canvas");
+	ele.id = id;
+
+	var boundingRect = get("display").getBoundingClientRect();
+
+	ele.style.position = "fixed";
+	ele.style.top = boundingRect.top - this.borderSize + "px";
+	ele.style.left = boundingRect.left - this.borderSize + "px";
+
+	// to ensure that it floats up
+	ele.style.zIndex = "100";
+
+	// to ensure it does not interfere with js events
+	// the purpose of this is only to draw the pencil size
+	ele.style.pointerEvents = "none";
+
+	// for more precise numbers
+	ele.height = removePX(get("display").style.height) + this.borderSize*2;
+	ele.width = removePX(get("display").style.width) + this.borderSize*2;
+
+	return ele;
+}
+
+Box.prototype.isOutOfBounds = function(p) {
+	if (p.x < 0 || p.y < 0 || p.x >= this.ele.width || p.y >= this.ele.height) return true;
+}
+
+Box.prototype.draw = function(e) {
+	var boundingRect = get("display").getBoundingClientRect();
+	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
+
+	var topLeft = {x:p.x - this.boxWidth / 2, y:p.y - this.boxHeight / 2};
+	var bottomRight = {x:topLeft.x + this.boxWidth, y:topLeft.y + this.boxHeight};
+	if (this.isOutOfBounds(topLeft) || this.isOutOfBounds(bottomRight)) return;
+
+	var c = get(this.id);
+	var ctx = c.getContext("2d");
+	ctx.setLineDash([2, 1]);
+
+	this.clearCanvas();
+
+	ctx.strokeRect(topLeft.x, topLeft.y, this.boxWidth, this.boxHeight);
+}
+
+Box.prototype.clearCanvas = function() {
+	var c = get(this.id);
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+}
+
+Box.prototype.enable = function(e) {
+	document.body.appendChild(this.ele);
+}
+
+Box.prototype.disable = function(e) {
+	this.clearCanvas();
+	document.body.removeChild(this.ele);
 }
 
 // ------
@@ -533,7 +626,7 @@ ColorHistory.prototype.addColor = function() {
 // main
 // ------
 
-var area;
+var area, box;
 
 var colorPicker;
 
@@ -550,6 +643,7 @@ window.onload = function() {
 	// ------
 	area = new DrawArea(32, 32);
 	area.generateHTML();
+	box = new Box("cursorBox");
 
 	// ------
 	// color history
@@ -606,7 +700,9 @@ window.onload = function() {
 	tools = new ToolWrapper(2, 6);
 
 	// pencil tool
-	var pencil = new Tool("pencil", "pencil.png", "Pencil")
+	var boxEnable = box.enable.bind(box);
+	var boxDisable = box.disable.bind(box);
+	var pencil = new Tool("pencil", "pencil.png", "Pencil", boxEnable, boxDisable);
 
 	// eyedropper tool
 	var eyedropper = new Tool("eyedropper", "eyedropper.png", "Eyedropper tool");
