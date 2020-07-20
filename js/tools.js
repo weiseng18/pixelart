@@ -706,10 +706,22 @@ History.prototype.equal = function(a, b) {
 	return true;
 }
 
-History.prototype.addState = function() {
+History.prototype.addState = function(force) {
+
 	// if the current area.grid has no difference with the previous entry in the history
 	// >= 0 check due to the way the first item in the history is added
-	if (this.pointer >= 0 && this.equal(this.timeline[this.pointer], area.grid)) return;
+	if (this.pointer >= 0 && this.equal(this.timeline[this.pointer], area.grid)) {
+
+		if (force == true) {
+			// force is due to how line tool is implemented
+			// for the first click after activating line tool, it plots a point at the cursor
+			// moving the cursor around displays the line that would be drawn if you click again 
+			// this line strts at the first click point and ends at where the cursor is
+			//
+			// this implementation would allow the user to cancel after clicking the first point, but it is not implemented yet
+		}
+		else return;
+	}
 
 	++this.pointer;
 	// the while loop only gets triggered when history is changed

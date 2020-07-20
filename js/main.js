@@ -18,6 +18,9 @@ function DrawArea(height, width) {
 	this.cellHeight = null;
 	this.cellWidth = null;
 
+	// range painting
+	this.points = null;
+
 	// drag_paint
 	this.previousCell = null;
 
@@ -137,9 +140,59 @@ function erase(e) {
 	return false;
 }
 
+// takes input points, the output of this.drawCursor()
+// points is the clientX and clientY of the top left and bottom right of the area to be painted
+DrawArea.prototype.paintRange = function(points, eventType, isErase) {	
+	var color = get("color").style.backgroundColor;
+
+	// step 1: find the nearest cell to the topLeft (points[0]), and the bottomRight (points[1])
+
+	// step 1a: get the inner points of the box
+	points[0].x += box.borderSize;
+	points[0].y += box.borderSize;
+	points[1].x -= box.borderSize;
+	points[1].y -= box.borderSize;
+
+	// step 1b: convert coordinates into row, column
+	points[0].x = Math.round(points[0].x / this.cellWidth);
+	points[0].y = Math.round(points[0].y / this.cellHeight);
+	points[1].x = Math.round(points[1].x / this.cellWidth) - 1;
+	points[1].y = Math.round(points[1].y / this.cellHeight) - 1;
+
+	console.log(points);
+
+	// step 2: check if this function was triggered by a mousemove
+	// if triggered by a mousemove, draw lines instead of filling in cells to prevent issue #4
+	if (eventType == "mousemove" && this.points != null) {
+		// step 3: paint with lines
+		for (var i=0; i<=points[1].y - points[0].y; i++)
+			for (var j=0; j<=points[1].x - points[0].x; j++) {
+				var prevPoint = {x:this.points[0].x + j, y:this.points[0].y + i};
+				var currPoint = {x:points[0].x + j, y:points[0].y + i};
+				this.drawLine(prevPoint, currPoint, isErase);
+				console.log(prevPoint, currPoint);
+			}
+	}
+	else {
+		// step 3: paint
+		for (var i=points[0].y; i<=points[1].y; i++)
+			for (var j=points[0].x; j<=points[1].x; j++) {
+				if (isErase)
+					this.paint({x:j, y:i}, null, true);
+				else
+					this.paint({x:j, y:i}, color, true);
+			}
+	}
+
+	// step 4: update the previously drawn range, to be used in step 2
+	this.points = _.cloneDeep(points);
+}
+
 DrawArea.prototype.click = function(e) {
 	if (this.tool == 0) {
-		paint(e);
+		// draw cursor box
+		var points = box.drawCursor(e);
+		this.paintRange(points, "click", false);
 	}
 	else if (this.tool == 1) {
 		eyeDropper(e);
@@ -156,7 +209,10 @@ DrawArea.prototype.click = function(e) {
 
 DrawArea.prototype.contextmenu = function(e) {
 	if (this.tool == 0) {
-		erase(e);
+		e.preventDefault();
+		// draw cursor box
+		var points = box.drawCursor(e);
+		this.paintRange(points, "click", true);
 	}
 }
 
@@ -164,36 +220,26 @@ DrawArea.prototype.mousedown = function(e) {
 	if (this.tool == 0) {
 		if (e.which == 1) {
 			this.drag_paint = true;
-
-			var cell = e.target;
-			var column = cell.cellIndex;
-			var row = cell.parentElement.rowIndex;
-			this.previousCell = {x:column, y:row};
+			var points = box.drawCursor(e);
+			this.paintRange(points, "mousedown", false);
 		}
 		else if (e.which == 3) {
 			e.preventDefault();
 			this.drag_erase = true;
-			erase(e);
+			this.paintRange(points, "mousedown", true);
 		}
 	}
 }
 
 DrawArea.prototype.mousemove = function(e) {
 	if (this.tool == 0) {
-		var color = get("color").style.backgroundColor;
-		var cell = e.target;
-		var column = cell.cellIndex;
-		var row = cell.parentElement.rowIndex;
-		var currentCell = {x:column, y:row};
+		// draw cursor box
+		var points = box.drawCursor(e);
 		if (this.drag_paint) {
-			this.drawLine(this.previousCell, currentCell, color);
-			this.previousCell = currentCell;
+			this.paintRange(points, "mousemove", false);
 		}
 		if (this.drag_erase)
-			erase(e);
-
-		// draw cursor box
-		box.draw(e);
+			this.paintRange(points, "mousemove", true);
 	}
 	else if (this.tool == 7)
 		if (this.p1 != null) {
@@ -229,12 +275,12 @@ DrawArea.prototype.mouseleave = function(e) {
 // drawing pencil size
 // ------
 
-function Box(id) {
+function Box(id, size) {
 	this.id = id;
 	this.enabled = false;
-	this.borderSize = 2;
+	this.borderSize = 1;
 
-	this.pencilSize = 1;
+	this.pencilSize = size;
 
 	this.cellHeight = area.cellHeight;
 	this.cellWidth = area.cellWidth;
@@ -273,21 +319,23 @@ Box.prototype.isOutOfBounds = function(p) {
 	if (p.x < 0 || p.y < 0 || p.x >= this.ele.width || p.y >= this.ele.height) return true;
 }
 
-Box.prototype.draw = function(e) {
+Box.prototype.drawCursor = function(e) {
 	var boundingRect = get("display").getBoundingClientRect();
 	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 
 	var topLeft = {x:p.x - this.boxWidth / 2, y:p.y - this.boxHeight / 2};
-	var bottomRight = {x:topLeft.x + this.boxWidth, y:topLeft.y + this.boxHeight};
+	var bottomRight = {x:topLeft.x + this.boxWidth + 2*this.borderSize, y:topLeft.y + this.boxHeight + 2*this.borderSize};
 	if (this.isOutOfBounds(topLeft) || this.isOutOfBounds(bottomRight)) return;
 
 	var c = get(this.id);
 	var ctx = c.getContext("2d");
+	ctx.lineWidth = this.borderSize;
 	ctx.setLineDash([2, 1]);
 
 	this.clearCanvas();
 
 	ctx.strokeRect(topLeft.x, topLeft.y, this.boxWidth, this.boxHeight);
+	return [topLeft, bottomRight];
 }
 
 Box.prototype.clearCanvas = function() {
@@ -302,6 +350,7 @@ Box.prototype.enable = function(e) {
 
 Box.prototype.disable = function(e) {
 	this.clearCanvas();
+	console.log(this);
 	document.body.removeChild(this.ele);
 }
 
@@ -320,20 +369,21 @@ DrawArea.prototype.writeSelection = function(selection, p1, p2) {
 	for (var y=p1.y; y<=p2.y; y++)
 		for (var x=p1.x; x<=p2.x; x++)
 			if (selection[y - p1.y][x - p1.x] != null)
-				this.paint({x:x, y:y}, selection[y - p1.y][x - p1.x]);
+				this.paint({x:x, y:y}, selection[y - p1.y][x - p1.x], false);
 }
 
-DrawArea.prototype.erase = function(p) {
-	selectCanvas.grid[p.y][p.x] = null;
-	getCell("display", p.y, p.x).style.backgroundColor = (p.y+p.x)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
-}
-
-DrawArea.prototype.paint = function(p, color) {
-	if (color != null)
-		getCell("display", p.y, p.x).style.backgroundColor = color;
-	else
+// write variable checks if you are just writing to the HTML grid (temporarily) or writing to area.grid (permanently) as well
+// the temporary is for mousemove for select tool
+// erase tool is also combined in here
+DrawArea.prototype.paint = function(p, color, write) {
+	// update HTML
+	if (color == null) // erase
 		getCell("display", p.y, p.x).style.backgroundColor = (p.y+p.x)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
+	else
+		getCell("display", p.y, p.x).style.backgroundColor = color;
 
+	// update area.grid
+	if (write) area.grid[p.y][p.x] = color;
 }
 
 // ------
@@ -474,7 +524,12 @@ DrawArea.prototype.generatePoints = function(p1, p2) {
 	return points;
 }
 
-DrawArea.prototype.drawLine = function(p1, p2, color) {
+DrawArea.prototype.drawLine = function(p1, p2, isErase) {
+	var color = get("color").style.backgroundColor;
+
+	if (isErase)  // overwrite color during erase
+		color = null;
+
 	this.updateGrid();
 	var points = this.generatePoints(p1, p2);
 	for (var i=0; i<points.length; i++) {
@@ -495,12 +550,12 @@ DrawArea.prototype.lineHelper = function(e) {
 	if (this.p1 == null) {
 		this.p1 = {x:column, y:row};
 		getCell("display", this.p1.y, this.p1.x).style.backgroundColor = color;
-		actionreplay.addState();
+		actionreplay.addState(true);
 	}
 	else {
 		actionreplay.undo();
 		var p2 = {x:column, y:row};
-		this.drawLine(this.p1, p2, color);
+		this.drawLine(this.p1, p2);
 		this.p1 = null;
 		actionreplay.addState();
 	}
@@ -522,6 +577,14 @@ DrawArea.prototype.lineHover = function(e) {
 	for (var i=0; i<points.length; i++)
 		getCell("display", points[i].y, points[i].x).style.backgroundColor = color;
 	
+}
+
+DrawArea.prototype.lineEnable = function() {
+	get(this.id).style.cursor = "pointer";
+}
+
+DrawArea.prototype.lineDisable = function() {
+	get(this.id).style.cursor = "none";
 }
 
 // ------
@@ -643,7 +706,7 @@ window.onload = function() {
 	// ------
 	area = new DrawArea(32, 32);
 	area.generateHTML();
-	box = new Box("cursorBox");
+	box = new Box("cursorBox", 1);
 
 	// ------
 	// color history
@@ -729,7 +792,9 @@ window.onload = function() {
 	var bucket = new Tool("bucket", "bucket.png", "Bucket tool");
 
 	// line tool
-	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line");
+	var lineOn = area.lineEnable.bind(area);
+	var lineOff = area.lineDisable.bind(area);
+	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line", lineOn, lineOff);
 
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
