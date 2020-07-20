@@ -159,8 +159,6 @@ DrawArea.prototype.paintRange = function(points, eventType, isErase) {
 	points[1].x = Math.round(points[1].x / this.cellWidth) - 1;
 	points[1].y = Math.round(points[1].y / this.cellHeight) - 1;
 
-	console.log(points);
-
 	// step 2: check if this function was triggered by a mousemove
 	// if triggered by a mousemove, draw lines instead of filling in cells to prevent issue #4
 	if (eventType == "mousemove" && this.points != null) {
@@ -170,7 +168,6 @@ DrawArea.prototype.paintRange = function(points, eventType, isErase) {
 				var prevPoint = {x:this.points[0].x + j, y:this.points[0].y + i};
 				var currPoint = {x:points[0].x + j, y:points[0].y + i};
 				this.drawLine(prevPoint, currPoint, isErase);
-				console.log(prevPoint, currPoint);
 			}
 	}
 	else {
@@ -282,6 +279,10 @@ function Box(id, size) {
 
 	this.pencilSize = size;
 
+	// stores HTML element for size chooser
+	this.sizeChooserID = "sizeChooser";
+	this.sizeChooser = this.generateSizeChooser();
+
 	this.cellHeight = area.cellHeight;
 	this.cellWidth = area.cellWidth;
 
@@ -289,6 +290,56 @@ function Box(id, size) {
 	this.boxWidth = this.pencilSize * this.cellWidth;
 
 	this.ele = this.generateBoxHTML(id);
+}
+
+Box.prototype.updatePencilSize = function(e) {
+	var size = get(this.sizeChooserID).value;
+	this.pencilSize = size;
+	this.boxHeight = this.pencilSize * this.cellHeight;
+	this.boxWidth = this.pencilSize * this.cellWidth;
+}
+
+Box.prototype.generateSizeChooser = function() {
+	var div = document.createElement("div");
+	div.id = "sizeChooser_wrapper";
+	div.style.zIndex = "100";
+
+	div.style.padding = "5px";
+	div.style.margin = "0";
+
+	div.style.position = "absolute";
+	div.style.top = "8%";
+	div.style.left = "25%";
+
+	div.style.width = "250px";
+	div.style.height = "6vh";
+
+	div.style.backgroundColor = "#ffffff";
+
+	div.style.display = "flex";
+
+	var text = document.createElement("div");
+	text.innerHTML = "Pencil/Eraser Size:";
+	text.style.margin = "10px auto";
+
+	var input = document.createElement("input");
+	input.id = this.sizeChooserID;
+	input.type = "number";
+	input.min = 1;
+	input.max = Math.min(area.height, area.width) / 2;
+	input.style.width = "40px";
+	input.style.margin = "5px auto";
+
+	// set default value for browsers that have autocomplete
+	input.value = 1;
+
+	// event listener
+	input.addEventListener("change", this.updatePencilSize.bind(this));
+
+	div.appendChild(text);
+	div.appendChild(input);
+
+	return div;
 }
 
 Box.prototype.generateBoxHTML = function(id) {
@@ -346,12 +397,13 @@ Box.prototype.clearCanvas = function() {
 
 Box.prototype.enable = function(e) {
 	document.body.appendChild(this.ele);
+	document.body.appendChild(this.sizeChooser);
 }
 
 Box.prototype.disable = function(e) {
 	this.clearCanvas();
-	console.log(this);
 	document.body.removeChild(this.ele);
+	document.body.removeChild(this.sizeChooser);
 }
 
 // ------
@@ -535,7 +587,7 @@ DrawArea.prototype.drawLine = function(p1, p2, isErase) {
 	for (var i=0; i<points.length; i++) {
 		var x = points[i].x;
 		var y = points[i].y;
-		this.grid[y][x] = color;
+		this.paint({x:x, y:y}, color, true);
 	}
 	this.updateGrid();
 }
