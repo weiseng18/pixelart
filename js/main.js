@@ -123,23 +123,6 @@ function paint(e) {
 	area.grid[row][column] = RGBStringToHexString(color);
 }
 
-function erase(e) {
-	e.preventDefault();
-
-	var cell = e.target;
-	var column = cell.cellIndex;
-	var row = cell.parentElement.rowIndex;
-
-	// update HTML
-	cell.style.backgroundColor = (row+column)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
-
-	// update grid
-	area.grid[row][column] = null;
-
-	//disable default right click context menu
-	return false;
-}
-
 // takes input points, the output of this.drawCursor()
 // points is the clientX and clientY of the top left and bottom right of the area to be painted
 DrawArea.prototype.paintRange = function(points, eventType, isErase) {	
@@ -232,9 +215,8 @@ DrawArea.prototype.mousemove = function(e) {
 	if (this.tool == 0) {
 		// draw cursor box
 		var points = box.drawCursor(e);
-		if (this.drag_paint) {
+		if (this.drag_paint)
 			this.paintRange(points, "mousemove", false);
-		}
 		if (this.drag_erase)
 			this.paintRange(points, "mousemove", true);
 	}
@@ -262,9 +244,9 @@ DrawArea.prototype.mouseup = function(e) {
 DrawArea.prototype.mouseleave = function(e) {
 	if (this.tool == 0) {
 		this.drag_paint = false;
-		this.previousCell = null;
-
 		this.drag_erase = false;
+
+		box.clearCanvas();
 	}
 }
 
@@ -346,7 +328,7 @@ Box.prototype.generateBoxHTML = function(id) {
 	var ele = document.createElement("canvas");
 	ele.id = id;
 
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 
 	ele.style.position = "fixed";
 	ele.style.top = boundingRect.top - this.borderSize + "px";
@@ -360,8 +342,8 @@ Box.prototype.generateBoxHTML = function(id) {
 	ele.style.pointerEvents = "none";
 
 	// for more precise numbers
-	ele.height = removePX(get("display").style.height) + this.borderSize*2;
-	ele.width = removePX(get("display").style.width) + this.borderSize*2;
+	ele.height = removePX(get(area.id).style.height) + this.borderSize*2;
+	ele.width = removePX(get(area.id).style.width) + this.borderSize*2;
 
 	return ele;
 }
@@ -371,7 +353,7 @@ Box.prototype.isOutOfBounds = function(p) {
 }
 
 Box.prototype.drawCursor = function(e) {
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 	var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 
 	var topLeft = {x:p.x - this.boxWidth / 2, y:p.y - this.boxHeight / 2};
@@ -411,8 +393,9 @@ Box.prototype.disable = function(e) {
 // ------
 
 DrawArea.prototype.writeSelection = function(selection, p1, p2) {
-	// p1, p2 is topleft, bottomright of original location selection
-	// p3, p4 is topleft, bottomright of new location for selection
+	// p1, p2 is topleft, bottomright of new location for selection
+	// as the function name suggests, this only writes the selection to the HTML, but not to the actual grid.
+	// this triggers on mousemove and only displays what the moved selection will look like
 
 	var width = p2.x - p1.x + 1;
 	var height = p2.y - p1.y + 1;
@@ -589,7 +572,6 @@ DrawArea.prototype.drawLine = function(p1, p2, isErase) {
 		var y = points[i].y;
 		this.paint({x:x, y:y}, color, true);
 	}
-	this.updateGrid();
 }
 
 // helper function to get first point and wait for second point
@@ -858,6 +840,13 @@ window.onload = function() {
 	tools.addTool(line);
 
 	tools.generateHTML();
+
+	get(tools.id).addEventListener("dragstart", function(e) {
+		e.preventDefault();
+	});
+	get(tools.id).addEventListener("contextmenu", function(e) {
+		e.preventDefault();
+	});
 
 	// turn on pencil tool
 	toggleTool(0);

@@ -301,7 +301,7 @@ SelectCanvas.prototype.generateHTML = function() {
 	var ele = document.createElement("canvas");
 	ele.id = "selectCanvas";
 
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 
 	ele.style.position = "fixed";
 	ele.style.top = boundingRect.top - this.borderSize + "px";
@@ -311,8 +311,8 @@ SelectCanvas.prototype.generateHTML = function() {
 	ele.style.zIndex = "100";
 
 	// for more precise numbers
-	ele.height = removePX(get("display").style.height) + this.borderSize*2;
-	ele.width = removePX(get("display").style.width) + this.borderSize*2;
+	ele.height = removePX(get(area.id).style.height) + this.borderSize*2;
+	ele.width = removePX(get(area.id).style.width) + this.borderSize*2;
 
 	div.appendChild(ele);
 
@@ -403,7 +403,6 @@ SelectCanvas.prototype.drawSelectArea = function(x1, x2) {
 	ctx.fillRect(p1.x + this.borderSize, p1.y + this.borderSize, width, height);
 
 }
-
 
 // finds the nearest intersection on the drawing area so that the select function can appear to snap to the grid
 // takes in a point (x, y) and returns a point (x, y)
