@@ -44,7 +44,7 @@ function saveRaw(which) {
 	for (var i=0; i<area.height; i++) {
 		if (i) data += ";";
 		for (var j=0; j<area.width; j++) {
-			if (j) data += ",";
+			if (j) data += ".";
 			data += area.grid[i][j];
 		}
 	}
@@ -99,7 +99,7 @@ function handleRaw(data) {
 		data = data.split(";");
 		var height = data.length;
 		for (var i=0; i<height; i++)
-			data[i] = data[i].split(',');
+			data[i] = data[i].split('.');
 		var width = data[0].length;
 
 		// tentative method for loading raw data
