@@ -85,6 +85,8 @@ ToolWrapper.prototype.drawTooltip = function(element, idx) {
 	tooltipBox.style.border = "solid black 2px";
 	tooltipBox.style.backgroundColor = "#FFFB7A";
 
+	tooltipBox.style.zIndex = "200";
+
 	var tooltip = tools.items[idx].tooltip;
 	var wrapper = document.createElement("span");
 	wrapper.innerHTML = tooltip;
@@ -166,6 +168,9 @@ function toggleTool(idx) {
 	}
 
 	if (area.tool == idx) {
+		if (idx == 0) return;
+
+		// clicking the same icon
 		// resetting to 0, i.e. pencil tool
 		getCell("tools", row, column).style.backgroundColor = "";
 		getCell("tools", row, column).style.border = "solid 2px white";

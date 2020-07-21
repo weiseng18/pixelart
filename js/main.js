@@ -565,7 +565,6 @@ DrawArea.prototype.drawLine = function(p1, p2, isErase) {
 	if (isErase)  // overwrite color during erase
 		color = null;
 
-	this.updateGrid();
 	var points = this.generatePoints(p1, p2);
 	for (var i=0; i<points.length; i++) {
 		var x = points[i].x;
