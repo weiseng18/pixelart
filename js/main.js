@@ -399,11 +399,13 @@ Box.prototype.clearCanvas = function() {
 }
 
 Box.prototype.enable = function(e) {
+	get(area.id).style.cursor = "none";
 	document.body.appendChild(this.ele);
 	document.body.appendChild(this.sizeChooser);
 }
 
 Box.prototype.disable = function(e) {
+	get(area.id).style.cursor = "pointer";
 	this.clearCanvas();
 	document.body.removeChild(this.ele);
 	document.body.removeChild(this.sizeChooser);
@@ -603,6 +605,12 @@ DrawArea.prototype.lineHelper = function(e) {
 
 	if (this.p1 == null) {
 		this.p1 = {x:column, y:row};
+		// if you do dragging it can cause undefined
+		if (this.p1.x == undefined || this.p1.y == undefined) {
+			this.p1 = null;
+			return;
+		}
+
 		getCell("display", this.p1.y, this.p1.x).style.backgroundColor = color;
 		actionreplay.addState(true);
 	}
@@ -631,14 +639,6 @@ DrawArea.prototype.lineHover = function(e) {
 	for (var i=0; i<points.length; i++)
 		getCell("display", points[i].y, points[i].x).style.backgroundColor = color;
 	
-}
-
-DrawArea.prototype.lineEnable = function() {
-	get(this.id).style.cursor = "pointer";
-}
-
-DrawArea.prototype.lineDisable = function() {
-	get(this.id).style.cursor = "none";
 }
 
 // ------
@@ -846,9 +846,7 @@ window.onload = function() {
 	var bucket = new Tool("bucket", "bucket.png", "Bucket tool");
 
 	// line tool
-	var lineOn = area.lineEnable.bind(area);
-	var lineOff = area.lineDisable.bind(area);
-	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line", lineOn, lineOff);
+	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line");
 
 	tools.addTool(pencil);
 	tools.addTool(eyedropper);
