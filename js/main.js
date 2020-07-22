@@ -358,7 +358,27 @@ Box.prototype.drawCursor = function(e) {
 
 	var topLeft = {x:p.x - this.boxWidth / 2, y:p.y - this.boxHeight / 2};
 	var bottomRight = {x:topLeft.x + this.boxWidth + 2*this.borderSize, y:topLeft.y + this.boxHeight + 2*this.borderSize};
-	if (this.isOutOfBounds(topLeft) || this.isOutOfBounds(bottomRight)) return;
+
+	if (this.isOutOfBounds(topLeft)) {
+		if (topLeft.x < 0) {
+			bottomRight.x += -topLeft.x;
+			topLeft.x = 0;
+		}
+		if (topLeft.y < 0) {
+			bottomRight.y += -topLeft.y;
+			topLeft.y = 0;
+		}
+	}
+	if (this.isOutOfBounds(bottomRight)) {
+		if (bottomRight.x >= this.ele.width) {
+			topLeft.x -= (bottomRight.x - this.ele.width);
+			bottomRight.x = this.ele.width;
+		}
+		if (bottomRight.y >= this.ele.height) {
+			topLeft.y -= (bottomRight.y - this.ele.height);
+			bottomRight.y = this.ele.height;
+		}
+	}
 
 	var c = get(this.id);
 	var ctx = c.getContext("2d");
@@ -368,6 +388,7 @@ Box.prototype.drawCursor = function(e) {
 	this.clearCanvas();
 
 	ctx.strokeRect(topLeft.x, topLeft.y, this.boxWidth, this.boxHeight);
+
 	return [topLeft, bottomRight];
 }
 
