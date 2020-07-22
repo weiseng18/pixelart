@@ -37,6 +37,9 @@ sidebar
 	background: #fff;
 	margin: auto;
 	padding: 5px;
+	display: flex;
+	justify-content: space-around;
+	flex-direction: column;
 }
 
 #color_text_options {
@@ -50,8 +53,7 @@ sidebar
 
 #color_text {
 	/* originally height:15% but in order to vertical align center a fixed height is required */
-	height: 40px;
-	width: 100%;
+	width: 90%;
 	padding: 0px 10px;
 	display: table-cell;
 	text-align: center;
@@ -59,23 +61,22 @@ sidebar
 }
 
 #color_wrapper {
-	height: 20%;
+	height: 15%;
 	width: 100%;
 	display: flex;
     align-items: center;
 }
 
 #color {
-	height: 60%;
-	width: 65%;
+	height: 80%;
+	width: 75%;
 	margin: auto;
 }
 
 #color_picker {
-	height: 55%;
+	height: 50%;
 	width: 100%;
 	background: #fff;
-	margin: auto;
 	display: flex;
     align-items: center;
 }
