@@ -848,14 +848,18 @@ window.onload = function() {
 	// line tool
 	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line");
 
-	tools.addTool(pencil);
-	tools.addTool(eyedropper);
-	tools.addTool(select);
-	tools.addTool(move);
-	tools.addTool(undo);
-	tools.addTool(redo);
-	tools.addTool(bucket);
-	tools.addTool(line);
+	// flip about y-axis
+	var flip_y = new Tool("flip", "flip-y.png", "Flip-Y<br>Flip entire grid about <strong>y</strong>-axis", flipY);
+
+	tools.addTool(pencil);			// DrawArea
+	tools.addTool(eyedropper);		// eyeDropper()
+	tools.addTool(select);			// SelectCanvas
+	tools.addTool(move);			// SelectCanvas + DrawArea
+	tools.addTool(undo);			// History
+	tools.addTool(redo);			// History
+	tools.addTool(bucket);			// DrawArea
+	tools.addTool(line);			// DrawArea
+	tools.addTool(flip_y);			// flipY()
 
 	tools.generateHTML();
 

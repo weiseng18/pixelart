@@ -763,3 +763,23 @@ History.prototype.redo = function() {
 	if (area.tool == 5)
 		toggleTool(5);
 }
+
+// flip-y
+
+function flipY() {
+	var copy = _.cloneDeep(area.grid);
+	var flipped = init2D(area.height, area.width, null);
+
+	for (var i=0; i<area.height; i++)
+		for (var j=0; j<area.width; j++)
+			flipped[i][area.width - 1 - j] = copy[i][j];
+
+	area.grid = _.cloneDeep(flipped);
+	area.updateGrid();
+
+	actionreplay.addState();
+
+	// change tool back to previous
+	if (area.tool == 8)
+		toggleTool(8);
+}
