@@ -91,7 +91,6 @@ function loadRaw(which) {
 
 		input.click();
 	}
-	actionreplay.addState();
 }
 
 function handleRaw(data) {
@@ -111,15 +110,13 @@ function handleRaw(data) {
 		for (var i=0; i<height; i++)
 			for (var j=0; j<width; j++) {
 				// localStorage stringifies stuff
-				if (data[i][j] == "null") {
+				if (data[i][j] == "null")
 					area.grid[i][j] = null;
-					getCell(area.id, i, j).style.backgroundColor = (i+j)%2 == 0 ? "#FFFFFF" : "#D8D8D8";
-				}
-				else {
+				else
 					area.grid[i][j] = data[i][j];
-					// works but loading from localStorage gives hex value, whereas in normal editing it gives css rgb function
-					getCell(area.id, i, j).style.backgroundColor = data[i][j];
-				}
 			}
+
+		area.updateGrid();
+		actionreplay.addState();
 	}
 }
