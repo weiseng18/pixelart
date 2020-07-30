@@ -851,15 +851,19 @@ window.onload = function() {
 	// flip about y-axis
 	var flip_y = new Tool("flip", "flip-y.png", "Flip-Y<br>Flip entire grid about <strong>y</strong>-axis", flipY);
 
-	tools.addTool(pencil);			// DrawArea
-	tools.addTool(eyedropper);		// eyeDropper()
-	tools.addTool(select);			// SelectCanvas
-	tools.addTool(move);			// SelectCanvas + DrawArea
-	tools.addTool(undo);			// History
-	tools.addTool(redo);			// History
-	tools.addTool(bucket);			// DrawArea
-	tools.addTool(line);			// DrawArea
-	tools.addTool(flip_y);			// flipY()
+	// rotate clockwise
+	var rotate_clockwise = new Tool("rotate_clockwise", "rotate-clockwise.png", "Rotate <strong>Clockwise</strong> by 90 degrees", rotateClockwise);
+
+	tools.addTool(pencil);				// DrawArea
+	tools.addTool(eyedropper);			// eyeDropper()
+	tools.addTool(select);				// SelectCanvas
+	tools.addTool(move);				// SelectCanvas + DrawArea
+	tools.addTool(undo);				// History
+	tools.addTool(redo);				// History
+	tools.addTool(bucket);				// DrawArea
+	tools.addTool(line);				// DrawArea
+	tools.addTool(flip_y);				// flipY()
+	tools.addTool(rotate_clockwise);	// rotateClockwise()
 
 	tools.generateHTML();
 
