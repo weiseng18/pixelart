@@ -848,8 +848,9 @@ window.onload = function() {
 	// line tool
 	var line = new Tool("line", "line.png", "Line tool<br><strong>Click</strong> two points to draw a line");
 
-	// flip about y-axis
+	// flip about y-axis, x-axis
 	var flip_y = new Tool("flip", "flip-y.png", "Flip-Y<br>Flip entire grid about <strong>y</strong>-axis", flipY);
+	var flip_x = new Tool("flip", "flip-x.png", "Flip-X<br>Flip entire grid about <strong>x</strong>-axis", flipX);
 
 	// rotate clockwise
 	var rotate_clockwise = new Tool("rotate_clockwise", "rotate-clockwise.png", "Rotate <strong>Clockwise</strong> by 90 degrees", rotateClockwise);
@@ -863,6 +864,7 @@ window.onload = function() {
 	tools.addTool(bucket);				// DrawArea
 	tools.addTool(line);				// DrawArea
 	tools.addTool(flip_y);				// flipY()
+	tools.addTool(flip_x);				// flipX()
 	tools.addTool(rotate_clockwise);	// rotateClockwise()
 
 	tools.generateHTML();

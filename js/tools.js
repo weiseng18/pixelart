@@ -785,6 +785,27 @@ function flipY() {
 		toggleTool(8);
 }
 
+// flip-x
+// currently does this for the whole grid, can possibly change to a selection in future
+
+function flipX() {
+	var copy = _.cloneDeep(area.grid);
+	var flipped = init2D(area.height, area.width, null);
+
+	for (var i=0; i<area.height; i++)
+		for (var j=0; j<area.width; j++)
+			flipped[area.height - 1 - i][j] = copy[i][j];
+
+	area.grid = _.cloneDeep(flipped);
+	area.updateGrid();
+
+	actionreplay.addState();
+
+	// change tool back to previous
+	if (area.tool == 9)
+		toggleTool(9);
+}
+
 // rotate clockwise
 // currently does this for the whole grid, can possibly change to a selection in future
 
@@ -792,8 +813,8 @@ function rotateClockwise() {
 	if (area.height != area.width) {
 		alert("This function only supports square grids at this moment.");
 
-		if (area.tool == 9)
-			toggleTool(9);
+		if (area.tool == 10)
+			toggleTool(10);
 
 		return;
 	}
@@ -809,6 +830,6 @@ function rotateClockwise() {
 	area.updateGrid();
 
 	actionreplay.addState();
-	if (area.tool == 9)
-		toggleTool(9);
+	if (area.tool == 10)
+		toggleTool(10);
 }
