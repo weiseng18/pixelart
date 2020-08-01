@@ -111,20 +111,22 @@ window.onload = function() {
 	var flip_y = new Tool("flip", "flip-y.png", "Flip-Y<br>Flip entire grid about <strong>y</strong>-axis", flipY);
 	var flip_x = new Tool("flip", "flip-x.png", "Flip-X<br>Flip entire grid about <strong>x</strong>-axis", flipX);
 
-	// rotate clockwise
-	var rotate_clockwise = new Tool("rotate_clockwise", "rotate-clockwise.png", "Rotate <strong>Clockwise</strong> by 90 degrees", rotateClockwise);
+	// rotate clockwise, counterclockwise
+	var rotate_clockwise = new Tool("rotate_clockwise", "rotate-clockwise.png", "Rotate <strong>clockwise</strong> by 90 degrees", rotateClockwise);
+	var rotate_counterclockwise = new Tool("rotate_counterclockwise", "rotate-counterclockwise.png", "Rotate <strong>counterclockwise</strong> by 90 degrees", rotateCounterClockwise);
 
-	tools.addTool(pencil);				// DrawArea
-	tools.addTool(eyedropper);			// eyeDropper()
-	tools.addTool(select);				// SelectCanvas
-	tools.addTool(move);				// SelectCanvas + DrawArea
-	tools.addTool(undo);				// History
-	tools.addTool(redo);				// History
-	tools.addTool(bucket);				// DrawArea
-	tools.addTool(line);				// DrawArea
-	tools.addTool(flip_y);				// flipY()
-	tools.addTool(flip_x);				// flipX()
-	tools.addTool(rotate_clockwise);	// rotateClockwise()
+	tools.addTool(pencil);					// DrawArea
+	tools.addTool(eyedropper);				// eyeDropper()
+	tools.addTool(select);					// SelectCanvas
+	tools.addTool(move);					// SelectCanvas + DrawArea
+	tools.addTool(undo);					// History
+	tools.addTool(redo);					// History
+	tools.addTool(bucket);					// DrawArea
+	tools.addTool(line);					// DrawArea
+	tools.addTool(flip_y);					// flipY()
+	tools.addTool(flip_x);					// flipX()
+	tools.addTool(rotate_clockwise);		// rotateClockwise()
+	tools.addTool(rotate_counterclockwise);	// rotateCounterClockwise()
 
 	tools.generateHTML();
 

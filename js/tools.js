@@ -833,3 +833,31 @@ function rotateClockwise() {
 	if (area.tool == 10)
 		toggleTool(10);
 }
+
+// rotate counter clockwise
+// currently does this for the whole grid, can possibly change to a selection in future
+
+function rotateCounterClockwise() {
+	if (area.height != area.width) {
+		alert("This function only supports square grids at this moment.");
+
+		if (area.tool == 11)
+			toggleTool(11);
+
+		return;
+	}
+
+	var copy = _.cloneDeep(area.grid);
+	var rotated = init2D(area.height, area.width, null);
+
+	for (var i=0; i<area.height; i++)
+		for (var j=0; j<area.width; j++)
+			rotated[i][j] = copy[j][area.height-i-1];
+
+	area.grid = _.cloneDeep(rotated);
+	area.updateGrid();
+
+	actionreplay.addState();
+	if (area.tool == 11)
+		toggleTool(11);
+}
