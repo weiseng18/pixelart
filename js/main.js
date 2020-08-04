@@ -2,6 +2,8 @@
 // main
 // ------
 
+var startmenu;
+
 var area, box;
 
 var colorPicker;
@@ -13,7 +15,28 @@ var cHistory;
 // undo and redo
 var actionreplay;
 
+// ------
+// z-index info
+// ------
+
+// z-index 100:
+// - paint/erase size chooser
+// - "cursor" for painting/erasing
+// - select box, selectWrapper in select tool
+//
+// z-index 200:
+// - tooltip as it could overlap with the paint/erase size chooser with z-index 100
+//
+// z-index 300:
+// - start menu opacity cover (#startmenu_wrapper)
+
 window.onload = function() {
+	// ------
+	// start menu
+	// ------
+	startmenu = new StartMenu("startmenu");
+	startmenu.showMenu();
+
 	// ------
 	// drawing area
 	// ------
@@ -141,3 +164,76 @@ window.onload = function() {
 	toggleTool(0);
 
 };
+
+// due to a change in the size of the grid,
+// either through choosing a different dimension from start menu
+// or through loading a differently sized .pix
+// area will need to be redefined.
+//
+// there are some items that depend directly on area (e.g. on generation)
+// thus there will be a need for a reload to ensure that everything gets the updated values
+
+function reload(height, width) {
+	// dependency
+	// pencil -> box -> area
+	// size chooser -> box -> area
+	// history (undo/redo) -> area
+	// select canvas -> area
+
+	// delete box
+	tools.items[0].off();	// this is the binded function
+
+	// delete area
+	get(area.id).remove();
+
+	// the following re-definitions have been copied from main.js
+	// can work on this area in future for efficiency
+
+	// re-create area
+	area = new DrawArea(height, width);
+	area.generateHTML();
+
+	// re-create box
+	box = new Box("cursorBox", 1);
+
+	// re-create pencil tool
+	var boxEnable = box.enable.bind(box);
+	var boxDisable = box.disable.bind(box);
+	var pencil = new Tool("pencil", "pencil.png", "Pencil", boxEnable, boxDisable);
+	pencil.on();
+
+	// re-create select tool
+	selectCanvas = new SelectCanvas("selectCanvas");
+	var on = selectCanvas.enable.bind(selectCanvas);
+	var off = selectCanvas.disable.bind(selectCanvas);
+	var select = new Tool("select", "select.png", "Select tool", on, off);
+
+	// re-create history tools
+	actionreplay = new History();
+
+	var undoBIND = actionreplay.undo.bind(actionreplay);
+	var redoBIND = actionreplay.redo.bind(actionreplay);
+
+	var undo = new Tool("undo", "undo.png", "Undo tool", undoBIND);
+	var redo = new Tool("redo", "redo.png", "Redo tool", redoBIND);
+
+	// due to select tool, undo, redo tool changing, the whole tools section needs to be re-generated
+	tools.items[0] = pencil;
+	tools.items[2] = select;
+	tools.items[4] = undo;
+	tools.items[5] = redo;
+
+	get("tool_wrapper").innerHTML = "";
+
+	tools.generateHTML();
+
+	get(tools.id).addEventListener("dragstart", function(e) {
+		e.preventDefault();
+	});
+	get(tools.id).addEventListener("contextmenu", function(e) {
+		e.preventDefault();
+	});
+
+	// turn on pencil tool
+	toggleTool(0);
+}
