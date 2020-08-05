@@ -101,11 +101,11 @@ function handleRaw(data) {
 			data[i] = data[i].split('.');
 		var width = data[0].length;
 
-		// tentative method for loading raw data
-		// will be changed once action tracking: undo/redo is implemented
-		//
-		// current method for painting is only paint(e) where e is a event
-		// when undo/redo is implemented there will be a method to paint without event
+		// reload the grid if dimensions have changed
+		// this causes history to reset, because undo/redo with changing grid size is not supported.
+		if (height != area.height || width != area.width) {
+			reload(height, width);
+		}
 
 		for (var i=0; i<height; i++)
 			for (var j=0; j<width; j++) {
