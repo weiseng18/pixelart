@@ -108,21 +108,6 @@ DrawArea.prototype.toggleEdit = function() {
 	}
 }
 
-function paint(e) {
-	var color = get("color").style.backgroundColor;
-	var cell = e.target;
-	var column = cell.cellIndex;
-	var row = cell.parentElement.rowIndex;
-
-	if (row == undefined || column == undefined) return;
-
-	// update HTML
-	cell.style.backgroundColor = color;
-
-	// update grid
-	area.grid[row][column] = RGBStringToHexString(color);
-}
-
 // takes input points, the output of this.drawCursor()
 // points is the clientX and clientY of the top left and bottom right of the area to be painted
 DrawArea.prototype.paintRange = function(points, eventType, isErase) {	

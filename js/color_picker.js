@@ -60,7 +60,7 @@ CanvasWrapper.prototype.TwoDimGradient = function(color) {
 	// step 3: gradient from top to bottom of black (down is more black)
 	var black = ['rgba(0, 0, 0, 0)', 'rgba(0, 0, 0, 0.1)', 'rgba(0, 0, 0, 0.2)', 'rgba(0, 0, 0, 1)'];
 	var blackGradient = this.LinearGradient(black, "vertical");
-	this.ctx.fillStyle = whiteGradient;
+	this.ctx.fillStyle = blackGradient;
 	this.ctx.fillRect(0, 0, this.width, this.height);
 }
 
