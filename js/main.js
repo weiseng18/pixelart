@@ -151,18 +151,7 @@ window.onload = function() {
 	tools.addTool(rotate_clockwise);		// rotateClockwise()
 	tools.addTool(rotate_counterclockwise);	// rotateCounterClockwise()
 
-	tools.generateHTML();
-
-	get(tools.id).addEventListener("dragstart", function(e) {
-		e.preventDefault();
-	});
-	get(tools.id).addEventListener("contextmenu", function(e) {
-		e.preventDefault();
-	});
-
-	// turn on pencil tool
-	toggleTool(0);
-
+	tools.updateTools.call(tools);
 };
 
 // due to a change in the size of the grid,
@@ -223,17 +212,5 @@ function reload(height, width) {
 	tools.items[4] = undo;
 	tools.items[5] = redo;
 
-	get("tool_wrapper").innerHTML = "";
-
-	tools.generateHTML();
-
-	get(tools.id).addEventListener("dragstart", function(e) {
-		e.preventDefault();
-	});
-	get(tools.id).addEventListener("contextmenu", function(e) {
-		e.preventDefault();
-	});
-
-	// turn on pencil tool
-	toggleTool(0);
+	tools.updateTools.call(tools);
 }

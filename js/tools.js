@@ -3,7 +3,8 @@
 // ------
 
 function ToolWrapper(rows, columns) {
-	var element = get("tool_wrapper");
+	this.wrapperID = "tool_wrapper";
+	var element = get(this.wrapperID);
 	var style = getComputedStyle(element);
 
 	// these two variables are numbers but the unit is px
@@ -66,7 +67,7 @@ ToolWrapper.prototype.generateHTML = function() {
 		}
 	}
 
-	get("tool_wrapper").appendChild(table);
+	get(this.wrapperID).appendChild(table);
 }
 
 ToolWrapper.prototype.drawTooltip = function(element, idx) {
@@ -98,6 +99,25 @@ ToolWrapper.prototype.drawTooltip = function(element, idx) {
 
 ToolWrapper.prototype.removeTooltip = function(idx) {
 	get("tooltip_" + idx).remove();
+}
+
+// call this method when there are any changes to tools
+// actual changes to tools must be made before calling this method
+
+ToolWrapper.prototype.updateTools = function() {
+	get(this.wrapperID).innerHTML = "";
+
+	this.generateHTML();
+
+	get(this.id).addEventListener("dragstart", function(e) {
+		e.preventDefault();
+	});
+	get(this.id).addEventListener("contextmenu", function(e) {
+		e.preventDefault();
+	});
+
+	// turn on pencil tool
+	toggleTool(0);
 }
 
 ToolWrapper.prototype.mouseover = function(e) {
