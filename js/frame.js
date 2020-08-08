@@ -145,7 +145,9 @@ FrameWrapper.prototype.PIXtoFrameDisplay = function(grid, height, width) {
 FrameWrapper.prototype.updateHTML = function() {
 	get("frameArea").innerHTML = "";
 
-	var width = removePX(window.getComputedStyle(get("frameArea")).getPropertyValue("width"));
+	var extraMargin = 5;
+
+	var width = removePX(window.getComputedStyle(get("frameArea")).getPropertyValue("width")) - 2*extraMargin;
 	var height = width;
 
 	var outerMargin = 10;
@@ -166,8 +168,8 @@ FrameWrapper.prototype.updateHTML = function() {
 		wrapper.style.width = width - 2*outerMargin + "px";
 		wrapper.style.height = height - 2*outerMargin + "px";
 
-		wrapper.style.marginTop = outerMargin + "px";
-		wrapper.style.marginLeft = outerMargin + "px";
+		wrapper.style.marginTop = outerMargin + extraMargin + "px";
+		wrapper.style.marginLeft = outerMargin + extraMargin + "px";
 
 		var img = document.createElement("img");
 		img.src = this.PIXtoFrameDisplay(frame.grid, imgSize, imgSize);
