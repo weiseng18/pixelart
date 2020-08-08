@@ -15,6 +15,9 @@ var cHistory;
 // undo and redo
 var actionreplay;
 
+// frames
+var frames = [];
+
 // ------
 // z-index info
 // ------
@@ -152,6 +155,12 @@ window.onload = function() {
 	tools.addTool(rotate_counterclockwise);	// rotateCounterClockwise()
 
 	tools.updateTools.call(tools);
+
+	// ------
+	// frames
+	// ------
+	addNewFrame();
+	updateHTML();
 };
 
 // due to a change in the size of the grid,

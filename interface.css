@@ -94,6 +94,26 @@ frame area
 	overflow-x: hidden;
 }
 
+/* used in frame.js updateHTML() */
+.frame {
+	background: #fff;
+	position: relative;
+	text-align: center;
+}
+
+.frame::before {
+	content: "";
+	display: inline-block;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.frame > img {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
 /*---------
 menu
 ---------*/
