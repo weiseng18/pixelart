@@ -16,8 +16,7 @@ var cHistory;
 var actionreplay;
 
 // frames
-var frames = [];
-var whichFrame = 0;
+var frameWrapper;
 
 // ------
 // z-index info
@@ -94,9 +93,11 @@ window.onload = function() {
 	// ------
 	// frames
 	// ------
-	addNewFrame();
-	updateHTML();
-	loadFrame(0);
+	frameWrapper = new FrameWrapper();
+
+	frameWrapper.addNewFrame();
+	frameWrapper.updateHTML();
+	frameWrapper.loadFrame(0);
 
 	// ------
 	// history

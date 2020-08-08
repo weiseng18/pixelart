@@ -1,20 +1,26 @@
+function FrameWrapper() {
+	// frame variables
+	this.frames = [];
+	this.whichFrame = 0;
+}
+
 function Frame(grid, actionreplay) {
 	this.grid = grid;
 	this.actionreplay = actionreplay;
 }
 
 // creates new frame (based on the current grid) and adds into frames[]
-function addNewFrame() {
+FrameWrapper.prototype.addNewFrame = function() {
 	var grid = _.cloneDeep(area.grid);
 	var rep = _.cloneDeep(actionreplay);
 	var frame = new Frame(grid, rep);
-	frames.push(frame);
+	this.frames.push(frame);
 }
 
 // updates a frame previously added into frames[]
-function updateFrame(id) {
-	frames[id].grid = _.cloneDeep(area.grid);
-	frames[id].actionreplay = _.cloneDeep(actionreplay);
+FrameWrapper.prototype.updateFrame = function() {
+	this.frames[this.whichFrame].grid = _.cloneDeep(area.grid);
+	this.frames[this.whichFrame].actionreplay = _.cloneDeep(actionreplay);
 }
 
 // ------
@@ -22,15 +28,14 @@ function updateFrame(id) {
 // ------
 
 // loads a frame from frames[] into the current draw area
-function loadFrame(id) {
-
+FrameWrapper.prototype.loadFrame = function(id) {
 	// ------
 	// css
 	// ------
 
 	// previous is whichFrame, new will be id
 
-	var ele = get("frameArea").children[whichFrame];
+	var ele = get("frameArea").children[this.whichFrame];
 	var classArray = ele.className.split(" ");
 	// only remove if it does actually have the class
 	if (classArray.includes("frameSelected"))
@@ -39,7 +44,7 @@ function loadFrame(id) {
 	var ele = get("frameArea").children[id];
 	ele.classList.add("frameSelected");
 
-	if (whichFrame == 0 && id == 0) {
+	if (this.whichFrame == 0 && id == 0) {
 		// this means that this function was the instance called on page load
 		return;
 	}
@@ -48,8 +53,8 @@ function loadFrame(id) {
 	// functional stuff
 	// ------
 
-	whichFrame = id;
-	frame = frames[id];
+	this.whichFrame = id;
+	frame = this.frames[id];
 
 	var height = frame.grid.length;
 	var width = frame.grid[0].length;
@@ -108,7 +113,7 @@ function loadFrame(id) {
 // ------
 
 // takes in a grid, returns href;
-function PIXtoFrameDisplay(grid, height, width) {
+FrameWrapper.prototype.PIXtoFrameDisplay = function(grid, height, width) {
 	var canvas = document.createElement("canvas");
 
 	var rows = grid.length;
@@ -137,7 +142,7 @@ function PIXtoFrameDisplay(grid, height, width) {
 }
 
 // updates #frameArea with the current state of frames[]
-function updateHTML() {
+FrameWrapper.prototype.updateHTML = function() {
 	get("frameArea").innerHTML = "";
 
 	var width = removePX(window.getComputedStyle(get("frameArea")).getPropertyValue("width"));
@@ -148,14 +153,14 @@ function updateHTML() {
 
 	var imgSize = height - 2*outerMargin - 2*innerPadding;
 
-	for (let i=0; i<frames.length; i++) {
-		var frame = frames[i];
+	for (let i=0; i<this.frames.length; i++) {
+		var frame = this.frames[i];
 		var id = i+1;
 
 		var wrapper = document.createElement("div");
 		wrapper.className = "frame";
 
-		wrapper.addEventListener("click", function() { loadFrame(i); });
+		wrapper.addEventListener("click", function() { frameWrapper.loadFrame(i); });
 		wrapper.style.cursor = "pointer";
 
 		wrapper.style.width = width - 2*outerMargin + "px";
@@ -165,7 +170,7 @@ function updateHTML() {
 		wrapper.style.marginLeft = outerMargin + "px";
 
 		var img = document.createElement("img");
-		img.src = PIXtoFrameDisplay(frame.grid, imgSize, imgSize);
+		img.src = this.PIXtoFrameDisplay(frame.grid, imgSize, imgSize);
 
 		var idEle = document.createElement("span");
 		idEle.style.position = "absolute";
