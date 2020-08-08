@@ -752,6 +752,9 @@ History.prototype.addState = function(force) {
 	while (this.timeline.length > this.pointer) this.timeline.pop();
 
 	this.timeline.push(_.cloneDeep(area.grid));
+
+	updateFrame(whichFrame);
+	updateHTML();
 }
 
 History.prototype.undo = function() {
@@ -763,6 +766,9 @@ History.prototype.undo = function() {
 	--this.pointer;
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
+
+	updateFrame(whichFrame);
+	updateHTML();
 	// change tool back to previous
 	// this extra check is to see if the user was the one who called this
 	if (area.tool == 4)
@@ -778,6 +784,9 @@ History.prototype.redo = function() {
 	++this.pointer;
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
+
+	updateFrame(whichFrame);
+	updateHTML();
 	// change tool back to previous
 	// this extra check is to see if the user was the one who called this
 	if (area.tool == 5)

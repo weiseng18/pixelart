@@ -113,6 +113,10 @@ frame area
     vertical-align: middle;
 }
 
+.frameSelected {
+	border: solid blue 3px;
+}
+
 
 /*---------
 menu

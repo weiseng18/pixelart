@@ -3,7 +3,7 @@ function Frame(grid, actionreplay) {
 	this.actionreplay = actionreplay;
 }
 
-// creates new frame and adds into frames[]
+// creates new frame (based on the current grid) and adds into frames[]
 function addNewFrame() {
 	var grid = _.cloneDeep(area.grid);
 	var rep = _.cloneDeep(actionreplay);
@@ -17,14 +17,76 @@ function updateFrame(id) {
 	frames[id].actionreplay = _.cloneDeep(actionreplay);
 }
 
+// ------
+// load functions
+// ------
+
 // loads a frame from frames[] into the current draw area
 function loadFrame(id) {
-	area.grid = _.cloneDeep(frames[id].grid);
-	actionreplay = _.cloneDeep(frames[id].actionreplay);
 
+	// ------
+	// css
+	// ------
+
+	// previous is whichFrame, new will be id
+
+	var ele = get("frameArea").children[whichFrame];
+	var classArray = ele.className.split(" ");
+	// only remove if it does actually have the class
+	if (classArray.includes("frameSelected"))
+		ele.classList.remove("frameSelected");
+
+	var ele = get("frameArea").children[id];
+	ele.classList.add("frameSelected");
+
+	if (whichFrame == 0 && id == 0) {
+		// this means that this function was the instance called on page load
+		return;
+	}
+
+	// ------
+	// functional stuff
+	// ------
+
+	whichFrame = id;
+	frame = frames[id];
+
+	var height = frame.grid.length;
+	var width = frame.grid[0].length;
+
+	// delete box
+	tools.items[0].off();	// this is the binded function
+
+	// delete area
+	get(area.id).remove();
+
+	// the following re-definitions have been copied from main.js
+	// can work on this area in future for efficiency
+
+	// re-create area
+	area = new DrawArea(height, width);
+	area.generateHTML();
+
+	area.grid = _.cloneDeep(frame.grid);
 	area.updateGrid();
 
-	// reload undo/redo functions
+	// re-create box
+	box = new Box("cursorBox", 1);
+
+	// re-create pencil tool
+	var boxEnable = box.enable.bind(box);
+	var boxDisable = box.disable.bind(box);
+	var pencil = new Tool("pencil", "pencil.png", "Pencil", boxEnable, boxDisable);
+	pencil.on();
+
+	// re-create select tool
+	selectCanvas = new SelectCanvas("selectCanvas");
+	var on = selectCanvas.enable.bind(selectCanvas);
+	var off = selectCanvas.disable.bind(selectCanvas);
+	var select = new Tool("select", "select.png", "Select tool", on, off);
+
+	// re-create history tools
+	actionreplay = _.cloneDeep(frame.actionreplay);
 
 	var undoBIND = actionreplay.undo.bind(actionreplay);
 	var redoBIND = actionreplay.redo.bind(actionreplay);
@@ -32,11 +94,18 @@ function loadFrame(id) {
 	var undo = new Tool("undo", "undo.png", "Undo tool", undoBIND);
 	var redo = new Tool("redo", "redo.png", "Redo tool", redoBIND);
 
+	// due to select tool, undo, redo tool changing, the whole tools section needs to be re-generated
+	tools.items[0] = pencil;
+	tools.items[2] = select;
 	tools.items[4] = undo;
 	tools.items[5] = redo;
 
 	tools.updateTools.call(tools);
 }
+
+// ------
+// display functions
+// ------
 
 // takes in a grid, returns href;
 function PIXtoFrameDisplay(grid, height, width) {
@@ -79,12 +148,15 @@ function updateHTML() {
 
 	var imgSize = height - 2*outerMargin - 2*innerPadding;
 
-	for (var i=0; i<frames.length; i++) {
+	for (let i=0; i<frames.length; i++) {
 		var frame = frames[i];
 		var id = i+1;
 
 		var wrapper = document.createElement("div");
 		wrapper.className = "frame";
+
+		wrapper.addEventListener("click", function() { loadFrame(i); });
+		wrapper.style.cursor = "pointer";
 
 		wrapper.style.width = width - 2*outerMargin + "px";
 		wrapper.style.height = height - 2*outerMargin + "px";

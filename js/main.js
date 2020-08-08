@@ -17,6 +17,7 @@ var actionreplay;
 
 // frames
 var frames = [];
+var whichFrame = 0;
 
 // ------
 // z-index info
@@ -91,6 +92,13 @@ window.onload = function() {
 	});
 
 	// ------
+	// frames
+	// ------
+	addNewFrame();
+	updateHTML();
+	loadFrame(0);
+
+	// ------
 	// history
 	// ------
 
@@ -156,11 +164,6 @@ window.onload = function() {
 
 	tools.updateTools.call(tools);
 
-	// ------
-	// frames
-	// ------
-	addNewFrame();
-	updateHTML();
 };
 
 // due to a change in the size of the grid,
@@ -170,6 +173,8 @@ window.onload = function() {
 //
 // there are some items that depend directly on area (e.g. on generation)
 // thus there will be a need for a reload to ensure that everything gets the updated values
+
+// used in save.js to restart the grid
 
 function reload(height, width) {
 	// dependency
