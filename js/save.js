@@ -102,10 +102,8 @@ function handleRaw(data) {
 		var width = data[0].length;
 
 		// reload the grid if dimensions have changed
-		// this causes history to reset, because undo/redo with changing grid size is not supported.
-		if (height != area.height || width != area.width) {
-			reload(height, width);
-		}
+		// history is forced to reset now, due to frame.js
+		reload(height, width);
 
 		for (var i=0; i<height; i++)
 			for (var j=0; j<width; j++) {
