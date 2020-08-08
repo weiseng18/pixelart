@@ -276,7 +276,7 @@ Box.prototype.generateSizeChooser = function() {
 
 	div.style.position = "absolute";
 	div.style.top = "8%";
-	div.style.left = "25%";
+	div.style.left = "40%";
 
 	div.style.width = "250px";
 	div.style.height = "6vh";

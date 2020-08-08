@@ -82,6 +82,19 @@ sidebar
 }
 
 /*---------
+frame area
+---------*/
+
+#frameArea {
+	height: 100vh;
+	width: 15%;
+	background: #000;
+	float: left;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+/*---------
 menu
 ---------*/
 
@@ -97,7 +110,7 @@ menu
 	text-align: center;
 	display: flex;
 	align-items: center;
-	padding: 0px 20px;
+	padding: 0px 15px;
 	color: white;
 }
 
@@ -125,7 +138,7 @@ canvas:hover {
 }
 
 #workingArea {
-	width: 75%;
+	width: 60%;
 	height: 100vh;
 	float: left;	
 }
