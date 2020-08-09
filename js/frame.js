@@ -9,6 +9,11 @@ function FrameWrapper(id) {
 	// for rectangles updateHTML() should scale down the image while keeping the ratio of the width and height constant.
 	// this will be implemented
 	this.imgSize = 0;
+
+	// css values
+	this.externalMargin = 5;
+	this.frameMargin = 10;
+	this.imageMargin = 15;
 }
 
 function Frame(grid, actionreplay) {
@@ -157,24 +162,17 @@ FrameWrapper.prototype.updateSingle = function() {
 	ele.children[0].src = this.PIXtoFrameDisplay(this.frames[this.whichFrame].grid, this.imgSize, this.imgSize);
 }
 
-// updates #frameArea with the current state of frames[]
-FrameWrapper.prototype.updateHTML = function() {
-	get(this.id).innerHTML = "";
-
-	var extraMargin = 5;
-
-	var width = removePX(window.getComputedStyle(get("frameArea")).getPropertyValue("width")) - 2*extraMargin;
+// this function is called once only, inits HTML
+FrameWrapper.prototype.initHTML = function() {
+	var style = window.getComputedStyle(get(this.id));
+	var width = removePX(style.getPropertyValue("width")) - 2*this.externalMargin;
 	var height = width;
 
-	var outerMargin = 10;
-	var innerPadding = 15;
-
-	var imgSize = height - 2*outerMargin - 2*innerPadding;
+	var imgSize = height - 2*this.frameMargin - 2*this.imageMargin;
 	this.imgSize = imgSize;
 
 	for (let i=0; i<this.frames.length; i++) {
 		var frame = this.frames[i];
-		var id = i+1;
 
 		var wrapper = document.createElement("div");
 		wrapper.className = "frame";
@@ -182,11 +180,11 @@ FrameWrapper.prototype.updateHTML = function() {
 		wrapper.addEventListener("click", function() { frameWrapper.loadFrame(i); });
 		wrapper.style.cursor = "pointer";
 
-		wrapper.style.width = width - 2*outerMargin + "px";
-		wrapper.style.height = height - 2*outerMargin + "px";
+		wrapper.style.width = width - 2*this.frameMargin + "px";
+		wrapper.style.height = height - 2*this.frameMargin + "px";
 
-		wrapper.style.marginTop = outerMargin + extraMargin + "px";
-		wrapper.style.marginLeft = outerMargin + extraMargin + "px";
+		wrapper.style.marginTop = this.frameMargin + this.externalMargin + "px";
+		wrapper.style.marginLeft = this.frameMargin + this.externalMargin + "px";
 
 		var img = document.createElement("img");
 		img.src = this.PIXtoFrameDisplay(frame.grid, imgSize, imgSize);
@@ -195,7 +193,7 @@ FrameWrapper.prototype.updateHTML = function() {
 		idEle.style.position = "absolute";
 		idEle.style.top = "10px";
 		idEle.style.left = "10px";
-		idEle.innerHTML = id;
+		idEle.innerHTML = i+1;
 		idEle.zIndex = 100;
 
 		wrapper.appendChild(img);
@@ -203,4 +201,5 @@ FrameWrapper.prototype.updateHTML = function() {
 
 		get(this.id).appendChild(wrapper);
 	}
+
 }

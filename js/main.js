@@ -96,7 +96,7 @@ window.onload = function() {
 	frameWrapper = new FrameWrapper("frameArea");
 
 	frameWrapper.addNewFrame();
-	frameWrapper.updateHTML();
+	frameWrapper.initHTML();
 	frameWrapper.loadFrame(0);
 
 	// ------
