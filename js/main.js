@@ -26,6 +26,7 @@ var frameWrapper;
 // - paint/erase size chooser
 // - "cursor" for painting/erasing
 // - select box, selectWrapper in select tool
+// - button for addNewFrame()
 //
 // z-index 200:
 // - tooltip as it could overlap with the paint/erase size chooser with z-index 100
@@ -105,6 +106,8 @@ window.onload = function() {
 	frameWrapper.addNewFrame(area.grid, actionreplay);
 	frameWrapper.initHTML();
 	frameWrapper.loadFrame(0);
+
+	frameWrapper.addButton();
 
 	// ------
 	// tools

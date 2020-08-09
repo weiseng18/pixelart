@@ -238,3 +238,26 @@ FrameWrapper.prototype.createDotFrame = function(id, width, height) {
 
 	return wrapper;
 }
+
+// this adds a button to the HTML to call addNewFrame()
+FrameWrapper.prototype.addButton = function() {
+	var ele = document.createElement("div");
+	ele.style.zIndex = 100;
+
+	ele.style.position = "absolute";
+	ele.style.top = "8%";
+	ele.style.right = 0;
+
+	ele.style.height = "6vh";
+	ele.style.padding = "5px 10px";
+	ele.style.lineHeight = "6vh";
+
+	ele.style.cursor = "pointer";
+
+	ele.style.background = "#fff";
+
+	ele.innerHTML = "Add new frame";
+	ele.addEventListener("click", this.addNewFrame.bind(this));
+
+	document.body.appendChild(ele);
+}
