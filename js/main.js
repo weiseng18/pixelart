@@ -91,19 +91,20 @@ window.onload = function() {
 	});
 
 	// ------
+	// history
+	// ------
+
+	actionreplay = new History();
+
+	// ------
 	// frames
 	// ------
+
 	frameWrapper = new FrameWrapper("frameArea");
 
 	frameWrapper.addNewFrame();
 	frameWrapper.initHTML();
 	frameWrapper.loadFrame(0);
-
-	// ------
-	// history
-	// ------
-
-	actionreplay = new History();
 
 	// ------
 	// tools

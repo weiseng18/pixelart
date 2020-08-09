@@ -753,7 +753,9 @@ History.prototype.addState = function(force) {
 
 	this.timeline.push(_.cloneDeep(area.grid));
 
-	frameWrapper.updateFrame();
+	// pointer 0 means initialization phase, and updateFrame is not necessary
+	if (this.pointer > 0)
+		frameWrapper.updateFrame();
 }
 
 History.prototype.undo = function() {
