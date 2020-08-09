@@ -4,6 +4,11 @@ function FrameWrapper(id) {
 	this.whichFrame = 0;
 
 	this.id = id;
+	// will be initialized in updateHTML()
+	// currently updateHTML() treats the image as a square.
+	// for rectangles updateHTML() should scale down the image while keeping the ratio of the width and height constant.
+	// this will be implemented
+	this.imgSize = 0;
 }
 
 function Frame(grid, actionreplay) {
@@ -23,6 +28,8 @@ FrameWrapper.prototype.addNewFrame = function() {
 FrameWrapper.prototype.updateFrame = function() {
 	this.frames[this.whichFrame].grid = _.cloneDeep(area.grid);
 	this.frames[this.whichFrame].actionreplay = _.cloneDeep(actionreplay);
+
+	this.updateSingle();
 }
 
 // ------
@@ -143,6 +150,13 @@ FrameWrapper.prototype.PIXtoFrameDisplay = function(grid, height, width) {
 	return href;
 }
 
+// accesses the specific element representing the current frame, and only changes the image
+// does not have any parameters since the current frame is an attribute of FrameWrapper
+FrameWrapper.prototype.updateSingle = function() {
+	var ele = get(this.id).children[this.whichFrame];
+	ele.children[0].src = this.PIXtoFrameDisplay(this.frames[this.whichFrame].grid, this.imgSize, this.imgSize);
+}
+
 // updates #frameArea with the current state of frames[]
 FrameWrapper.prototype.updateHTML = function() {
 	get(this.id).innerHTML = "";
@@ -156,6 +170,7 @@ FrameWrapper.prototype.updateHTML = function() {
 	var innerPadding = 15;
 
 	var imgSize = height - 2*outerMargin - 2*innerPadding;
+	this.imgSize = imgSize;
 
 	for (let i=0; i<this.frames.length; i++) {
 		var frame = this.frames[i];
