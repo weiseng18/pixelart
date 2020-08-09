@@ -1,7 +1,9 @@
-function FrameWrapper() {
+function FrameWrapper(id) {
 	// frame variables
 	this.frames = [];
 	this.whichFrame = 0;
+
+	this.id = id;
 }
 
 function Frame(grid, actionreplay) {
@@ -35,13 +37,13 @@ FrameWrapper.prototype.loadFrame = function(id) {
 
 	// previous is whichFrame, new will be id
 
-	var ele = get("frameArea").children[this.whichFrame];
+	var ele = get(this.id).children[this.whichFrame];
 	var classArray = ele.className.split(" ");
 	// only remove if it does actually have the class
 	if (classArray.includes("frameSelected"))
 		ele.classList.remove("frameSelected");
 
-	var ele = get("frameArea").children[id];
+	var ele = get(this.id).children[id];
 	ele.classList.add("frameSelected");
 
 	if (this.whichFrame == 0 && id == 0) {
@@ -143,7 +145,7 @@ FrameWrapper.prototype.PIXtoFrameDisplay = function(grid, height, width) {
 
 // updates #frameArea with the current state of frames[]
 FrameWrapper.prototype.updateHTML = function() {
-	get("frameArea").innerHTML = "";
+	get(this.id).innerHTML = "";
 
 	var extraMargin = 5;
 
@@ -184,6 +186,6 @@ FrameWrapper.prototype.updateHTML = function() {
 		wrapper.appendChild(img);
 		wrapper.appendChild(idEle);
 
-		get("frameArea").appendChild(wrapper);
+		get(this.id).appendChild(wrapper);
 	}
 }
