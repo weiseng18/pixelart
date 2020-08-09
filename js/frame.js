@@ -29,7 +29,7 @@ FrameWrapper.prototype.addNewFrame = function() {
 	this.frames.push(frame);
 }
 
-// updates a frame previously added into frames[]
+// updates a frame that has already been added into frames[]
 FrameWrapper.prototype.updateFrame = function() {
 	this.frames[this.whichFrame].grid = _.cloneDeep(area.grid);
 	this.frames[this.whichFrame].actionreplay = _.cloneDeep(actionreplay);
@@ -163,6 +163,7 @@ FrameWrapper.prototype.updateSingle = function() {
 }
 
 // this function is called once only, inits HTML
+// the reason why this loads this.frames.length frames, is that it would allow a new loading format with multiple frames
 FrameWrapper.prototype.initHTML = function() {
 	var style = window.getComputedStyle(get(this.id));
 	var width = removePX(style.getPropertyValue("width")) - 2*this.externalMargin;
@@ -172,34 +173,41 @@ FrameWrapper.prototype.initHTML = function() {
 	this.imgSize = imgSize;
 
 	for (let i=0; i<this.frames.length; i++) {
-		var frame = this.frames[i];
-
-		var wrapper = document.createElement("div");
-		wrapper.className = "frame";
-
-		wrapper.addEventListener("click", function() { frameWrapper.loadFrame(i); });
-		wrapper.style.cursor = "pointer";
-
-		wrapper.style.width = width - 2*this.frameMargin + "px";
-		wrapper.style.height = height - 2*this.frameMargin + "px";
-
-		wrapper.style.marginTop = this.frameMargin + this.externalMargin + "px";
-		wrapper.style.marginLeft = this.frameMargin + this.externalMargin + "px";
-
-		var img = document.createElement("img");
-		img.src = this.PIXtoFrameDisplay(frame.grid, imgSize, imgSize);
-
-		var idEle = document.createElement("span");
-		idEle.style.position = "absolute";
-		idEle.style.top = "10px";
-		idEle.style.left = "10px";
-		idEle.innerHTML = i+1;
-		idEle.zIndex = 100;
-
-		wrapper.appendChild(img);
-		wrapper.appendChild(idEle);
-
-		get(this.id).appendChild(wrapper);
+		var ele = this.createDotFrame(i, width, height);
+		get(this.id).appendChild(ele);
 	}
 
+}
+
+// wrapper function to create a .frame element, does not add to HTML
+// width and height values seem a bit repetitive for the function call
+FrameWrapper.prototype.createDotFrame = function(id, width, height) {
+	var frame = this.frames[id];
+
+	var wrapper = document.createElement("div");
+	wrapper.className = "frame";
+
+	wrapper.addEventListener("click", function() { frameWrapper.loadFrame(id); });
+	wrapper.style.cursor = "pointer";
+
+	wrapper.style.width = width - 2*this.frameMargin + "px";
+	wrapper.style.height = height - 2*this.frameMargin + "px";
+
+	wrapper.style.marginTop = this.frameMargin + this.externalMargin + "px";
+	wrapper.style.marginLeft = this.frameMargin + this.externalMargin + "px";
+
+	var img = document.createElement("img");
+	img.src = this.PIXtoFrameDisplay(frame.grid, this.imgSize, this.imgSize);
+
+	var idEle = document.createElement("span");
+	idEle.style.position = "absolute";
+	idEle.style.top = "10px";
+	idEle.style.left = "10px";
+	idEle.innerHTML = id+1;
+	idEle.zIndex = 100;
+
+	wrapper.appendChild(img);
+	wrapper.appendChild(idEle);
+
+	return wrapper;
 }
