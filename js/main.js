@@ -102,7 +102,7 @@ window.onload = function() {
 
 	frameWrapper = new FrameWrapper("frameArea");
 
-	frameWrapper.addNewFrame();
+	frameWrapper.addNewFrame(area.grid, actionreplay);
 	frameWrapper.initHTML();
 	frameWrapper.loadFrame(0);
 

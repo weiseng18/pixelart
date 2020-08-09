@@ -17,16 +17,27 @@ function FrameWrapper(id) {
 }
 
 function Frame(grid, actionreplay) {
-	this.grid = grid;
-	this.actionreplay = actionreplay;
+	if (grid != undefined && actionreplay != undefined) {
+		this.grid = grid;
+		this.actionreplay = actionreplay;
+	}
+	else {
+		this.grid = init2D(area.height, area.width, null);
+		this.actionreplay = new History();
+	}
 }
 
-// creates new frame (based on the current grid) and adds into frames[]
-FrameWrapper.prototype.addNewFrame = function() {
-	var grid = _.cloneDeep(area.grid);
-	var rep = _.cloneDeep(actionreplay);
-	var frame = new Frame(grid, rep);
-	this.frames.push(frame);
+// creates new empty frame and adds into frames[]
+FrameWrapper.prototype.addNewFrame = function(grid, actionreplay) {
+	var frame;
+	if (grid != undefined && actionreplay != undefined) {
+		frame = new Frame(grid, actionreplay);
+		this.frames.push(frame);
+	}
+	else {
+		frame = new Frame();
+		this.frames.push(frame);
+	}
 }
 
 // updates a frame that has already been added into frames[]
