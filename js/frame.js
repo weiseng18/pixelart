@@ -37,6 +37,7 @@ FrameWrapper.prototype.addNewFrame = function(grid, actionreplay) {
 	else {
 		frame = new Frame();
 		this.frames.push(frame);
+		this.addSingle();
 	}
 }
 
@@ -164,6 +165,21 @@ FrameWrapper.prototype.PIXtoFrameDisplay = function(grid, height, width) {
 	
 	var href = canvas.toDataURL('image/png');
 	return href;
+}
+
+// adds a newly added frame into the #frameArea html
+FrameWrapper.prototype.addSingle = function() {
+	var style = window.getComputedStyle(get(this.id));
+	var width = removePX(style.getPropertyValue("width")) - 2*this.externalMargin;
+	var height = width;
+
+	var imgSize = height - 2*this.frameMargin - 2*this.imageMargin;
+
+	// find last frame
+	var id = this.frames.length - 1;
+	var ele = this.createDotFrame(id, width, height);
+	get(this.id).appendChild(ele);
+
 }
 
 // accesses the specific element representing the current frame, and only changes the image
