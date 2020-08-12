@@ -754,8 +754,10 @@ History.prototype.addState = function(force) {
 	this.timeline.push(_.cloneDeep(area.grid));
 
 	// pointer 0 means initialization phase, and updateFrame is not necessary
-	if (this.pointer > 0)
+	if (this.pointer > 0) {
+		saveFrames("localStorage");
 		frameWrapper.updateFrame();
+	}
 }
 
 History.prototype.undo = function() {
@@ -768,6 +770,7 @@ History.prototype.undo = function() {
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
 
+	saveFrames("localStorage");
 	frameWrapper.updateFrame();
 	// change tool back to previous
 	// this extra check is to see if the user was the one who called this
@@ -785,6 +788,7 @@ History.prototype.redo = function() {
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
 
+	saveFrames("localStorage");
 	frameWrapper.updateFrame();
 	// change tool back to previous
 	// this extra check is to see if the user was the one who called this
