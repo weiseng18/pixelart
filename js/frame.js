@@ -54,7 +54,10 @@ FrameWrapper.prototype.updateFrame = function() {
 // ------
 
 // loads a frame from frames[] into the current draw area
-FrameWrapper.prototype.loadFrame = function(id) {
+// source is either 'click', 'init', 'handleFrames'
+// for now only matters if source is handleFrames
+
+FrameWrapper.prototype.loadFrame = function(id, source) {
 	// ------
 	// css
 	// ------
@@ -70,7 +73,7 @@ FrameWrapper.prototype.loadFrame = function(id) {
 	var ele = get(this.id).children[id];
 	ele.classList.add("frameSelected");
 
-	if (this.whichFrame == 0 && id == 0) {
+	if (this.whichFrame == 0 && id == 0 && source != "handleFrames") {
 		// this means that this function was the instance called on page load
 		return;
 	}
@@ -214,7 +217,7 @@ FrameWrapper.prototype.createDotFrame = function(id, width, height) {
 	var wrapper = document.createElement("div");
 	wrapper.className = "frame";
 
-	wrapper.addEventListener("click", function() { frameWrapper.loadFrame(id); });
+	wrapper.addEventListener("click", function() { frameWrapper.loadFrame(id, "click"); });
 	wrapper.style.cursor = "pointer";
 
 	wrapper.style.width = width - 2*this.frameMargin + "px";

@@ -105,7 +105,7 @@ window.onload = function() {
 
 	frameWrapper.addNewFrame(area.grid, actionreplay);
 	frameWrapper.initHTML();
-	frameWrapper.loadFrame(0);
+	frameWrapper.loadFrame(0, "init");
 
 	frameWrapper.addButton();
 
