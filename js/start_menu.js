@@ -93,7 +93,7 @@ StartMenu.prototype.generateItems = function() {
 	items[1] = new MenuItem("Continue from where<br>you left off");
 	items[1].ele.addEventListener("click", function(e) {
 		this.closeMenu(1);
-		loadRaw("localStorage");
+		loadFrames("localStorage");
 	}.bind(this));
 
 	items[2] = new MenuItem("Load from local .pix");
