@@ -78,17 +78,17 @@ window.onload = function() {
 	get("savePNG").addEventListener("click", function(e) {
 		savePNG();
 	});
-	get("saveRaw").addEventListener("click", function(e) {
-		saveRaw("localStorage");
-	});
-	get("loadRaw").addEventListener("click", function(e) {
-		loadRaw("localStorage");
-	});
 	get("downloadRaw").addEventListener("click", function(e) {
 		saveRaw("download");
 	});
 	get("uploadRaw").addEventListener("click", function(e) {
 		loadRaw("upload");
+	});
+	get("downloadFrames").addEventListener("click", function(e) {
+		saveFrames("download");
+	});
+	get("uploadFrames").addEventListener("click", function(e) {
+		loadFrames("upload");
 	});
 
 	// ------
