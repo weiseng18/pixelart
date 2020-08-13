@@ -7,8 +7,12 @@ function DrawArea(height, width) {
 	this.width = width;
 	this.grid = init2D(height, width, null);
 	this.id = "display";
+
+	// drag paint and drag erase
 	this.drag_paint = false;
 	this.drag_erase = false;
+	this.active_paint = false;
+	this.active_erase = false;
 
 	this.edit = false;
 
@@ -89,6 +93,7 @@ DrawArea.prototype.toggleEdit = function() {
 		table.addEventListener("mousedown", this.mousedown.bind(this));
 		table.addEventListener("mousemove", this.mousemove.bind(this));
 		table.addEventListener("mouseup", this.mouseup.bind(this));
+		table.addEventListener("mouseenter", this.mouseenter.bind(this));
 		table.addEventListener("mouseleave", this.mouseleave.bind(this));
 	}
 	else {
@@ -104,6 +109,7 @@ DrawArea.prototype.toggleEdit = function() {
 		table.removeEventListener("mousedown", this.mousedown.bind(this));
 		table.removeEventListener("mousemove", this.mousemove.bind(this));
 		table.removeEventListener("mouseup", this.mouseup.bind(this));
+		table.removeEventListener("mouseenter", this.mouseenter.bind(this));
 		table.removeEventListener("mouseleave", this.mouseleave.bind(this));
 	}
 }
@@ -184,12 +190,14 @@ DrawArea.prototype.contextmenu = function(e) {
 DrawArea.prototype.mousedown = function(e) {
 	if (this.tool == 0) {
 		if (e.which == 1) {
+			this.active_paint = true;
 			this.drag_paint = true;
 			var points = box.drawCursor(e);
 			this.paintRange(points, "mousedown", false);
 		}
 		else if (e.which == 3) {
 			e.preventDefault();
+			this.active_erase = true;
 			this.drag_erase = true;
 			this.paintRange(points, "mousedown", true);
 		}
@@ -214,6 +222,8 @@ DrawArea.prototype.mousemove = function(e) {
 DrawArea.prototype.mouseup = function(e) {
 	if (this.tool == 0) {
 		if (e.which == 1 || e.which == 3) {
+			this.active_paint = false;
+			this.active_erase = false;
 			this.drag_paint = false;
 			this.drag_erase = false;
 			// only add state when mouseup
@@ -222,6 +232,21 @@ DrawArea.prototype.mouseup = function(e) {
 		else if (e.which == 2) {
 			// middle click (eyeDropper)
 			eyeDropper(e);
+		}
+	}
+}
+
+DrawArea.prototype.mouseenter = function(e) {
+	if (this.tool == 0) {
+		// reset points (used in paintRange)
+		// but still allow drag paint/erase
+		if (this.active_paint) {
+			this.points = null;
+			this.drag_paint = true;
+		}
+		if (this.active_erase) {
+			this.points
+			this.drag_erase = true;
 		}
 	}
 }
