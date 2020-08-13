@@ -731,7 +731,6 @@ History.prototype.equal = function(a, b) {
 }
 
 History.prototype.addState = function(force) {
-
 	// if the current area.grid has no difference with the previous entry in the history
 	// >= 0 check due to the way the first item in the history is added
 	if (this.pointer >= 0 && this.equal(this.timeline[this.pointer], area.grid)) {
@@ -755,8 +754,8 @@ History.prototype.addState = function(force) {
 
 	// pointer 0 means initialization phase, and updateFrame is not necessary
 	if (this.pointer > 0) {
-		saveFrames("localStorage");
 		frameWrapper.updateFrame();
+		saveFrames("localStorage");
 	}
 }
 
@@ -770,8 +769,8 @@ History.prototype.undo = function() {
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
 
-	saveFrames("localStorage");
 	frameWrapper.updateFrame();
+	saveFrames("localStorage");
 	// change tool back to previous
 	// this extra check is to see if the user was the one who called this
 	if (area.tool == 4)
@@ -788,8 +787,8 @@ History.prototype.redo = function() {
 	area.grid = _.cloneDeep(this.timeline[this.pointer]);
 	area.updateGrid();
 
-	saveFrames("localStorage");
 	frameWrapper.updateFrame();
+	saveFrames("localStorage");
 	// change tool back to previous
 	// this extra check is to see if the user was the one who called this
 	if (area.tool == 5)
