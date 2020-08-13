@@ -750,7 +750,11 @@ History.prototype.addState = function(force) {
 	// the while loop only gets triggered when history is changed
 	while (this.timeline.length > this.pointer) this.timeline.pop();
 
-	this.timeline.push(_.cloneDeep(area.grid));
+	// this line ensures that if this is a new history object, then the 0th entry is necessarily a blank grid.
+	if (this.pointer == 0)
+		this.timeline.push(init2D(area.height, area.width, null));
+	else
+		this.timeline.push(_.cloneDeep(area.grid));
 
 	// pointer 0 means initialization phase, and updateFrame is not necessary
 	if (this.pointer > 0) {
