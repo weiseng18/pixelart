@@ -180,6 +180,9 @@ window.onload = function() {
 // thus there will be a need for a reload to ensure that everything gets the updated values
 
 // used in save.js to restart the grid
+// frames reloading will be done outside of this function, due to custom requirements for
+// startMenu.closeMenu
+// handleFrames
 
 function reload(height, width) {
 	// dependency
