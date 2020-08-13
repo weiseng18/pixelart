@@ -164,6 +164,14 @@ StartMenu.prototype.closeMenu = function(which) {
 		}
 
 		reload(height, width);
+
+		frameWrapper.frames = [];
+		frameWrapper.addNewFrame();
+		get(frameWrapper.id).innerHTML = "";
+		frameWrapper.initHTML();
+
+		this.whichFrame = 0;
+		frameWrapper.loadFrame(0, "closeMenu");
 	}
 	document.body.removeChild(this.ele);	
 }

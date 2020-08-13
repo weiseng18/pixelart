@@ -54,7 +54,7 @@ FrameWrapper.prototype.updateFrame = function() {
 // ------
 
 // loads a frame from frames[] into the current draw area
-// source is either 'click', 'init', 'handleFrames'
+// source is either 'click', 'init', 'handleFrames', 'closeMenu'
 // for now only matters if source is handleFrames
 
 FrameWrapper.prototype.loadFrame = function(id, source) {
