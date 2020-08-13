@@ -58,6 +58,9 @@ FrameWrapper.prototype.updateFrame = function() {
 // for now only matters if source is handleFrames
 
 FrameWrapper.prototype.loadFrame = function(id, source) {
+	var prevTool = area.tool;
+	toggleTool(prevTool);
+
 	// ------
 	// css
 	// ------
@@ -135,6 +138,8 @@ FrameWrapper.prototype.loadFrame = function(id, source) {
 	tools.items[5] = redo;
 
 	tools.updateTools.call(tools);
+
+	toggleTool(prevTool);
 }
 
 // ------
