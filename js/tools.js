@@ -377,6 +377,10 @@ SelectCanvas.prototype.moveOn = function() {
 
 SelectCanvas.prototype.moveOff = function() {
 	get(this.ele.id).children[0].style.cursor = "crosshair";
+
+	// reset selection
+	this.selection = null;
+
 	this.disable();
 }
 
@@ -499,6 +503,8 @@ SelectCanvas.prototype.clearCanvas = function() {
 
 SelectCanvas.prototype.mousedown = function(e) {
 	if (area.tool == 2) {
+		this.selection = null;
+
 		// check for out of bounds
 		var boundingRect = get("display").getBoundingClientRect();
 		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
