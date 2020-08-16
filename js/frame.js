@@ -28,11 +28,18 @@ function Frame(grid, actionreplay) {
 }
 
 // creates new empty frame and adds into frames[]
-FrameWrapper.prototype.addNewFrame = function(grid, actionreplay) {
+FrameWrapper.prototype.addNewFrame = function(grid, actionreplay, copy) {
 	var frame;
 	if (grid != undefined && actionreplay != undefined) {
+		// this is only used in main.js
 		frame = new Frame(grid, actionreplay);
 		this.frames.push(frame);
+	}
+	else if (copy == true) {
+		var fr = frameWrapper.frames[this.whichFrame];
+		frame = new Frame(_.cloneDeep(fr.grid), _.cloneDeep(fr.actionreplay));
+		this.frames.push(frame);
+		this.addSingle();
 	}
 	else {
 		frame = new Frame();
@@ -247,8 +254,36 @@ FrameWrapper.prototype.createDotFrame = function(id, width, height) {
 	return wrapper;
 }
 
+// ------
+// buttons
+// ------
+
 // this adds a button to the HTML to call addNewFrame()
 FrameWrapper.prototype.addButton = function() {
+	var ele = document.createElement("div");
+	ele.style.zIndex = 100;
+
+	ele.style.position = "absolute";
+	ele.style.top = "calc(8% + 6vh + 5px)";
+	ele.style.right = 0;
+
+	ele.style.height = "6vh";
+	ele.style.padding = "5px 10px";
+	ele.style.lineHeight = "6vh";
+
+	ele.style.cursor = "pointer";
+
+	ele.style.background = "#fff";
+
+	ele.innerHTML = "Add new frame";
+	ele.addEventListener("click", this.addNewFrame.bind(this));
+
+	document.body.appendChild(ele);
+}
+
+// this adds a button to the HTML to call addNewFrame() with copy = true
+// essentially duplicates current frame, including history
+FrameWrapper.prototype.addDuplicateButton = function() {
 	var ele = document.createElement("div");
 	ele.style.zIndex = 100;
 
@@ -264,8 +299,8 @@ FrameWrapper.prototype.addButton = function() {
 
 	ele.style.background = "#fff";
 
-	ele.innerHTML = "Add new frame";
-	ele.addEventListener("click", this.addNewFrame.bind(this));
+	ele.innerHTML = "Duplicate current frame";
+	ele.addEventListener("click", this.addNewFrame.bind(this, undefined, undefined, true));
 
 	document.body.appendChild(ele);
 }

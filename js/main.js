@@ -108,6 +108,7 @@ window.onload = function() {
 	frameWrapper.loadFrame(0, "init");
 
 	frameWrapper.addButton();
+	frameWrapper.addDuplicateButton();
 
 	// ------
 	// tools
