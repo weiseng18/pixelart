@@ -229,7 +229,6 @@ FrameWrapper.prototype.createDotFrame = function(id, width, height) {
 	var wrapper = document.createElement("div");
 	wrapper.className = "frame";
 
-	wrapper.addEventListener("click", function() { frameWrapper.loadFrame(id, "click"); });
 	wrapper.style.cursor = "pointer";
 
 	wrapper.style.width = width - 2*this.frameMargin + "px";
@@ -250,6 +249,8 @@ FrameWrapper.prototype.createDotFrame = function(id, width, height) {
 
 	wrapper.appendChild(img);
 	wrapper.appendChild(idEle);
+
+	wrapper.addEventListener("click", function() { frameWrapper.loadFrame(parseInt(this.children[1].innerHTML)-1, "click"); });
 
 	return wrapper;
 }
