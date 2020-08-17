@@ -18,7 +18,8 @@ where `scope` will be one of the following items:
 * `feature` for general new features added/revised
 * `feature prep` for changes made that prepare for the introduction of a feature
   * as such, such commits may create new, unresponsive areas, but these commits will not be pushed to master until the whole feature is complete
-  * examples include adjustments in CSS properties / introduction of new HTML elements
+    * examples include adjustments in CSS properties / introduction of new HTML elements
+  * another type would be addition to helper functions/modification of current functions in such a way that does not affect the end result, but allows more flexibility to incorporate future features
 * `code` for
   * improvements in code efficiency
   * addition/revision of comments
