@@ -111,6 +111,38 @@ window.onload = function() {
 	frameWrapper.addDuplicateButton();
 
 	// ------
+	// dragula (dragging frames)
+	// ------
+
+	// init function
+	var drake = dragula([get(frameWrapper.id)]);
+
+	// update the location in frames array
+	drake.on("drop", function(el, target, source, sibling) {
+		// dragged goes from 0 to length-1
+		// insertBefore goes from 1 to length
+
+		var dragged = parseInt(el.children[1].innerHTML) - 1;
+		var insertBefore = sibling == undefined ? frameWrapper.frames.length : parseInt(sibling.children[1].innerHTML) - 1;
+
+		// step 1: rearrange array
+		frameWrapper.frames = relocate(frameWrapper.frames, dragged, insertBefore);
+
+		// step 2: update <span> in .frame
+		var wrapper = get(frameWrapper.id);
+		for (var i=0; i<wrapper.children.length; i++) {
+			wrapper.children[i].children[1].innerHTML = i+1;
+			if (wrapper.children[i].className.split(" ").includes("frameSelected")) {
+				frameWrapper.loadFrame(i);
+			}
+		}
+
+		// step 3: update whichFrame (if selected frame is the moved one)
+
+
+	});
+
+	// ------
 	// tools
 	// ------
 	tools = new ToolWrapper(2, 6);
