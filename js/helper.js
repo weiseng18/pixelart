@@ -1,3 +1,17 @@
+// takes the element at index id
+// moves it to in front of index insertBefore
+function relocate(arr, id, insertBefore) {
+	var ele = _.cloneDeep(arr[id]);
+	arr[id] = undefined;
+	arr.splice(insertBefore, 0, ele);
+	for (var i=0; i<arr.length; i++)
+		if (arr[i] == undefined) {
+			arr.splice(i, 1);
+			break;
+		}
+	return _.cloneDeep(arr);
+}
+
 function init2D(height, width, val) {
 	var arr = [];
 	for (var i=0; i<height; i++) {
