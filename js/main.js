@@ -74,25 +74,6 @@ window.onload = function() {
 	get(colorPicker.buttonID).addEventListener("click", cHistory.addColor.bind(cHistory));
 
 	// ------
-	// menu bar / saving functions
-	// ------
-	get("savePNG").addEventListener("click", function(e) {
-		savePNG();
-	});
-	get("downloadRaw").addEventListener("click", function(e) {
-		saveRaw("download");
-	});
-	get("uploadRaw").addEventListener("click", function(e) {
-		loadRaw("upload");
-	});
-	get("downloadFrames").addEventListener("click", function(e) {
-		saveFrames("download");
-	});
-	get("uploadFrames").addEventListener("click", function(e) {
-		loadFrames("upload");
-	});
-
-	// ------
 	// history
 	// ------
 
@@ -110,6 +91,25 @@ window.onload = function() {
 
 	frameWrapper.addButton();
 	frameWrapper.addDuplicateButton();
+
+	// ------
+	// menu bar / saving functions
+	// ------
+	get("savePNG").addEventListener("click", function(e) {
+		savePNG();
+	});
+	get("downloadRaw").addEventListener("click", function(e) {
+		saveRaw("download");
+	});
+	get("uploadRaw").addEventListener("click", function(e) {
+		loadRaw("upload");
+	});
+	get("downloadFrames").addEventListener("click", function(e) {
+		saveFrames("download");
+	});
+	get("uploadFrames").addEventListener("click", function(e) {
+		loadFrames("upload");
+	});
 
 	// ------
 	// dragula (dragging frames)
