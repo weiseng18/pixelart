@@ -33,6 +33,7 @@ var frameWrapper;
 //
 // z-index 300:
 // - start menu opacity cover (#startmenu_wrapper)
+// - dropdown menus from top menu
 
 window.onload = function() {
 	// ------

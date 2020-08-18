@@ -31,11 +31,21 @@
 		<div id="frameArea"></div>
 		<div id="workingArea">
 			<div id="menu">
-				<div id="savePNG">Save .png</div>
-				<div id="downloadRaw">Save as .pix</div>
-				<div id="uploadRaw">Load .pix</div>
-				<div id="downloadFrames">Save as .frames</div>
-				<div id="uploadFrames">Load .frames</div>
+				<div class="dropdown">
+					<div class="dropbutton" id="menu_save">Save as ...</div>
+					<div class="dropcontent">
+						<div id="savePNG">Save .png</div>
+						<div id="downloadRaw">Save as .pix</div>
+						<div id="downloadFrames">Save as .frames</div>
+					</div>
+				</div>
+				<div class="dropdown">
+					<div class="dropbutton" id="menu_load">Load from ...</div>
+					<div class="dropcontent">
+						<div id="uploadRaw">Load .pix</div>
+						<div id="uploadFrames">Load .frames</div>
+					</div>
+				</div>
 			</div>
 			<div id="mainArea"></div>
 		</div>
@@ -46,7 +56,6 @@
 		<script src="js/frame.js"></script>
 
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js'></script>
-
 		<script src="js/draw_area.js"></script>
 		<script src="js/color_picker.js"></script>
 		<script src="js/color_history.js"></script>
