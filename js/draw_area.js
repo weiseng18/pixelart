@@ -240,6 +240,12 @@ DrawArea.prototype.mouseup = function(e) {
 			eyeDropper(e);
 		}
 	}
+	// line tool - only allow eyedropper when first point has not been drawn
+	else if (this.tool == 7 && this.p1 == null) {
+		if (e.which == 2) {
+			eyeDropper(e);
+		}
+	}
 }
 
 DrawArea.prototype.mouseenter = function(e) {
