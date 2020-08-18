@@ -89,11 +89,8 @@ window.onload = function() {
 	frameWrapper.initHTML();
 	frameWrapper.loadFrame(0, "init");
 
-	frameWrapper.addButton();
-	frameWrapper.addDuplicateButton();
-
 	// ------
-	// menu bar / saving functions
+	// menu bar
 	// ------
 	get("savePNG").addEventListener("click", function(e) {
 		savePNG();
@@ -109,6 +106,13 @@ window.onload = function() {
 	});
 	get("uploadFrames").addEventListener("click", function(e) {
 		loadFrames("upload");
+	});
+
+	get("frame_empty").addEventListener("click", function(e) {
+		frameWrapper.addNewFrame();
+	});
+	get("frame_duplicate").addEventListener("click", function(e) {
+		frameWrapper.addNewFrame(undefined, undefined, true);
 	});
 
 	// ------
