@@ -114,6 +114,9 @@ window.onload = function() {
 	get("frame_duplicate").addEventListener("click", function(e) {
 		frameWrapper.addNewFrame(undefined, undefined, true);
 	});
+	get("frame_delete").addEventListener("click", function(e) {
+		frameWrapper.deleteFrame();
+	});
 
 	// ------
 	// dragula (dragging frames)
@@ -134,6 +137,7 @@ window.onload = function() {
 		frameWrapper.frames = relocate(frameWrapper.frames, dragged, insertBefore);
 
 		// step 2: update <span> in .frame
+		// step 3: update whichFrame (if selected frame is the moved one)
 		var wrapper = get(frameWrapper.id);
 		for (var i=0; i<wrapper.children.length; i++) {
 			wrapper.children[i].children[1].innerHTML = i+1;
@@ -141,9 +145,6 @@ window.onload = function() {
 				frameWrapper.loadFrame(i);
 			}
 		}
-
-		// step 3: update whichFrame (if selected frame is the moved one)
-
 
 	});
 

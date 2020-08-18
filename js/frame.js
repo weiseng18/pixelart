@@ -51,6 +51,50 @@ FrameWrapper.prototype.addNewFrame = function(grid, actionreplay, copy) {
 	}
 }
 
+FrameWrapper.prototype.deleteFrame = function() {
+	if (this.frames.length == 1) {
+		alert("Cannot delete only frame");
+		return;
+	}
+
+	// step 1: unload the current frame
+	var toDelete = this.whichFrame;
+	var last = false;
+	if (this.whichFrame == this.frames.length-1) {
+		last = true;
+		this.loadFrame(this.whichFrame - 1);
+	}
+	else
+		this.loadFrame(this.whichFrame + 1);
+
+	// step 2: delete frame from frames
+	this.frames.splice(toDelete, 1);
+
+	// step 3: update HTML
+	// currently this method wipes the whole HTML
+	// can possibly have a method to remove a single frame and update the numbering just like in drag and drop
+	var wrapper = get(this.id);
+	wrapper.removeChild(wrapper.childNodes[toDelete]);
+
+	for (var i=0; i<wrapper.children.length; i++)
+		wrapper.children[i].children[1].innerHTML = i+1;
+
+	// step 4: load correct frame
+	// unless it is the last element, deleting the current frame make frame+1 be selected.
+	// frame is then deleted, so frame+1 becomes frame and the this.whichFrame does not actually change overall.
+	// this.whichFrame is set manually to prevent accessing out of bounds, when attempting to unload the css for selected frame
+	if (last) {
+		this.whichFrame = toDelete - 1;
+		this.loadFrame(toDelete - 1);
+	}
+	else {
+		this.whichFrame = toDelete;
+		this.loadFrame(toDelete);
+	}
+
+	saveFrames("localStorage");
+}
+
 // updates a frame that has already been added into frames[]
 FrameWrapper.prototype.updateFrame = function() {
 	this.frames[this.whichFrame].grid = _.cloneDeep(area.grid);
