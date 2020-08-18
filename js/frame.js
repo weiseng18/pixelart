@@ -32,6 +32,7 @@ FrameWrapper.prototype.addNewFrame = function(grid, actionreplay, copy) {
 	var frame;
 	if (grid != undefined && actionreplay != undefined) {
 		// this is only used in main.js
+		// this is used for init, so do not saveFrames() here as it will overwrite past data
 		frame = new Frame(grid, actionreplay);
 		this.frames.push(frame);
 	}
@@ -40,11 +41,13 @@ FrameWrapper.prototype.addNewFrame = function(grid, actionreplay, copy) {
 		frame = new Frame(_.cloneDeep(fr.grid), _.cloneDeep(fr.actionreplay));
 		this.frames.push(frame);
 		this.addSingle();
+		saveFrames("localStorage");
 	}
 	else {
 		frame = new Frame();
 		this.frames.push(frame);
 		this.addSingle();
+		saveFrames("localStorage");
 	}
 }
 
