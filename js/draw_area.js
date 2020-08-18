@@ -234,6 +234,12 @@ DrawArea.prototype.mouseup = function(e) {
 			eyeDropper(e);
 		}
 	}
+	// bucket tool
+	else if (this.tool == 6) {
+		if (e.which == 2) {
+			eyeDropper(e);
+		}
+	}
 }
 
 DrawArea.prototype.mouseenter = function(e) {
