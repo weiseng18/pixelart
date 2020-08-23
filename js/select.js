@@ -29,6 +29,7 @@ function SelectCanvas(id) {
 	// selection top left and bottom right
 	// used to delete the original selection upon moving
 	this.selectionTopLeft = null;
+	this.selectionBottomRight = null;
 
 	// element always has to be ready for append and remove
 	// this has to be below this.borderSize so that this.borderSize is defined and can be used in this method
@@ -256,29 +257,18 @@ SelectCanvas.prototype.mousedown = function(e) {
 		// passes out of bounds check so it can be the start point
 		this.moveStart = p;
 
+		// update new corner points
+		// this is to ensure that newTopLeft and newBottomRight are not null
+		this.newTopLeft = this.topLeft;
+		this.newBottomRight = this.bottomRight;
+
 		// cut out the selection from area.grid
 		// this area of the code allows movements to be made successive times for the same selection
-		var height = this.cellBottomRight.y - this.cellTopLeft.y + 1;
-		var width = this.cellBottomRight.x - this.cellTopLeft.x + 1;
-
-		this.selectionTopLeft = this.cellTopLeft;
-		this.selectionBottomRight = this.cellBottomRight;
-
-		if (this.selection == null) {
-			this.selection = init2D(height, width, null);
-			for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
-				for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++) {
-					this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] = area.grid[y][x];
+		for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
+			for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++)
+				if (this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] != null)
 					area.grid[y][x] = null;
-				}
-		}
-		else {
-			for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
-				for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++)
-					if (this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] != null)
-						area.grid[y][x] = null;
-		}
-		
+
 		actionreplay.addState();
 	}
 }
@@ -382,60 +372,91 @@ SelectCanvas.prototype.mouseup = function(e) {
 		this.cellTopLeft = this.convertIntersectionToCell(this.topLeft);
 		this.cellBottomRight = this.convertIntersectionToCell(this.bottomRight);
 		this.cellBottomRight = {x:this.cellBottomRight.x-1, y:this.cellBottomRight.y-1};
+
+		// copy cells to selectionTopLeft and selectionBottomRight so that it can access last location
+		this.selectionTopLeft = _.cloneDeep(this.cellTopLeft);
+		this.selectionBottomRight = _.cloneDeep(this.cellBottomRight);
+
+		// update selection
+		this.selection = init2D(height, width, null);
+		for (var y=this.cellTopLeft.y; y<=this.cellBottomRight.y; y++)
+			for (var x=this.cellTopLeft.x; x<=this.cellBottomRight.x; x++) {
+				this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] = area.grid[y][x];
+			}
 	}
 
 	else if (area.tool == 3) {
-		get(this.ele.id).children[0].style.cursor = "grab";
+		if (this.moveStart != null) {
+			// step 1: find current point
+			var boundingRect = get(area.id).getBoundingClientRect();
+			var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 
-		this.moveStart = null;
+			// step 2: find delta
+			var delta = {x: p.x - this.moveStart.x, y: p.y - this.moveStart.y};
 
-		// update the selection area
+			// step 3: calculate the new topleft and bottom right
 
-		this.topLeft = this.newTopLeft;
-		this.bottomRight = this.newBottomRight;
+			// exact values
+			var newTopLeft = {x: this.topLeft.x + delta.x, y: this.topLeft.y + delta.y};
+			var newBottomRight = {x: this.bottomRight.x + delta.x, y: this.bottomRight.y + delta.y};
 
-		this.topLeft = this.findNearestIntersection(this.topLeft);
-		this.bottomRight = this.findNearestIntersection(this.bottomRight);
+			var points = this.forceNearestIntersection(newTopLeft, newBottomRight);
+			this.newTopLeft = points.topLeft;
+			this.newBottomRight = points.bottomRight;
 
-		// find corresponding cells
-		var newCellTopLeft = this.convertIntersectionToCell(this.newTopLeft);
-		var newCellBottomRight = this.convertIntersectionToCell(this.newBottomRight);
-		newCellBottomRight = {x:newCellBottomRight.x-1, y:newCellBottomRight.y-1};
+			// step 4: find corresponding cells
+			var newCellTopLeft = this.convertIntersectionToCell(this.newTopLeft);
+			var newCellBottomRight = this.convertIntersectionToCell(this.newBottomRight);
+			newCellBottomRight = {x:newCellBottomRight.x-1, y:newCellBottomRight.y-1};
 
-		// only move selection if it is necessary
-		if (this.cellTopLeft == newCellTopLeft && this.cellBottomRight == newCellBottomRight) {}
-		else {
-			// only redraw the selected area if it is necessary
-			this.clearCanvas();
-			this.drawSelectArea(this.newTopLeft, this.newBottomRight);
+			// only move selection if it is necessary
+			if (this.cellTopLeft == newCellTopLeft && this.cellBottomRight == newCellBottomRight) {}
+			else {
+				// only redraw the selected area if it is necessary
+				this.clearCanvas();
+				this.drawSelectArea(this.newTopLeft, this.newBottomRight);
 
-			this.cellTopLeft = newCellTopLeft;
-			this.cellBottomRight = newCellBottomRight;
+				this.cellTopLeft = newCellTopLeft;
+				this.cellBottomRight = newCellBottomRight;
+			}
+
+			get(this.ele.id).children[0].style.cursor = "grab";
+			this.moveStart = null;
+
+			// step 1: undo the removal of the selection
+			// step 2: perform removal but do not record as an action
+			// step 3: place the selection at the intended move area
+			// step 4: record step 2 and 3 as a single action, which is what it is supposed to be.
+
+			actionreplay.undo();
+
+			for (let i=this.selectionTopLeft.y; i<=this.selectionBottomRight.y; i++)
+				for (let j=this.selectionTopLeft.x; j<=this.selectionBottomRight.x; j++)
+					// only erase if it was part of the original selection
+					if (this.selection[i - this.selectionTopLeft.y][j - this.selectionTopLeft.x] != null) {
+						area.grid[i][j] = null;
+					}
+
+			for (let i=this.cellTopLeft.y; i<=this.cellBottomRight.y; i++)
+				for (let j=this.cellTopLeft.x; j<=this.cellBottomRight.x; j++)
+					if (this.selection[i - this.cellTopLeft.y][j - this.cellTopLeft.x] != null)
+						area.grid[i][j] = this.selection[i - this.cellTopLeft.y][j - this.cellTopLeft.x];
+
+			area.updateGrid();
+
+			// tentatively add state on every mouseup during move tool
+			// there will need to be a check if the move tool actually changed anything
+			// otherwise spam clicking will flood the history unnecessarily
+			actionreplay.addState();
+
+			// update "prev"
+			// copy locations
+			this.topLeft = _.cloneDeep(this.newTopLeft);
+			this.bottomRight = _.cloneDeep(this.newBottomRight);
+
+			// copy cells to selectionTopLeft and selectionBottomRight so that it can access last location
+			this.selectionTopLeft = _.cloneDeep(this.cellTopLeft);
+			this.selectionBottomRight = _.cloneDeep(this.cellBottomRight);
 		}
-
-		// step 1: undo the removal of the selection
-		// step 2: perform removal but do not record as an action
-		// step 3: place the selection at the intended move area
-		// step 4: record step 2 and 3 as a single action, which is what it is supposed to be.
-
-		actionreplay.undo();
-
-		for (var i=this.selectionTopLeft.y; i<=this.selectionBottomRight.y; i++)
-			for (var j=this.selectionTopLeft.x; j<=this.selectionBottomRight.x; j++)
-				// only erase if it was part of the original selection
-				if (this.selection[i - this.selectionTopLeft.y][j - this.selectionTopLeft.x] != null)
-					area.grid[i][j] = null;
-
-		for (var i=newCellTopLeft.y; i<=newCellBottomRight.y; i++)
-			for (var j=newCellTopLeft.x; j<=newCellBottomRight.x; j++)
-				if (this.selection[i - newCellTopLeft.y][j - newCellTopLeft.x] != null)
-					area.grid[i][j] = this.selection[i - newCellTopLeft.y][j - newCellTopLeft.x];
-		
-		area.updateGrid();
-
-		// tentatively add state on every mouseup during move tool
-		// there will need to be a check if the move tool actually changed anything
-		// otherwise spam clicking will flood the history unnecessarily
-		actionreplay.addState();
 	}
 }
