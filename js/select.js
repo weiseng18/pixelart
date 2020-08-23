@@ -162,7 +162,7 @@ SelectCanvas.prototype.drawSelectArea = function(x1, x2) {
 // finds the nearest intersection on the drawing area so that the select function can appear to snap to the grid
 // takes in a point (x, y) and returns a point (x, y)
 SelectCanvas.prototype.findNearestIntersection = function(p) {
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 
 	// get the width and height of a cell on the drawing area
 	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
@@ -180,7 +180,7 @@ SelectCanvas.prototype.findNearestIntersection = function(p) {
 SelectCanvas.prototype.forceNearestIntersection = function(p1, p2) {
 	// p1 is topleft, p2 is bottomright
 
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 
 	// get the width and height of a cell on the drawing area
 	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
@@ -206,7 +206,7 @@ SelectCanvas.prototype.forceNearestIntersection = function(p1, p2) {
 }
 
 SelectCanvas.prototype.convertIntersectionToCell = function(p) {
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 
 	// get the width and height of a cell on the drawing area
 	var xMult = boundingRect.width / area.width, yMult = boundingRect.height / area.height;
@@ -217,7 +217,7 @@ SelectCanvas.prototype.convertIntersectionToCell = function(p) {
 
 // out of bounds checker
 SelectCanvas.prototype.isOutOfBounds = function(p) {
-	var boundingRect = get("display").getBoundingClientRect();
+	var boundingRect = get(area.id).getBoundingClientRect();
 	return (p.x < 0 || p.x > boundingRect.width || p.y < 0 || p.y > boundingRect.height);
 }
 
@@ -232,13 +232,13 @@ SelectCanvas.prototype.mousedown = function(e) {
 		this.selection = null;
 
 		// check for out of bounds
-		var boundingRect = get("display").getBoundingClientRect();
+		var boundingRect = get(area.id).getBoundingClientRect();
 		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 		if (this.isOutOfBounds(p)) return;
 
 		this.enabled = true;
 
-		var boundingRect = get("display").getBoundingClientRect();
+		var boundingRect = get(area.id).getBoundingClientRect();
 		var x = e.clientX - boundingRect.left, y = e.clientY - boundingRect.top;
 
 		this.topLeft = {x:x, y:y};
@@ -249,7 +249,7 @@ SelectCanvas.prototype.mousedown = function(e) {
 		get(this.ele.id).children[0].style.cursor = "move";
 
 		// set the move start point (relative to the draw area)
-		var boundingRect = get("display").getBoundingClientRect();
+		var boundingRect = get(area.id).getBoundingClientRect();
 		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 		// out of bounds check
 		if (this.isOutOfBounds(p)) return;
@@ -285,7 +285,7 @@ SelectCanvas.prototype.mousedown = function(e) {
 
 SelectCanvas.prototype.mousemove = function(e) {
 	if (area.tool == 2) {
-		var boundingRect = get("display").getBoundingClientRect();
+		var boundingRect = get(area.id).getBoundingClientRect();
 
 		// check for out of bounds
 		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
@@ -309,7 +309,7 @@ SelectCanvas.prototype.mousemove = function(e) {
 	else if (area.tool == 3) {
 		if (this.moveStart != null) {
 			// step 1: find current point
-			var boundingRect = get("display").getBoundingClientRect();
+			var boundingRect = get(area.id).getBoundingClientRect();
 			var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 			// out of bounds check
 			if (this.isOutOfBounds(p)) return;
