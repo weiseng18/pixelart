@@ -281,7 +281,6 @@ SelectCanvas.prototype.mousemove = function(e) {
 		var p = {x:e.clientX - boundingRect.left - this.borderSize/2, y:e.clientY - boundingRect.top - this.borderSize/2};
 		if (this.isOutOfBounds(p)) {
 			get(this.id).style.cursor = 'default';
-			if (this.enabled) this.mouseup(e);
 			return;
 		}
 		else {
