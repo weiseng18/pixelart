@@ -7,6 +7,7 @@ function DrawArea(height, width) {
 	this.width = width;
 	this.grid = init2D(height, width, null);
 	this.id = "display";
+	this.mainAreaID = "mainArea";
 
 	// drag paint and drag erase
 	this.drag_paint = false;
@@ -92,7 +93,7 @@ DrawArea.prototype.toggleEdit = function() {
 		// allow dragging for coloring/erasing
 		table.addEventListener("mousedown", this.mousedown.bind(this));
 		table.addEventListener("mousemove", this.mousemove.bind(this));
-		table.addEventListener("mouseup", this.mouseup.bind(this));
+		table.parentNode.addEventListener("mouseup", this.mouseup.bind(this));
 		table.addEventListener("mouseenter", this.mouseenter.bind(this));
 		table.addEventListener("mouseleave", this.mouseleave.bind(this));
 	}
@@ -108,7 +109,7 @@ DrawArea.prototype.toggleEdit = function() {
 		// allow dragging for coloring/erasing
 		table.removeEventListener("mousedown", this.mousedown.bind(this));
 		table.removeEventListener("mousemove", this.mousemove.bind(this));
-		table.removeEventListener("mouseup", this.mouseup.bind(this));
+		table.parentNode.removeEventListener("mouseup", this.mouseup.bind(this));
 		table.removeEventListener("mouseenter", this.mouseenter.bind(this));
 		table.removeEventListener("mouseleave", this.mouseleave.bind(this));
 	}
@@ -236,12 +237,14 @@ DrawArea.prototype.mouseup = function(e) {
 	}
 	// bucket tool
 	else if (this.tool == 6) {
+		if (e.target.id == this.mainAreaID) return;
 		if (e.which == 2) {
 			eyeDropper(e);
 		}
 	}
 	// line tool - only allow eyedropper when first point has not been drawn
 	else if (this.tool == 7 && this.p1 == null) {
+		if (e.target.id == this.mainAreaID) return;
 		if (e.which == 2) {
 			eyeDropper(e);
 		}
