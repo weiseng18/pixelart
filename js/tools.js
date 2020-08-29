@@ -109,7 +109,9 @@ ToolWrapper.prototype.drawTooltip = function(element, idx) {
 
 	tooltipBox.style.zIndex = "200";
 
-	var tooltip = tools.items[idx].tooltip;
+	var keyTrigger = "<strong>(" + this.keybinds[idx] + ")</strong>";
+
+	var tooltip = keyTrigger + " " + tools.items[idx].tooltip;
 	var wrapper = document.createElement("span");
 	wrapper.innerHTML = tooltip;
 
