@@ -242,6 +242,12 @@ function toggleTool(idx) {
 			return;
 		}
 
+		// change directly from select tool to move tool, but there is no selection
+		if (pIDX == 2 && idx == 3 && selectCanvas.selection == null) {
+			alert("No selection found");
+			return;
+		}
+
 		getCell("tools", pRow, pColumn).style.backgroundColor = "";
 		getCell("tools", pRow, pColumn).style.border = "solid 2px white";
 
