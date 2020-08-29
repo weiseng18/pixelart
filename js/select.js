@@ -34,6 +34,11 @@ function SelectCanvas(id) {
 	// element always has to be ready for append and remove
 	// this has to be below this.borderSize so that this.borderSize is defined and can be used in this method
 	this.ele = this.generateHTML();
+
+	// binded event listeners
+	this.mousedownBIND = this.mousedown.bind(this);
+	this.mousemoveBIND = this.mousemove.bind(this);
+	this.mouseupBIND = this.mouseup.bind(this);
 }
 
 SelectCanvas.prototype.generateHTML = function() {
@@ -73,10 +78,6 @@ SelectCanvas.prototype.generateHTML = function() {
 
 SelectCanvas.prototype.enable = function() {
 	document.body.appendChild(this.ele);
-
-	this.mousedownBIND = this.mousedown.bind(this);
-	this.mousemoveBIND = this.mousemove.bind(this);
-	this.mouseupBIND = this.mouseup.bind(this);
 
 	// add event listeners once the element is added to DOM
 	get(this.ele.id).addEventListener("mousedown", this.mousedownBIND);
