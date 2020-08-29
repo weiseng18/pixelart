@@ -260,7 +260,11 @@ function toggleTool(idx) {
 			// change directly from select tool to move tool
 			// the canvas should remain and the selection should remain so that the user can interact
 			// but the user should not be able to amend this selection, unless explicitly activating select tool to re-select
-			if (pIDX == 2 && idx == 3) {/*pass*/}
+			if (pIDX == 2 && idx == 3) {
+				// this should not just be a pass
+				// this should also be a return as the .on() at the bottom will make double event listeners
+				return;
+			}
 			else
 				tools.items[pIDX].off();
 		}
