@@ -428,6 +428,7 @@ SelectCanvas.prototype.mouseup = function(e) {
 			// step 4: record step 2 and 3 as a single action, which is what it is supposed to be.
 
 			actionreplay.undo();
+			actionreplay.timeline.pop();
 
 			for (let i=this.selectionTopLeft.y; i<=this.selectionBottomRight.y; i++)
 				for (let j=this.selectionTopLeft.x; j<=this.selectionBottomRight.x; j++)
