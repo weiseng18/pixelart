@@ -19,10 +19,15 @@ function ToolWrapper(rows, columns) {
 	// add tools here
 	this.items = [];
 	this.total = 0;
+
+	// currently, keybinds will be a single letter only
+	this.keybinds = ["Q", "W", "E", "R", "T", "Y", "A", "S", "D", "F", "G", "H"];
 }
 
-ToolWrapper.prototype.addTool = function(Tool) {
-	this.items.push(Tool);
+ToolWrapper.prototype.addTool = function(tool) {
+	tool.keyTrigger = this.keybinds[this.total];
+
+	this.items.push(tool);
 	this.total++;
 }
 
@@ -68,6 +73,22 @@ ToolWrapper.prototype.generateHTML = function() {
 	}
 
 	get(this.wrapperID).appendChild(table);
+}
+
+ToolWrapper.prototype.keyPressListener = function(e) {
+	var key = e.which || e.keyCode;
+
+	// force upper
+	if (97 <= key && key <= 122) // a-z
+		key -= 32;
+
+	if (65 <= key && key <= 90) { // A-Z
+		var char = String.fromCharCode(key);
+		var idx = this.keybinds.indexOf(char);
+
+		if (idx == -1) return;
+		else toggleTool(idx);
+	}
 }
 
 ToolWrapper.prototype.drawTooltip = function(element, idx) {
