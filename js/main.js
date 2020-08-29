@@ -208,8 +208,6 @@ window.onload = function() {
 
 	tools.updateTools.call(tools);
 
-	document.addEventListener("keypress", tools.keyPressListener.bind(tools));
-
 };
 
 // due to a change in the size of the grid,

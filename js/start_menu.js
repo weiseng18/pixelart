@@ -174,4 +174,7 @@ StartMenu.prototype.closeMenu = function(which) {
 		frameWrapper.loadFrame(0, "closeMenu");
 	}
 	document.body.removeChild(this.ele);	
+
+	// add keypress listener
+	document.addEventListener("keypress", tools.keyPressListener.bind(tools));
 }
