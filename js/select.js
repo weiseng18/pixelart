@@ -269,7 +269,9 @@ SelectCanvas.prototype.mousedown = function(e) {
 				if (this.selection[y - this.cellTopLeft.y][x - this.cellTopLeft.x] != null)
 					area.grid[y][x] = null;
 
-		actionreplay.addState();
+		// set force as true
+		// this is to make sure that a state is added even if the selection is empty
+		actionreplay.addState(true);
 	}
 }
 
