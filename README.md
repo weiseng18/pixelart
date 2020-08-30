@@ -24,6 +24,7 @@ where `scope` will be one of the following items:
   * improvements in code efficiency
   * addition/revision of comments
   * changes in variable names
+* `external` for commits that only add/link external libraries
 * `README` for updating this `README.md` file
 * if necessary, or to condense very minor changes, `scope1 + scope2` can be used
   * e.g. `tool add + code` for creating a new tool but reordering the current tools instead of appending this new tool at the back
