@@ -1,3 +1,120 @@
+function GIFMenu(id) {
+	this.id = id;
+
+	this.items = this.generateItems();
+	this.ele = this.generateHTML(id);
+}
+
+function GIFOption(option, type, min, max) {
+	this.ele = document.createElement("div");
+	this.ele.className = "gifmenu_option";
+
+	this.optionContainer = document.createElement("div");
+	this.optionContainer.className = "gifmenu_optionContainer";
+
+	this.optionContainer.innerHTML = option;
+	this.ele.appendChild(this.optionContainer);
+
+	this.inputContainer = document.createElement("div");
+	this.inputContainer.className = "gifmenu_inputContainer";
+
+	if (type == "number") {
+		this.inputSlider = document.createElement("input");
+		this.inputSlider.className = "gifmenu_slider";
+
+		this.inputSlider.type = "range";
+		this.inputSlider.min = min;
+		this.inputSlider.max = max;
+		this.inputSlider.value = min;
+
+		this.inputSlider.addEventListener("change", function(e) {
+			e.target.parentNode.children[1].value = e.target.value;
+		});
+
+		this.input = document.createElement("input");
+		this.input.className = "gifmenu_value";
+
+		this.input.type = "number";
+		this.input.min = min;
+		this.input.max = max;
+		this.input.value = min;
+
+		this.input.addEventListener("change", function(e) {
+			e.target.parentNode.children[0].value = e.target.value;
+		});
+
+		this.inputContainer.appendChild(this.inputSlider);
+		this.inputContainer.appendChild(this.input);
+	}
+
+	this.ele.appendChild(this.inputContainer);
+}
+
+GIFMenu.prototype.generateItems = function() {
+	var items = [];
+
+	items[0] = new GIFOption("Scale", "number", 1, 10);
+	items[1] = new GIFOption("Delay", "number", 100, 1000);
+
+	return items;
+}
+
+GIFMenu.prototype.generateHTML = function(id) {
+	var wrapper = document.createElement("div");
+	wrapper.id = id + "_wrapper";
+
+	wrapper.style.zIndex = "300";
+	// position needs to be not static for z-index to have any effect
+	wrapper.style.position = "absolute";
+
+	wrapper.style.height = "100vh";
+	wrapper.style.width = "100%";
+	wrapper.style.backgroundColor = "rgba(0,0,0,0.7)";
+
+	var menu = document.createElement("div");
+
+	menu.id = id;
+
+	menu.style.position = "absolute";
+	menu.style.top = "15%";
+	menu.style.left = "25%";
+
+	menu.style.backgroundColor = "#555";
+	menu.style.width = "50%";
+	menu.style.height = "70%";
+
+	menu.style.display = "flex";
+	menu.style.flexDirection = "column";
+	menu.style.alignItems = "center";
+	menu.style.justifyContent = "space-evenly";
+
+	for (var i=0; i<this.items.length; i++) {
+		this.items[i].ele.id = "gifoption" + i;
+		menu.appendChild(this.items[i].ele);
+	}
+
+	var submit = document.createElement("button");
+	submit.innerHTML = "Generate GIF";
+	submit.addEventListener("click", function(e) {
+		var scale = parseInt(get("gifoption0").children[1].children[0].value);
+		var delay = parseInt(get("gifoption1").children[1].children[0].value);
+		createGIF();
+	});
+	menu.appendChild(submit);
+
+	wrapper.appendChild(menu);
+
+	return wrapper;
+}
+
+GIFMenu.prototype.showMenu = function() {
+	document.body.appendChild(this.ele);
+}
+
+GIFMenu.prototype.removeMenu = function() {
+	document.body.appendChild(this.ele);
+}
+
 function createGIF(scale=1, delay=200) {
 
 	var encoder = new GIFEncoder();
