@@ -99,7 +99,9 @@ GIFMenu.prototype.generateHTML = function(id) {
 		var scale = parseInt(get("gifoption0").children[1].children[0].value);
 		var delay = parseInt(get("gifoption1").children[1].children[0].value);
 		createGIF();
-	});
+
+		this.closeMenu();
+	}.bind(this));
 	menu.appendChild(submit);
 
 	wrapper.appendChild(menu);
@@ -111,8 +113,8 @@ GIFMenu.prototype.showMenu = function() {
 	document.body.appendChild(this.ele);
 }
 
-GIFMenu.prototype.removeMenu = function() {
-	document.body.appendChild(this.ele);
+GIFMenu.prototype.closeMenu = function() {
+	document.body.removeChild(this.ele);
 }
 
 function createGIF(scale=1, delay=200) {
