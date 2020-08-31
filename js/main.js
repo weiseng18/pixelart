@@ -4,6 +4,8 @@
 
 var startmenu;
 
+var gifmenu;
+
 var area, box;
 
 var colorPicker;
@@ -33,6 +35,7 @@ var frameWrapper;
 //
 // z-index 300:
 // - start menu opacity cover (#startmenu_wrapper)
+// - gif menu opacity cover (#gifmenu_wrapper)
 // - dropdown menus from top menu
 
 window.onload = function() {
@@ -92,9 +95,6 @@ window.onload = function() {
 	// ------
 	// menu bar
 	// ------
-	get("savePNG").addEventListener("click", function(e) {
-		savePNG();
-	});
 	get("downloadRaw").addEventListener("click", function(e) {
 		saveRaw("download");
 	});
@@ -116,6 +116,13 @@ window.onload = function() {
 	});
 	get("frame_delete").addEventListener("click", function(e) {
 		frameWrapper.deleteFrame();
+	});
+
+	get("savePNG").addEventListener("click", function(e) {
+		savePNG();
+	});
+	get("saveGIF").addEventListener("click", function(e) {
+		gifmenu.showMenu();
 	});
 
 	// ------
@@ -207,6 +214,11 @@ window.onload = function() {
 	tools.addTool(rotate_counterclockwise);	// rotateCounterClockwise()
 
 	tools.updateTools.call(tools);
+
+	// ------
+	// gif menu
+	// ------
+	gifmenu = new GIFMenu("gifmenu");
 
 };
 
