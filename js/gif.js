@@ -93,6 +93,12 @@ GIFMenu.prototype.generateHTML = function(id) {
 		menu.appendChild(this.items[i].ele);
 	}
 
+	var footer = document.createElement("div");
+	footer.style.width = "50%";
+	footer.style.display = "flex";
+	footer.style.justifyContent = "space-evenly";
+	footer.style.alignItems = "center";
+
 	var submit = document.createElement("button");
 	submit.innerHTML = "Generate GIF";
 	submit.addEventListener("click", function(e) {
@@ -102,7 +108,17 @@ GIFMenu.prototype.generateHTML = function(id) {
 
 		this.closeMenu();
 	}.bind(this));
-	menu.appendChild(submit);
+
+	var cancel = document.createElement("button");
+	cancel.innerHTML = "Cancel";
+	cancel.addEventListener("click", function(e) {
+		this.closeMenu();
+	}.bind(this));
+
+	footer.appendChild(submit);
+	footer.appendChild(cancel);
+
+	menu.appendChild(footer);
 
 	wrapper.appendChild(menu);
 
