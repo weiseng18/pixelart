@@ -203,6 +203,8 @@ gif menu
 slider css taken from https://www.w3schools.com/howto/howto_js_rangeslider.asp
 ---------*/
 
+/* used in javascript */
+
 .gifmenu_option {
 	display: flex;
 	flex-direction: column;
@@ -228,6 +230,8 @@ slider css taken from https://www.w3schools.com/howto/howto_js_rangeslider.asp
 .gifmenu_value {
 	width: 20%;
 }
+
+/* not used in javascript */
 
 .gifmenu_slider {
 	-webkit-appearance: none;
