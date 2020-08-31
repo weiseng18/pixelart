@@ -54,7 +54,7 @@ GIFMenu.prototype.generateItems = function() {
 	var items = [];
 
 	items[0] = new GIFOption("Scale", "number", 1, 10);
-	items[1] = new GIFOption("Delay", "number", 100, 1000);
+	items[1] = new GIFOption("Delay between frames (ms)", "number", 100, 1000);
 
 	return items;
 }
