@@ -187,6 +187,11 @@ ColorPicker.prototype.selectColor = function() {
 	get("color").style.backgroundColor = colorPicked;
 }
 
+// turns of keypress event listener for keytriggers, so that typing in RGB/Hex is allowed
+ColorPicker.prototype.enableTyping = function() {
+	tools.toggleKeyPressListener();
+}
+
 // creates the area (and structure) to display raw value of the color
 ColorPicker.prototype.createDisplayArea = function() {
 	if (this.colorType == "RGB") {
@@ -213,6 +218,9 @@ ColorPicker.prototype.createDisplayArea = function() {
 			ele_input[i].addEventListener("keypress", this.validateRGBKeypress);
 			ele_input[i].addEventListener("input", this.selectColor.bind(this));
 			ele_input[i].addEventListener("paste", this.handlePaste.bind(this));
+
+			ele_input[i].addEventListener("focus", this.enableTyping);
+			ele_input[i].addEventListener("blur", this.enableTyping);
 		}
 
 		for (var i=0; i<3; i++) {
@@ -232,6 +240,9 @@ ColorPicker.prototype.createDisplayArea = function() {
 		value.addEventListener("keypress", this.validateHexKeypress);
 		value.addEventListener("input", this.selectColor.bind(this));
 		value.addEventListener("paste", this.handlePaste.bind(this));
+
+		value.addEventListener("focus", this.enableTyping);
+		value.addEventListener("blur", this.enableTyping);
 
 		get("color_text").appendChild(hashsymbol);
 		get("color_text").appendChild(value);
