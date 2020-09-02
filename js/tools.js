@@ -22,6 +22,10 @@ function ToolWrapper(rows, columns) {
 
 	// currently, keybinds will be a single letter only
 	this.keybinds = ["Q", "W", "E", "R", "T", "Y", "A", "S", "D", "F", "G", "H"];
+	this.enabledKeyPress = false;
+
+	// binded key press listener
+	this.bindedKeyPressListener = this.keyPressListener.bind(this);
 }
 
 ToolWrapper.prototype.addTool = function(tool) {
@@ -73,6 +77,17 @@ ToolWrapper.prototype.generateHTML = function() {
 	}
 
 	get(this.wrapperID).appendChild(table);
+}
+
+ToolWrapper.prototype.toggleKeyPressListener = function() {
+	if (this.enabledKeyPress) {
+		document.removeEventListener("keypress", this.bindedKeyPressListener);
+		this.enabledKeyPress = false;
+	}
+	else {
+		document.addEventListener("keypress", this.bindedKeyPressListener);
+		this.enabledKeyPress = true;
+	}
 }
 
 ToolWrapper.prototype.keyPressListener = function(e) {

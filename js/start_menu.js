@@ -176,5 +176,5 @@ StartMenu.prototype.closeMenu = function(which) {
 	document.body.removeChild(this.ele);	
 
 	// add keypress listener
-	document.addEventListener("keypress", tools.keyPressListener.bind(tools));
+	tools.toggleKeyPressListener();
 }
