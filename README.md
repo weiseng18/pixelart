@@ -25,6 +25,9 @@ where `scope` will be one of the following items:
   * addition/revision of comments
   * changes in variable names
 * `external` for commits that only add/link external libraries
+* `css` for commits changing .css files
+  * renaming of class names
+  * creating classes to set CSS attributes of javascript-created elements
 * `README` for updating this `README.md` file
 * if necessary, or to condense very minor changes, `scope1 + scope2` can be used
   * e.g. `tool add + code` for creating a new tool but reordering the current tools instead of appending this new tool at the back
