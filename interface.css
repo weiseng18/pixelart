@@ -203,7 +203,11 @@ gif menu
 slider css taken from https://www.w3schools.com/howto/howto_js_rangeslider.asp
 ---------*/
 
-/* used in javascript */
+/*
+used in javascript
+naming convention is "gifmenu" + "_" + thing
+"gifmenu" is the id of GIFMenu object
+*/
 
 .gifmenu_option {
 	display: flex;

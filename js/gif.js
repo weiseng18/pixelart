@@ -1,26 +1,26 @@
 function GIFMenu(id) {
 	this.id = id;
 
-	this.items = this.generateItems();
+	this.items = this.generateItems(this.id);
 	this.ele = this.generateHTML(id);
 }
 
-function GIFOption(option, type, min, max) {
+function GIFOption(subID, option, type, min, max) {
 	this.ele = document.createElement("div");
 	this.ele.className = "gifmenu_option";
 
 	this.optionContainer = document.createElement("div");
-	this.optionContainer.className = "gifmenu_optionContainer";
+	this.optionContainer.className = subID + "_optionContainer";
 
 	this.optionContainer.innerHTML = option;
 	this.ele.appendChild(this.optionContainer);
 
 	this.inputContainer = document.createElement("div");
-	this.inputContainer.className = "gifmenu_inputContainer";
+	this.inputContainer.className = subID + "_inputContainer";
 
 	if (type == "number") {
 		this.inputSlider = document.createElement("input");
-		this.inputSlider.className = "gifmenu_slider";
+		this.inputSlider.className = subID + "_slider";
 
 		this.inputSlider.type = "range";
 		this.inputSlider.min = min;
@@ -32,7 +32,7 @@ function GIFOption(option, type, min, max) {
 		});
 
 		this.input = document.createElement("input");
-		this.input.className = "gifmenu_value";
+		this.input.className = subID + "_value";
 
 		this.input.type = "number";
 		this.input.min = min;
@@ -50,11 +50,11 @@ function GIFOption(option, type, min, max) {
 	this.ele.appendChild(this.inputContainer);
 }
 
-GIFMenu.prototype.generateItems = function() {
+GIFMenu.prototype.generateItems = function(subID) {
 	var items = [];
 
-	items[0] = new GIFOption("Scale", "number", 1, 10);
-	items[1] = new GIFOption("Delay between frames (ms)", "number", 100, 1000);
+	items[0] = new GIFOption(subID, "Scale", "number", 1, 10);
+	items[1] = new GIFOption(subID, "Delay between frames (ms)", "number", 100, 1000);
 
 	return items;
 }
