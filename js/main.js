@@ -4,7 +4,7 @@
 
 var startmenu;
 
-var gifmenu;
+var pngmenu, gifmenu;
 
 var area, box;
 
@@ -119,7 +119,7 @@ window.onload = function() {
 	});
 
 	get("savePNG").addEventListener("click", function(e) {
-		savePNG();
+		pngmenu.showMenu();
 	});
 	get("saveGIF").addEventListener("click", function(e) {
 		gifmenu.showMenu();
@@ -216,10 +216,10 @@ window.onload = function() {
 	tools.updateTools.call(tools);
 
 	// ------
-	// gif menu
+	// export menu
 	// ------
 	gifmenu = new ExportMenu("gif");
-
+	pngmenu = new ExportMenu("png");
 };
 
 // due to a change in the size of the grid,

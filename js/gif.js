@@ -55,8 +55,13 @@ function ExportOption(id, option, type, min, max) {
 ExportMenu.prototype.generateItems = function(id) {
 	var items = [];
 
-	items[0] = new ExportOption(id, "Scale", "number", 1, 10);
-	items[1] = new ExportOption(id, "Delay between frames (ms)", "number", 100, 1000);
+	if (id == "gifmenu") {
+		items[0] = new ExportOption(id, "Scale", "number", 1, 10);
+		items[1] = new ExportOption(id, "Delay between frames (ms)", "number", 100, 1000);
+	}
+	else if (id == "pngmenu") {
+		items[0] = new ExportOption(id, "Scale", "number", 1, 10);
+	}
 
 	return items;
 }
@@ -80,13 +85,24 @@ ExportMenu.prototype.generateHTML = function(id, pre) {
 
 	var submit = document.createElement("button");
 	submit.innerHTML = "Generate " + pre.toUpperCase();
-	submit.addEventListener("click", function(e) {
-		var scale = parseInt(get(id + "_option0").children[1].children[0].value);
-		var delay = parseInt(get(id + "_option1").children[1].children[0].value);
-		createGIF(scale, delay);
 
-		this.closeMenu();
-	}.bind(this));
+	if (pre == "gif") {
+		submit.addEventListener("click", function(e) {
+			var scale = parseInt(get(id + "_option0").children[1].children[0].value);
+			var delay = parseInt(get(id + "_option1").children[1].children[0].value);
+			createGIF(scale, delay);
+
+			this.closeMenu();
+		}.bind(this));
+	}
+	else if (pre == "png") {
+		submit.addEventListener("click", function(e) {
+			var scale = parseInt(get(id + "_option0").children[1].children[0].value);
+			savePNG(scale);
+
+			this.closeMenu();
+		}.bind(this));
+	}
 
 	var cancel = document.createElement("button");
 	cancel.innerHTML = "Cancel";
