@@ -11,7 +11,7 @@ function initiateDownload(href, filename) {
 	download.click();
 }
 
-function savePNG() {
+function savePNG(scale=1) {
 	var canvas = document.createElement("canvas");
 	canvas.height = area.height;
 	canvas.width = area.width;
@@ -22,7 +22,7 @@ function savePNG() {
 
 			if (value != null) {
 				ctx.fillStyle = value;
-				ctx.fillRect(j, i, 1, 1);
+				ctx.fillRect(j*scale, i*scale, scale, scale);
 			}
 		}
 	}
