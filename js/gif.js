@@ -3,7 +3,7 @@ function ExportMenu(id) {
 	this.which = id;
 
 	this.items = this.generateItems(this.id);
-	this.ele = this.generateHTML(this.id);
+	this.ele = this.generateHTML(this.id, id);
 }
 
 function ExportOption(subID, option, type, min, max) {
@@ -60,7 +60,7 @@ ExportMenu.prototype.generateItems = function(subID) {
 	return items;
 }
 
-ExportMenu.prototype.generateHTML = function(id) {
+ExportMenu.prototype.generateHTML = function(id, pre) {
 	var wrapper = document.createElement("div");
 	wrapper.id = id + "_wrapper";
 	wrapper.className = "exportmenu_wrapper";
@@ -78,7 +78,7 @@ ExportMenu.prototype.generateHTML = function(id) {
 	footer.className = "exportmenu_footer";
 
 	var submit = document.createElement("button");
-	submit.innerHTML = "Generate GIF";
+	submit.innerHTML = "Generate " + pre.toUpperCase();
 	submit.addEventListener("click", function(e) {
 		var scale = parseInt(get(id + "_option0").children[1].children[0].value);
 		var delay = parseInt(get(id + "_option1").children[1].children[0].value);
