@@ -1,13 +1,14 @@
-function GIFMenu(id) {
-	this.id = id;
+function ExportMenu(id) {
+	this.id = id + "menu";
+	this.which = id;
 
 	this.items = this.generateItems(this.id);
-	this.ele = this.generateHTML(id);
+	this.ele = this.generateHTML(this.id);
 }
 
-function GIFOption(subID, option, type, min, max) {
+function ExportOption(subID, option, type, min, max) {
 	this.ele = document.createElement("div");
-	this.ele.className = "gifmenu_option";
+	this.ele.className = subID + "_option";
 
 	this.optionContainer = document.createElement("div");
 	this.optionContainer.className = subID + "_optionContainer";
@@ -50,16 +51,16 @@ function GIFOption(subID, option, type, min, max) {
 	this.ele.appendChild(this.inputContainer);
 }
 
-GIFMenu.prototype.generateItems = function(subID) {
+ExportMenu.prototype.generateItems = function(subID) {
 	var items = [];
 
-	items[0] = new GIFOption(subID, "Scale", "number", 1, 10);
-	items[1] = new GIFOption(subID, "Delay between frames (ms)", "number", 100, 1000);
+	items[0] = new ExportOption(subID, "Scale", "number", 1, 10);
+	items[1] = new ExportOption(subID, "Delay between frames (ms)", "number", 100, 1000);
 
 	return items;
 }
 
-GIFMenu.prototype.generateHTML = function(id) {
+ExportMenu.prototype.generateHTML = function(id) {
 	var wrapper = document.createElement("div");
 	wrapper.id = id + "_wrapper";
 
@@ -125,11 +126,11 @@ GIFMenu.prototype.generateHTML = function(id) {
 	return wrapper;
 }
 
-GIFMenu.prototype.showMenu = function() {
+ExportMenu.prototype.showMenu = function() {
 	document.body.appendChild(this.ele);
 }
 
-GIFMenu.prototype.closeMenu = function() {
+ExportMenu.prototype.closeMenu = function() {
 	document.body.removeChild(this.ele);
 }
 

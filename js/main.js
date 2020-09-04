@@ -218,7 +218,7 @@ window.onload = function() {
 	// ------
 	// gif menu
 	// ------
-	gifmenu = new GIFMenu("gifmenu");
+	gifmenu = new ExportMenu("gif");
 
 };
 
