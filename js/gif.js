@@ -89,7 +89,7 @@ GIFMenu.prototype.generateHTML = function(id) {
 	menu.style.justifyContent = "space-evenly";
 
 	for (var i=0; i<this.items.length; i++) {
-		this.items[i].ele.id = "gifoption" + i;
+		this.items[i].ele.id = id + "_option" + i;
 		menu.appendChild(this.items[i].ele);
 	}
 
@@ -102,8 +102,8 @@ GIFMenu.prototype.generateHTML = function(id) {
 	var submit = document.createElement("button");
 	submit.innerHTML = "Generate GIF";
 	submit.addEventListener("click", function(e) {
-		var scale = parseInt(get("gifoption0").children[1].children[0].value);
-		var delay = parseInt(get("gifoption1").children[1].children[0].value);
+		var scale = parseInt(get(id + "_option0").children[1].children[0].value);
+		var delay = parseInt(get(id + "_option1").children[1].children[0].value);
 		createGIF();
 
 		this.closeMenu();
@@ -134,7 +134,6 @@ GIFMenu.prototype.closeMenu = function() {
 }
 
 function createGIF(scale=1, delay=200) {
-
 	var encoder = new GIFEncoder();
 
 	encoder.setRepeat(0);		// infinite repeat
