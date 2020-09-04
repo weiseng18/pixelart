@@ -63,31 +63,11 @@ ExportMenu.prototype.generateItems = function(subID) {
 ExportMenu.prototype.generateHTML = function(id) {
 	var wrapper = document.createElement("div");
 	wrapper.id = id + "_wrapper";
-
-	wrapper.style.zIndex = "300";
-	// position needs to be not static for z-index to have any effect
-	wrapper.style.position = "absolute";
-
-	wrapper.style.height = "100vh";
-	wrapper.style.width = "100%";
-	wrapper.style.backgroundColor = "rgba(0,0,0,0.7)";
+	wrapper.className = "exportmenu_wrapper";
 
 	var menu = document.createElement("div");
-
 	menu.id = id;
-
-	menu.style.position = "absolute";
-	menu.style.top = "15%";
-	menu.style.left = "25%";
-
-	menu.style.backgroundColor = "#555";
-	menu.style.width = "50%";
-	menu.style.height = "70%";
-
-	menu.style.display = "flex";
-	menu.style.flexDirection = "column";
-	menu.style.alignItems = "center";
-	menu.style.justifyContent = "space-evenly";
+	menu.className = "exportmenu";
 
 	for (var i=0; i<this.items.length; i++) {
 		this.items[i].ele.id = id + "_option" + i;
@@ -95,10 +75,7 @@ ExportMenu.prototype.generateHTML = function(id) {
 	}
 
 	var footer = document.createElement("div");
-	footer.style.width = "50%";
-	footer.style.display = "flex";
-	footer.style.justifyContent = "space-evenly";
-	footer.style.alignItems = "center";
+	footer.className = "exportmenu_footer";
 
 	var submit = document.createElement("button");
 	submit.innerHTML = "Generate GIF";
