@@ -1,5 +1,6 @@
 /*---------
 export menu
+slider css taken from https://www.w3schools.com/howto/howto_js_rangeslider.asp
 ---------*/
 
 .exportmenu {
@@ -32,18 +33,7 @@ export menu
 	align-items: center;
 }
 
-/*---------
-gif menu
-slider css taken from https://www.w3schools.com/howto/howto_js_rangeslider.asp
----------*/
-
-/*
-used in javascript
-naming convention is "gifmenu" + "_" + thing
-"gifmenu" is the id of GIFMenu object
-*/
-
-.gifmenu_option {
+.exportmenu_option {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
@@ -54,25 +44,25 @@ naming convention is "gifmenu" + "_" + thing
 	color: white;
 }
 
-.gifmenu_optionContainer {
+.exportmenu_optionContainer {
 	padding: 0px 10px;
 	color: white;
 }
 
-.gifmenu_inputContainer {
+.exportmenu_inputContainer {
 	display: flex;
 	justify-content: space-between;
 	padding: 0px 10px;
 	align-items: center;
 }
 
-.gifmenu_value {
+.exportmenu_value {
 	width: 20%;
 }
 
 /* not used in javascript */
 
-.gifmenu_slider {
+.exportmenu_slider {
 	-webkit-appearance: none;
 	width: 50%;
 	height: 15px;
@@ -84,11 +74,11 @@ naming convention is "gifmenu" + "_" + thing
 	transition: opacity .2s;
 }
 
-.gifmenu_slider:hover {
+.exportmenu_slider:hover {
 	opacity: 1;
 }
 
-.gifmenu_slider::-webkit-slider-thumb {
+.exportmenu_slider::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
 	width: 25px;
@@ -98,7 +88,7 @@ naming convention is "gifmenu" + "_" + thing
 	cursor: pointer;
 }
 
-.gifmenu_slider::-moz-range-thumb {
+.exportmenu_slider::-moz-range-thumb {
 	width: 25px;
 	height: 25px;
 	border-radius: 50%;

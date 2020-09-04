@@ -1,27 +1,27 @@
-function ExportMenu(id) {
-	this.id = id + "menu";
-	this.which = id;
+function ExportMenu(pre) {
+	// pre is like gif
+	// id is like gifmenu
+	this.id = pre + "menu";
+	this.which = pre;
 
 	this.items = this.generateItems(this.id);
-	this.ele = this.generateHTML(this.id, id);
+	this.ele = this.generateHTML(this.id, pre);
 }
 
-function ExportOption(subID, option, type, min, max) {
+function ExportOption(id, option, type, min, max) {
 	this.ele = document.createElement("div");
-	this.ele.className = subID + "_option";
+	this.ele.className = "exportmenu_option";
 
 	this.optionContainer = document.createElement("div");
-	this.optionContainer.className = subID + "_optionContainer";
-
+	this.optionContainer.className = "exportmenu_optionContainer";
 	this.optionContainer.innerHTML = option;
-	this.ele.appendChild(this.optionContainer);
 
 	this.inputContainer = document.createElement("div");
-	this.inputContainer.className = subID + "_inputContainer";
+	this.inputContainer.className = "exportmenu_inputContainer";
 
 	if (type == "number") {
 		this.inputSlider = document.createElement("input");
-		this.inputSlider.className = subID + "_slider";
+		this.inputSlider.className = "exportmenu_slider";
 
 		this.inputSlider.type = "range";
 		this.inputSlider.min = min;
@@ -33,7 +33,7 @@ function ExportOption(subID, option, type, min, max) {
 		});
 
 		this.input = document.createElement("input");
-		this.input.className = subID + "_value";
+		this.input.className = "exportmenu_value";
 
 		this.input.type = "number";
 		this.input.min = min;
@@ -48,14 +48,15 @@ function ExportOption(subID, option, type, min, max) {
 		this.inputContainer.appendChild(this.input);
 	}
 
+	this.ele.appendChild(this.optionContainer);
 	this.ele.appendChild(this.inputContainer);
 }
 
-ExportMenu.prototype.generateItems = function(subID) {
+ExportMenu.prototype.generateItems = function(id) {
 	var items = [];
 
-	items[0] = new ExportOption(subID, "Scale", "number", 1, 10);
-	items[1] = new ExportOption(subID, "Delay between frames (ms)", "number", 100, 1000);
+	items[0] = new ExportOption(id, "Scale", "number", 1, 10);
+	items[1] = new ExportOption(id, "Delay between frames (ms)", "number", 100, 1000);
 
 	return items;
 }
