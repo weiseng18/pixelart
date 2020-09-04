@@ -13,8 +13,8 @@ function initiateDownload(href, filename) {
 
 function savePNG(scale=1) {
 	var canvas = document.createElement("canvas");
-	canvas.height = area.height;
-	canvas.width = area.width;
+	canvas.height = area.height * scale;
+	canvas.width = area.width * scale;
 	var ctx = canvas.getContext("2d");
 	for (var i=0; i<area.height; i++) {
 		for (var j=0; j<area.width; j++) {
