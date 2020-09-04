@@ -104,7 +104,7 @@ GIFMenu.prototype.generateHTML = function(id) {
 	submit.addEventListener("click", function(e) {
 		var scale = parseInt(get(id + "_option0").children[1].children[0].value);
 		var delay = parseInt(get(id + "_option1").children[1].children[0].value);
-		createGIF();
+		createGIF(scale, delay);
 
 		this.closeMenu();
 	}.bind(this));
