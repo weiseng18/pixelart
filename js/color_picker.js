@@ -304,7 +304,7 @@ ColorPicker.prototype.validateRGBKeypress = function(e) {
 
 ColorPicker.prototype.validateHexKeypress = function(e) {
 	// check if selected
-	var ele = get("color_text").children[1];
+	var ele = e.target;
 	var selectionStart = ele.selectionStart;
 	var selectionEnd = ele.selectionEnd;
 
