@@ -301,20 +301,41 @@ ColorPicker.prototype.validateRGBKeypress = function(e) {
 }
 
 ColorPicker.prototype.validateHexKeypress = function(e) {
+	// check if selected
+	var ele = get("color_text").children[1];
+	var selectionStart = ele.selectionStart;
+	var selectionEnd = ele.selectionEnd;
+
+	var selected = false;
+	if (typeof selectionStart == "number" && typeof selectionEnd == "number")
+		if (selectionEnd > selectionStart) {
+			selected = true;
+		}
+
 	var key = e.which || e.keyCode;
 	if (key == 8) // backspace
 		return true;
 	else {
-		if (e.target.value.length == 6) // check for length
-			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		if (e.target.value.length == 6) { // check for length
+			// check if selected
+			if (selected)
+				return true;
+			else
+				e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		}
 		else if (48 <= key && key <= 57) // digit
 			return true;
 		else if (65 <= key && key <= 70) // [A-F]
 			return true;
 		else if (97 <= key && key <= 102) // [a-f]
 			return true;
-		else
-			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		else {
+			// check if selected
+			if (selected)
+				return true;
+			else
+				e.preventDefault ? e.preventDefault() : e.returnValue = false;
+		}
 	}
 }
 
