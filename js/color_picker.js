@@ -294,10 +294,12 @@ ColorPicker.prototype.validateRGBKeypress = function(e) {
 	var key = e.which || e.keyCode;
 	if (key == 8) // backspace
 		return true;
-	else if (key < 48 || key > 57) // not a digit
-		e.preventDefault ? e.preventDefault() : e.returnValue = false;
-	else
-		return true;
+	else {
+		if (48 <= key && key <= 57) // is a digit
+			return true;
+		else
+			e.preventDefault ? e.preventDefault() : e.returnValue = false;
+	}
 }
 
 ColorPicker.prototype.validateHexKeypress = function(e) {
